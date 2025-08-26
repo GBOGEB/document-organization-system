@@ -2,7 +2,7 @@ from pathlib import Path
 
 def check_organization_status():
     """Simple organization status checker."""
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     
     print("="*60)
     print("DOCUMENT ORGANIZATION SYSTEM - STATUS CHECK")
