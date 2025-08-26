@@ -20,7 +20,7 @@ except ImportError:
 
 def setup_safe_logging():
     """Setup logging that works safely on Windows."""
-    log_dir = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents\logs')
+    log_dir = Path('./logs')
     log_dir.mkdir(exist_ok=True)
     
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -71,7 +71,7 @@ def setup_safe_logging():
 
 def quick_reorganization_summary():
     """Quick summary without Unicode issues."""
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     
     safe_print("="*60)
     safe_print("DOCUMENT ORGANIZATION SYSTEM - STATUS CHECK")
@@ -130,7 +130,7 @@ def quick_reorganization_summary():
 
 def create_safe_structure():
     """Create folder structure safely."""
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     logger = logging.getLogger(__name__)
     
     structure = {
@@ -187,7 +187,7 @@ def show_system_health():
     safe_print("SYSTEM HEALTH DASHBOARD")
     safe_print("="*60)
     
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     
     # Check main components
     components = {

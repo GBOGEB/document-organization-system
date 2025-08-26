@@ -8,7 +8,7 @@ import datetime
 
 def safe_handle_logs():
     """Safely handle the logs folder without trying to move it."""
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     source_path = base_path / 'logs'
     target_dir = base_path / 'Automation' / 'Logs'
     

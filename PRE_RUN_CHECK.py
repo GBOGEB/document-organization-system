@@ -74,7 +74,7 @@ def check_dependencies():
 
 def check_files():
     """Check if required script files exist."""
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     
     required_files = [
         'organize_safe.py',
@@ -106,7 +106,7 @@ def check_files():
 
 def check_structure():
     """Check if main folder structure exists."""
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     
     main_folders = [
         'Development',
@@ -136,7 +136,7 @@ def check_structure():
 
 def check_permissions():
     """Test write permissions in key locations."""
-    base_path = Path(r'C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents')
+    base_path = Path('.')
     
     # Test writing to important locations
     test_locations = [
