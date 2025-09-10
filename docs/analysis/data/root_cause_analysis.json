@@ -1,0 +1,57 @@
+{
+  "performance_bottlenecks": [
+    {
+      "cause": "ZIP file processing complexity",
+      "description": "ZIP files containing Python code require recursive analysis, leading to 3x longer processing times",
+      "impact": "High",
+      "affected_component": "Artifact Processing Pipeline",
+      "evidence": "Average ZIP processing time: 15.2s vs overall average: 6.8s"
+    },
+    {
+      "cause": "Synchronous file I/O operations",
+      "description": "Multiple sequential file operations without async processing",
+      "impact": "Medium",
+      "affected_component": "File Processing Module",
+      "evidence": "Files with >10 I/O operations: 4 out of 13 analyzed files"
+    },
+    {
+      "cause": "Subprocess overhead",
+      "description": "Multiple subprocess calls for Git operations and external tools",
+      "impact": "High",
+      "affected_component": "Git Integration",
+      "evidence": "Files with >3 subprocess calls: 2 out of 13 analyzed files"
+    }
+  ],
+  "quality_issues": [
+    {
+      "cause": "Inconsistent error handling",
+      "description": "Varying error handling patterns across modules",
+      "impact": "Medium",
+      "affected_component": "Error Management",
+      "evidence": "Try-except coverage varies from 0 to 8 per file"
+    },
+    {
+      "cause": "Binary format processing limitations",
+      "description": "Higher error rates for VISIO and PowerPoint files",
+      "impact": "Medium",
+      "affected_component": "Binary File Processors",
+      "evidence": "VISIO error rate: 12.0%, PowerPoint error rate: 12.0%"
+    }
+  ],
+  "process_gaps": [
+    {
+      "cause": "Limited caching strategy",
+      "description": "Cache hit rates vary significantly by artifact type",
+      "impact": "Medium",
+      "affected_component": "Caching Layer",
+      "evidence": "Cache hit rate range: 30% (ZIP) - 80% (Markdown)"
+    },
+    {
+      "cause": "Missing parallel processing",
+      "description": "Sequential processing of independent artifacts",
+      "impact": "High",
+      "affected_component": "Processing Pipeline",
+      "evidence": "No evidence of concurrent processing in codebase"
+    }
+  ]
+}

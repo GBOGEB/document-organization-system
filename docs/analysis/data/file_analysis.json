@@ -1,0 +1,65 @@
+{
+  "README.md": {
+    "lines": 55,
+    "size_bytes": 1872,
+    "functions": 0,
+    "classes": 0,
+    "imports": 0,
+    "comments": 7,
+    "empty_lines": 16
+  },
+  "WORKFLOW_DIAGRAM.md": {
+    "lines": 50,
+    "size_bytes": 2999,
+    "functions": 0,
+    "classes": 0,
+    "imports": 0,
+    "comments": 2,
+    "empty_lines": 3
+  },
+  "setup_organization.py": {
+    "lines": 754,
+    "size_bytes": 26470,
+    "functions": 26,
+    "classes": 1,
+    "imports": 28,
+    "comments": 49,
+    "empty_lines": 135
+  },
+  "organize_safe.py": {
+    "lines": 276,
+    "size_bytes": 9880,
+    "functions": 7,
+    "classes": 1,
+    "imports": 10,
+    "comments": 10,
+    "empty_lines": 41
+  },
+  "PRE_RUN_CHECK.py": {
+    "lines": 221,
+    "size_bytes": 6659,
+    "functions": 6,
+    "classes": 0,
+    "imports": 5,
+    "comments": 5,
+    "empty_lines": 31
+  },
+  "git_integration.py": {
+    "lines": 89,
+    "size_bytes": 2953,
+    "functions": 2,
+    "classes": 0,
+    "imports": 7,
+    "comments": 7,
+    "empty_lines": 18
+  },
+  "status_check.py": {
+    "lines": 64,
+    "size_bytes": 2500,
+    "functions": 1,
+    "classes": 0,
+    "imports": 1,
+    "comments": 2,
+    "empty_lines": 11
+  }
+}

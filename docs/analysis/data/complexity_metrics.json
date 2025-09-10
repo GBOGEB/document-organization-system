@@ -1,0 +1,32 @@
+{
+  "setup_organization.py": {
+    "cyclomatic_complexity": 93,
+    "nested_blocks": 44,
+    "error_handling": 29,
+    "logging_calls": 85
+  },
+  "organize_safe.py": {
+    "cyclomatic_complexity": 30,
+    "nested_blocks": 16,
+    "error_handling": 4,
+    "logging_calls": 54
+  },
+  "PRE_RUN_CHECK.py": {
+    "cyclomatic_complexity": 33,
+    "nested_blocks": 10,
+    "error_handling": 5,
+    "logging_calls": 15
+  },
+  "git_integration.py": {
+    "cyclomatic_complexity": 9,
+    "nested_blocks": 3,
+    "error_handling": 3,
+    "logging_calls": 9
+  },
+  "status_check.py": {
+    "cyclomatic_complexity": 12,
+    "nested_blocks": 7,
+    "error_handling": 2,
+    "logging_calls": 20
+  }
+}
