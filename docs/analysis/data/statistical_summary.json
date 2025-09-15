@@ -1,0 +1,24 @@
+{
+  "code_complexity": {
+    "total_files_analyzed": 13,
+    "avg_cyclomatic_complexity": 29.53846153846154,
+    "max_cyclomatic_complexity": 97,
+    "total_lines_of_code": 2133,
+    "avg_functions_per_file": 6.384615384615385,
+    "files_with_high_complexity": 8
+  },
+  "artifact_processing": {
+    "total_artifacts_processed": 600,
+    "avg_processing_time": 6.85,
+    "overall_success_rate": 91.2,
+    "overall_cache_hit_rate": 61.5,
+    "avg_memory_usage": 68.5,
+    "processing_time_std": 5.23
+  },
+  "performance_issues": {
+    "total_issues_identified": 14,
+    "high_severity_issues": 8,
+    "medium_severity_issues": 6,
+    "most_common_issue": "High file I/O operations"
+  }
+}

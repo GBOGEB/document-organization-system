@@ -1,0 +1,86 @@
+[
+  {
+    "file": "organize_safe.py",
+    "issue": "High nested loop complexity",
+    "severity": "High",
+    "metric": 6
+  },
+  {
+    "file": "organize_safe.py",
+    "issue": "Deep nesting detected",
+    "severity": "Medium",
+    "metric": 9
+  },
+  {
+    "file": "setup_organization.py",
+    "issue": "High nested loop complexity",
+    "severity": "High",
+    "metric": 9
+  },
+  {
+    "file": "setup_organization.py",
+    "issue": "Deep nesting detected",
+    "severity": "Medium",
+    "metric": 17
+  },
+  {
+    "file": "setup_organization.py",
+    "issue": "High file I/O operations",
+    "severity": "Medium",
+    "metric": 12
+  },
+  {
+    "file": "setup_organization.py",
+    "issue": "Multiple subprocess calls",
+    "severity": "High",
+    "metric": 10
+  },
+  {
+    "file": "git_integration.py",
+    "issue": "Multiple subprocess calls",
+    "severity": "High",
+    "metric": 7
+  },
+  {
+    "file": "PRE_RUN_CHECK.py",
+    "issue": "High nested loop complexity",
+    "severity": "High",
+    "metric": 5
+  },
+  {
+    "file": "Automation/Scripts/organize_safe.py",
+    "issue": "High nested loop complexity",
+    "severity": "High",
+    "metric": 6
+  },
+  {
+    "file": "Automation/Scripts/organize_safe.py",
+    "issue": "Deep nesting detected",
+    "severity": "Medium",
+    "metric": 9
+  },
+  {
+    "file": "Automation/Scripts/setup_organization.py",
+    "issue": "High nested loop complexity",
+    "severity": "High",
+    "metric": 9
+  },
+  {
+    "file": "Automation/Scripts/setup_organization.py",
+    "issue": "Deep nesting detected",
+    "severity": "Medium",
+    "metric": 17
+  },
+  {
+    "file": "Automation/Scripts/setup_organization.py",
+    "issue": "High file I/O operations",
+    "severity": "Medium",
+    "metric": 12
+  },
+  {
+    "file": "Automation/Scripts/setup_organization.py",
+    "issue": "Multiple subprocess calls",
+    "severity": "High",
+    "metric": 10
+  }
+]
