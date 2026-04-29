@@ -1,0 +1,13 @@
+{
+  "name": "cryo-dashboard",
+  "version": "0.4.6",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "start:py": "python -m http.server 8000",
+    "test": "node tests/numerics.test.js && node tests/export.test.js && node tests/materials.validate.js",
+    "validate:materials": "node tests/materials.validate.js"
+  },
+  "devDependencies": {}
+}
