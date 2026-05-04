@@ -2,6 +2,29 @@
 
 # Changelog
 
+## Unreleased (post-v0.4.6 session finalization)
+
+### Added
+
+- `js/app_modular.js` + `dashboard_modular.html`: Cursor pin workflow on main plot (up to 3 pins, FIFO behavior) with pin CSV export and clear action.
+- `files.html`: Markdown view mode toggle for documentation links (`Rendered Markdown` via GitHub UI vs `Raw Markdown` local `.md` file view), persisted in local storage.
+- `files.html`: Getting Started table now includes explicit priority markers and copyable action snippets for all paths.
+
+### Changed
+
+- `index.html`: Feature comparison corrected for hosted-first modular usage; wording updated to avoid mislabeling modular path as primary "server required" in hosted context.
+- `js/app_modular.js`: Integration endpoint rendering simplified to value-first labels for readability in web view and exported PNG/PDF outputs.
+- `dashboard_modular.html`: Cursor pins panel restored to correct dashboard body location (outside popup export template).
+
+### Next Iteration TODO (Validation Depth)
+
+- Expand validation from fixture-only checks to explicit engineering acceptance coverage:
+  - Typical-value envelope checks
+  - Broader NIST-equation parity checks
+  - Method tolerance bands and documented pass/fail thresholds
+
+See `FINAL_HANDOVER.md` and `README.md` for retrieval runbook and validation-gap handover notes.
+
 ## v0.4.6
 
 ### Added
