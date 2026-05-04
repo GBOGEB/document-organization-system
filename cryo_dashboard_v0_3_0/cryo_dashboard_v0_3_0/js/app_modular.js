@@ -562,15 +562,20 @@ function updatePlot() {
 
   const endpointY1 = propertyValue(material, property, Tmin) || 0;
   const endpointY2 = propertyValue(material, property, Tmax) || 0;
+  const endpointLabelPrefix = property === "k" ? "k" : property === "cp" ? "cp" : "Y";
   const endpointTrace = {
     x: [Tmin, Tmax],
     y: [endpointY1, endpointY2],
     type: "scatter",
     mode: "markers+text",
-    name: "Integration endpoints",
-    marker: { color: "#f59e0b", size: 8 },
-    text: [`T1=${formatTemperature(Tmin)}K`, `T2=${formatTemperature(Tmax)}K`],
-    textposition: ["top left", "top right"]
+    name: "Endpoint values",
+    marker: { color: ["#ef4444", "#22c55e"], size: 10, symbol: "diamond" },
+    text: [
+      `${endpointLabelPrefix}(T1)=${formatPropertyValue(endpointY1)}`,
+      `${endpointLabelPrefix}(T2)=${formatPropertyValue(endpointY2)}`
+    ],
+    textposition: ["top left", "top right"],
+    textfont: { size: 12 }
   };
 
   const integralExpr = `I(T) = ∫[Tmin→T] ${propertyPresentation.functionLabel} dT`;

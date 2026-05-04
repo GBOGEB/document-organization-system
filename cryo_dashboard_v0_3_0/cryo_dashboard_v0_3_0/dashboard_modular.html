@@ -387,6 +387,15 @@
     <div id="mainPlot"></div>
   </div>
 
+  <div class="panel" id="cursorPinsPanel">
+    <h2 title="Click anywhere on the main plot to pin up to 3 reference points. Pins survive re-calculate if the material/range is unchanged. Export pinned points to CSV.">📍 Cursor Pins <span style="font-weight:400;font-size:0.85rem;color:var(--muted);">— click main plot to pin · max 3</span></h2>
+    <div id="cursorPinsTable"><p style="color:var(--muted);font-size:0.9rem;">Click on the main plot curve to pin up to 3 reference points.</p></div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="exportPinsCsvBtn" disabled title="Export pinned T / value / cumulative integral to CSV">⬇ Export Pins CSV</button>
+      <button id="clearPinsBtn" title="Remove all pinned points">🗑 Clear Pins</button>
+    </div>
+  </div>
+
   <div class="panel">
     <details class="eval-details" open>
       <summary>Evaluation Points <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">— T1 &amp; T2 always included</span></summary>
@@ -600,17 +609,6 @@
   <a href='${url}' download='${title.replace(/[^a-z0-9]/gi,"_")}.png' style='text-decoration:none;'><button>⬇ Download PNG</button></a>
   <button onclick='window.close()'>✕ Close</button>
 </div>
-  <div class="panel" id="cursorPinsPanel">
-    <h2 title="Click anywhere on the main plot to pin up to 3 reference points. Pins survive re-calculate if the material/range is unchanged. Export pinned points to CSV.">📍 Cursor Pins <span style="font-weight:400;font-size:0.85rem;color:var(--muted);">— click main plot to pin · max 3</span></h2>
-    <div id="cursorPinsTable"><p style="color:var(--muted);font-size:0.9rem;">Click on the main plot curve to pin up to 3 reference points.</p></div>
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button id="exportPinsCsvBtn" disabled title="Export pinned T / value / cumulative integral to CSV">⬇ Export Pins CSV</button>
-      <button id="clearPinsBtn" title="Remove all pinned points">🗑 Clear Pins</button>
-    </div>
-  </div>
-
-  <div class="panel">
-    <details class="eval-details" open>
 <div class='img-wrap'><img src='${url}' alt='${title}' /></div>
 </body></html>`);
         w.document.close();
