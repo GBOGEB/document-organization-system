@@ -456,10 +456,11 @@
         </select>
       </div>
     </div>
-    <div class="field-hint" style="margin-bottom:10px;">Sizing defaults apply to both portrait and landscape B1/B2 exports. Log mode only affects B1 when valid.</div>
+    <div class="field-hint" style="margin-bottom:10px;">Publication exports use vector SVG plots for legibility. Sizing defaults apply to portrait/landscape A4; log mode only affects B1 when valid.</div>
     <button class="btn-popup" onclick="openDashboardPagePopup()">🧾 Dashboard Page PDF (A4)</button>
     <button class="btn-popup" onclick="openPlotsLandscapePagePopup()">🖼 B1+B2 Full Page (A4 Landscape)</button>
     <button class="btn-popup" onclick="openPlotsPortraitPagePopup()">🖼 B1+B2 Full Page (A4 Portrait)</button>
+    <button class="btn-popup" onclick="openSlideLandscapePopup()">🎞 Single Slide (16:9 Landscape)</button>
   </div>
 
   <div class="panel" title="Active NIST equation form and coefficients for the selected material and property.">
@@ -662,9 +663,14 @@
         };
       });
 
+      const opts = getPlotsExportOptions();
+      const mainY = collectPositiveYFromPlot('mainPlot');
+      const canLogMain = mainY.length > 0 && mainY.every(function(v) { return v > 0; });
+      const useLogMain = opts.scaleMode === 'log-main-auto' && canLogMain;
+
       Promise.all([
-        Plotly.toImage(mainPlotEl, { format: 'png', width: 1280, height: 720, scale: 2 }),
-        Plotly.toImage(integrationPlotEl, { format: 'png', width: 1280, height: 720, scale: 2 })
+        clonePlotImageWithMode('mainPlot', 1800, 1050, useLogMain, 'svg', true),
+        clonePlotImageWithMode('integrationPlot', 1800, 1050, false, 'svg', true)
       ]).then(function(images) {
         const mainUrl = images[0];
         const integUrl = images[1];
@@ -686,7 +692,7 @@
           return;
         }
 
-        const slideName = `dashboard_slide_${matName.replace(/[^a-z0-9]+/gi, '_')}_${(propSel?.value || 'prop')}.png`;
+        const slideName = `dashboard_slide_${matName.replace(/[^a-z0-9]+/gi, '_')}_${(propSel?.value || 'prop')}.svg`;
         w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Single Page Dashboard Export</title>
 <style>
   :root { --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --soft:#e2e8f0; --bg:#f1f5f9; --accent:#1d4ed8; }
@@ -726,8 +732,8 @@
   <strong>Single-Page Dashboard Export (A4 Portrait 2x2)</strong>
   <span>${escapeHtml(ts)}</span>
   <button onclick='window.print()'>🖨 Print / Save PDF</button>
-  <a class='btn' href='${mainUrl}' download='main_plot_${(propSel?.value || 'prop')}.png'>⬇ Main Plot PNG</a>
-  <a class='btn' href='${integUrl}' download='integration_plot_${(propSel?.value || 'prop')}.png'>⬇ Integration Plot PNG</a>
+  <a class='btn' href='${mainUrl}' download='main_plot_${(propSel?.value || 'prop')}.svg'>⬇ Main Plot SVG</a>
+  <a class='btn' href='${integUrl}' download='integration_plot_${(propSel?.value || 'prop')}.svg'>⬇ Integration Plot SVG</a>
   <button onclick='window.close()'>✕ Close</button>
 </div>
 
@@ -808,7 +814,7 @@
       return vals;
     }
 
-    function clonePlotImageWithMode(plotDivId, width, height, useLogMain) {
+    function clonePlotImageWithMode(plotDivId, width, height, useLogMain, format = 'png', publication = false) {
       const src = document.getElementById(plotDivId);
       if (!src || !window.Plotly) return Promise.reject(new Error('Plot missing'));
 
@@ -818,6 +824,28 @@
       layout.height = height;
       layout.paper_bgcolor = '#ffffff';
       layout.plot_bgcolor = '#ffffff';
+
+      if (!layout.font) layout.font = {};
+      if (!layout.legend) layout.legend = {};
+      const sizeScale = Math.min(width / 1300, height / 900);
+      const baseFont = publication ? 14 : 12;
+      const fontSize = Math.max(11, Math.round(baseFont * sizeScale));
+      layout.font.size = fontSize;
+      layout.legend.font = Object.assign({}, layout.legend.font || {}, { size: Math.max(10, fontSize - 1) });
+      layout.legend.itemsizing = 'constant';
+
+      if (layout.xaxis) {
+        layout.xaxis.tickfont = Object.assign({}, layout.xaxis.tickfont || {}, { size: Math.max(10, fontSize - 1) });
+        layout.xaxis.title = Object.assign({}, layout.xaxis.title || {}, { font: Object.assign({}, (layout.xaxis.title || {}).font || {}, { size: fontSize }) });
+      }
+      if (layout.yaxis) {
+        layout.yaxis.tickfont = Object.assign({}, layout.yaxis.tickfont || {}, { size: Math.max(10, fontSize - 1) });
+        layout.yaxis.title = Object.assign({}, layout.yaxis.title || {}, { font: Object.assign({}, (layout.yaxis.title || {}).font || {}, { size: fontSize }) });
+      }
+      if (layout.yaxis2) {
+        layout.yaxis2.tickfont = Object.assign({}, layout.yaxis2.tickfont || {}, { size: Math.max(10, fontSize - 1) });
+        layout.yaxis2.title = Object.assign({}, layout.yaxis2.title || {}, { font: Object.assign({}, (layout.yaxis2.title || {}).font || {}, { size: fontSize }) });
+      }
 
       if (useLogMain) {
         if (!layout.yaxis) layout.yaxis = {};
@@ -834,7 +862,12 @@
 
       return Plotly.newPlot(tmp, data, layout, { staticPlot: true, displayModeBar: false, responsive: false })
         .then(function() {
-          return Plotly.toImage(tmp, { format: 'png', width: width, height: height, scale: 2 });
+          return Plotly.toImage(tmp, {
+            format: format,
+            width: width,
+            height: height,
+            scale: format === 'png' ? 2 : 1
+          });
         })
         .finally(function() {
           try { Plotly.purge(tmp); } catch (_) {}
@@ -869,8 +902,8 @@
         : { w: 1300, h: 900 };
 
       Promise.all([
-        clonePlotImageWithMode('mainPlot', imageSize.w, imageSize.h, useLogMain),
-        clonePlotImageWithMode('integrationPlot', imageSize.w, imageSize.h, false)
+        clonePlotImageWithMode('mainPlot', imageSize.w, imageSize.h, useLogMain, 'svg', true),
+        clonePlotImageWithMode('integrationPlot', imageSize.w, imageSize.h, false, 'svg', true)
       ]).then(function(images) {
         const b1Url = images[0];
         const b2Url = images[1];
@@ -927,11 +960,11 @@
   }
 </style></head><body>
 <div class='toolbar'>
-  <strong>B1+B2 Full Page Export (${pageLabel})</strong>
+  <strong>B1+B2 Full Page Export (${pageLabel}, Vector)</strong>
   <span>${escapeHtml(ts)}</span>
   <button onclick='window.print()'>🖨 Print / Save PDF</button>
-  <a class='btn' href='${b1Url}' download='B1_property_plot.png'>⬇ B1 PNG</a>
-  <a class='btn' href='${b2Url}' download='B2_integration_plot.png'>⬇ B2 PNG</a>
+  <a class='btn' href='${b1Url}' download='B1_property_plot.svg'>⬇ B1 SVG</a>
+  <a class='btn' href='${b2Url}' download='B2_integration_plot.svg'>⬇ B2 SVG</a>
   <button onclick='window.close()'>✕ Close</button>
 </div>
 
@@ -968,6 +1001,103 @@
 
     window.openPlotsPortraitPagePopup = function() {
       openPlotsPagePopup('portrait');
+    };
+
+    window.openSlideLandscapePopup = function() {
+      const mainPlotEl = document.getElementById('mainPlot');
+      const integrationPlotEl = document.getElementById('integrationPlot');
+      if (!mainPlotEl || !integrationPlotEl || !window.Plotly) {
+        alert('Plots are not available yet. Run Calculate first.');
+        return;
+      }
+
+      const matSel = document.getElementById('materialSelect');
+      const propSel = document.getElementById('propertySelect');
+      const matName = matSel?.options?.[matSel.selectedIndex]?.text || 'Material';
+      const propName = propSel?.options?.[propSel.selectedIndex]?.text || 'Property';
+      const t1 = document.getElementById('Tmin')?.value || '?';
+      const t2 = document.getElementById('Tmax')?.value || '?';
+      const ts = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+      const opts = getPlotsExportOptions();
+      const mainY = collectPositiveYFromPlot('mainPlot');
+      const canLogMain = mainY.length > 0 && mainY.every(function(v) { return v > 0; });
+      const useLogMain = opts.scaleMode === 'log-main-auto' && canLogMain;
+
+      Promise.all([
+        clonePlotImageWithMode('mainPlot', 1920, 1080, useLogMain, 'svg', true),
+        clonePlotImageWithMode('integrationPlot', 1920, 1080, false, 'svg', true)
+      ]).then(function(images) {
+        const b1Url = images[0];
+        const b2Url = images[1];
+
+        const w = window.open('', '_blank', 'width=1680,height=980,resizable=yes,scrollbars=yes');
+        if (!w) {
+          alert('Pop-up blocked. Allow pop-ups for this page and try again.');
+          return;
+        }
+
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Single Slide Export (16:9)</title>
+<style>
+  :root{ --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --accent:#1d4ed8; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f1f5f9; color:var(--ink); font-family:Segoe UI,Arial,sans-serif; }
+  .toolbar{ position:sticky; top:0; z-index:5; display:flex; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); background:#fff; }
+  .toolbar strong{ flex:1; font-size:0.95rem; }
+  .toolbar span{ color:var(--muted); font-size:0.8rem; }
+  button,a.btn{ border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font-size:0.82rem; padding:6px 12px; text-decoration:none; cursor:pointer; }
+  button:hover,a.btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .slide{ width:320mm; height:180mm; margin:8mm auto; background:#fff; border:1px solid #dbe3ee; box-shadow:0 8px 24px rgba(15,23,42,.08); padding:8mm; display:grid; grid-template-rows:auto 1fr; gap:4mm; }
+  .head{ border-bottom:1px solid #e2e8f0; padding-bottom:2mm; }
+  .title{ margin:0; font-size:1.1rem; font-weight:700; }
+  .sub{ margin:1mm 0 0 0; color:var(--muted); font-size:0.85rem; }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:4mm; min-height:0; }
+  .tile{ border:1px solid var(--line); border-radius:8px; padding:2.5mm; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .tile h3{ margin:0 0 2mm 0; font-size:0.95rem; color:var(--accent); }
+  .plot{ flex:1; min-height:0; border:1px solid #e2e8f0; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .plot img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .cap{ margin-top:1.5mm; color:var(--muted); font-size:0.76rem; }
+  @media print{
+    @page{ size: 320mm 180mm; margin:6mm; }
+    body{ background:#fff; }
+    .toolbar{ display:none; }
+    .slide{ width:100%; height:auto; margin:0; border:none; box-shadow:none; padding:0; }
+  }
+</style></head><body>
+<div class='toolbar'>
+  <strong>Single Slide Export (16:9 Landscape, Vector)</strong>
+  <span>${escapeHtml(ts)}</span>
+  <button onclick='window.print()'>🖨 Print / Save PDF</button>
+  <a class='btn' href='${b1Url}' download='slide_B1_property.svg'>⬇ B1 SVG</a>
+  <a class='btn' href='${b2Url}' download='slide_B2_integration.svg'>⬇ B2 SVG</a>
+  <button onclick='window.close()'>✕ Close</button>
+</div>
+
+<div class='slide'>
+  <div class='head'>
+    <p class='title'>Cryogenic Dashboard — Presentation Slide</p>
+    <p class='sub'>${escapeHtml(matName)} · ${escapeHtml(propName)} · T=${escapeHtml(t1)}–${escapeHtml(t2)} K · ${escapeHtml(useLogMain ? 'B1 log scale' : 'B1 linear scale')}</p>
+  </div>
+
+  <div class='grid'>
+    <section class='tile'>
+      <h3>B1. Property vs Temperature</h3>
+      <div class='plot'><img src='${b1Url}' alt='B1 property plot'></div>
+      <div class='cap'>Vector render for slide reuse and zoom-safe legends.</div>
+    </section>
+
+    <section class='tile'>
+      <h3>B2. Cumulative Integration Plot</h3>
+      <div class='plot'><img src='${b2Url}' alt='B2 cumulative integration plot'></div>
+      <div class='cap'>Vector render with proportional legend and axis typography.</div>
+    </section>
+  </div>
+</div>
+</body></html>`);
+        w.document.close();
+      }).catch(function() {
+        alert('Could not generate slide export. Run Calculate first and try again.');
+      });
     };
   </script>
 
