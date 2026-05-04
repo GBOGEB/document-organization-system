@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cryogenic Dashboard v0.4.6 - File Browser</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .status-banner {
+      padding: 15px 30px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+    .status-ok {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    .status-warning {
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+      color: #333;
+    }
+    .status-error {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: white;
+    }
+    .status-icon {
+      font-size: 1.5em;
+    }
+    .status-text {
+      flex: 1;
+    }
+    .folder-path {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      word-break: break-all;
+    }
+    .startup-guide {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 20px;
+      margin: 20px 30px;
+      border-radius: 6px;
+      display: none;
+    }
+    .startup-guide.show {
+      display: block;
+    }
+    .startup-guide h3 {
+      color: #856404;
+      margin-bottom: 10px;
+    }
+    .startup-guide ol {
+      margin-left: 20px;
+      color: #856404;
+    }
+    .startup-guide ol ul {
+      list-style-type: disc;
+      margin-top: 5px;
+    }
+    .startup-guide code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    header p {
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+    .version-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin-left: 10px;
+    }
+    .main-link {
+      background: #4CAF50;
+      color: white;
+      padding: 15px 30px;
+      text-decoration: none;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .main-link:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .content {
+      padding: 30px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      color: #1e3c72;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+    }
+    .file-item {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 15px;
+      transition: all 0.3s;
+    }
+    .file-item:hover {
+      background: #e9ecef;
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .file-item a {
+      color: #1e3c72;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-item a:hover {
+      color: #667eea;
+    }
+    .file-icon {
+      font-size: 1.5em;
+    }
+    .file-desc {
+      color: #6c757d;
+      font-size: 0.9em;
+      margin-top: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    .badge-new {
+      background: #28a745;
+      color: white;
+    }
+    .badge-core {
+      background: #007bff;
+      color: white;
+    }
+    .badge-doc {
+      background: #ffc107;
+      color: #333;
+    }
+    footer {
+      background: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+      border-top: 1px solid #dee2e6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="statusBanner" class="status-banner status-ok">
+      <span class="status-icon">🔄</span>
+      <div class="status-text">
+        <div>Checking server status...</div>
+        <div class="folder-path" id="folderPath">Loading...</div>
+      </div>
+    </div>
+
+    <div id="startupGuide" class="startup-guide">
+      <h3>⚠️ Server Not Running - How to Start:</h3>
+      <ol>
+        <li>Open <strong>PowerShell</strong> or <strong>Command Prompt</strong></li>
+        <li>Navigate to: <code>C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents\cryo_dashboard_v0_3_0\cryo_dashboard_v0_3_0</code></li>
+        <li>Run: <code>python -m http.server 8000</code> or double-click <code>start_server.bat</code></li>
+        <li>Then open: <code>http://localhost:8000/index.html</code></li>
+      </ol>
+    </div>
+
+    <div id="gettingStartedGuide" class="startup-guide show" style="background: #d1ecf1; border-left-color: #0c5460; display: block;">
+      <h3>🚀 Getting Started - Navigation Guide for New Users</h3>
+      <ol style="color: #0c5460;">
+        <li><strong>Start the Server (REQUIRED):</strong> Dashboard requires HTTP server to work
+          <ul style="margin-left: 20px; margin-top: 5px;">
+            <li>Double-click <code>start_server.bat</code> in this folder, OR</li>
+            <li>Run <code>python -m http.server 8000</code> in terminal</li>
+          </ul>
+        </li>
+        <li><strong>Open in Browser:</strong> Navigate to <code>http://localhost:8000/index.html</code></li>
+        <li><strong>Choose Your Dashboard:</strong>
+          <ul style="margin-left: 20px; margin-top: 5px;">
+            <li>🏠 <strong>Landing Page</strong> → index.html (Start here!)</li>
+            <li>📊 <strong>Modular Dashboard (v0.4.6)</strong> → dashboard_modular.html (Advanced integration methods)</li>
+            <li>🔬 <strong>Legacy Dashboard (v1.10, deprecated)</strong> → material_properties_dashboard_v1_10.html (reference only)</li>
+          </ul>
+        </li>
+        <li><strong>Browse Files:</strong> Use this page (files.html) to navigate all project files and documentation</li>
+        <li><strong>Toggle Themes:</strong> Click 🌓 button in dashboard headers to switch between dark/light modes</li>
+        <li><strong>Read Documentation:</strong> Check <code>README.md</code> and <code>DASHBOARD_TESTING_GUIDE.md</code> for details</li>
+      </ol>
+      <p style="margin-top: 15px; font-weight: bold; color: #0c5460;">
+        💡 <strong>Quick Start:</strong> Click the 🏠 Home button above to go to the landing page and choose your dashboard version!
+      </p>
+    </div>
+
+    <header>
+      <h1>🧊 Cryogenic Material Dashboard <span class="version-badge" id="versionBadge">v0.4.6</span></h1>
+      <p>File Browser & Documentation Index</p>
+      <a href="dashboard_modular.html" class="main-link">🚀 Launch Modular Dashboard</a>
+    </header>
+
+    <div class="content">
+      <div class="section">
+        <h2>🏠 Dashboard Versions</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="index.html"><span class="file-icon">🏠</span>index.html<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Main landing page with version selector</div>
+          </div>
+          <div class="file-item">
+            <a href="dashboard_modular.html"><span class="file-icon">📊</span>dashboard_modular.html<span class="badge badge-new">NEW</span></a>
+            <div class="file-desc">Modular v0.4.6 dashboard with advanced integration methods</div>
+          </div>
+          <div class="file-item">
+            <a href="material_properties_dashboard_v1_10.html"><span class="file-icon">🔬</span>material_properties_dashboard_v1_10.html<span class="badge badge-doc">LEGACY</span></a>
+            <div class="file-desc">Deprecated v1.10 dashboard kept for historical comparison only</div>
+          </div>
+          <div class="file-item">
+            <a href="files.html"><span class="file-icon">📁</span>files.html<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">File browser & navigation hub with dashboard quick-access buttons</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📱 Application Files</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="style.css"><span class="file-icon">🎨</span>style.css</a>
+            <div class="file-desc">Dashboard styling and layout</div>
+          </div>
+          <div class="file-item">
+            <a href="package.json"><span class="file-icon">📦</span>package.json</a>
+            <div class="file-desc">Project metadata and scripts</div>
+          </div>
+          <div class="file-item">
+            <a href="VERSION"><span class="file-icon">🏷️</span>VERSION</a>
+            <div class="file-desc">Current version: v0.4.6</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>💻 JavaScript Modules</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="js/app.js"><span class="file-icon">⚙️</span>app.js<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Main application logic & initialization</div>
+          </div>
+          <div class="file-item">
+            <a href="js/app_modular.js"><span class="file-icon">⚙️</span>app_modular.js<span class="badge badge-new">NEW</span></a>
+            <div class="file-desc">Modular dashboard application controller</div>
+          </div>
+          <div class="file-item">
+            <a href="js/state.js"><span class="file-icon">📊</span>state.js<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">State management & calculations</div>
+          </div>
+          <div class="file-item">
+            <a href="js/materials.js"><span class="file-icon">🔬</span>materials.js</a>
+            <div class="file-desc">Material data loading & processing</div>
+          </div>
+          <div class="file-item">
+            <a href="js/plots.js"><span class="file-icon">📈</span>plots.js</a>
+            <div class="file-desc">Plotly chart rendering functions</div>
+          </div>
+          <div class="file-item">
+            <a href="js/numerics.js"><span class="file-icon">🧮</span>numerics.js<span class="badge badge-new">NEW</span></a>
+            <div class="file-desc">Advanced numerical integration (Romberg, Gauss-Legendre)</div>
+          </div>
+          <div class="file-item">
+            <a href="js/export.js"><span class="file-icon">💾</span>export.js</a>
+            <div class="file-desc">Data export functionality</div>
+          </div>
+          <div class="file-item">
+            <a href="js/logger.js"><span class="file-icon">📝</span>logger.js</a>
+            <div class="file-desc">Calculation event logger</div>
+          </div>
+          <div class="file-item">
+            <a href="js/debug.js"><span class="file-icon">🐛</span>debug.js</a>
+            <div class="file-desc">Debug panel rendering</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📊 Data Files</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="data/materials.json"><span class="file-icon">📋</span>materials.json<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Material properties database (JSON)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📚 Canonical Documentation (Start Here)</h2>
+        <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
+          ✅ These are the official user-facing documentation files. All paths are at project root unless specified.
+        </p>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="README.md"><span class="file-icon">📖</span>README.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./README.md</code><br>Project overview, materials list, quick start
+            </div>
+          </div>
+          <div class="file-item">
+            <a href="SETUP_GUIDE.md"><span class="file-icon">🚀</span>SETUP_GUIDE.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./SETUP_GUIDE.md</code><br>Setup instructions, architecture,
+              troubleshooting (v0.4.6)</div>
+          </div>
+          <div class="file-item">
+            <a href="DASHBOARD_TESTING_GUIDE.md"><span class="file-icon">🧪</span>DASHBOARD_TESTING_GUIDE.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./DASHBOARD_TESTING_GUIDE.md</code><br>Testing procedures and
+              architecture notes</div>
+          </div>
+          <div class="file-item">
+            <a href="STANDALONE_VS_PYTHON.md"><span class="file-icon">�</span>STANDALONE_VS_PYTHON.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./STANDALONE_VS_PYTHON.md</code><br>Capabilities: browser-only vs
+              Python integration</div>
+          </div>
+          <div class="file-item">
+            <a href="GIT_TRACKING_MANIFEST.md"><span class="file-icon">📋</span>GIT_TRACKING_MANIFEST.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./GIT_TRACKING_MANIFEST.md</code><br>Git strategy and tracked files
+              (v0.4.6)</div>
+            </div>
+            <div class="file-item">
+              <a href="FILE_INDEX_v0.4.5.md"><span class="file-icon">🗂️</span>FILE_INDEX_v0.4.5.md<span
+                  class="badge badge-core">CANONICAL</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./FILE_INDEX_v0.4.5.md</code><br>Complete file listing with
+                navigation (v0.4.5 baseline index — latest versioned file index before v0.4.6)</div>
+            </div>
+            <div class="file-item">
+              <a href="docs/BASELINE_VERIFICATION_v0.4.5.md"><span class="file-icon">✅</span>docs/BASELINE_VERIFICATION_v0.4.5.md<span
+                  class="badge badge-core">CANONICAL</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./docs/BASELINE_VERIFICATION_v0.4.5.md</code><br>Baseline run/test checklist and portable Node workflow</div>
+            </div>
+            </div>
+            </div>
+            
+            <div class="section">
+              <h2>📚 Historical & Session Documents</h2>
+              <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
+                📚 Session records and historical reports — useful for context, but not required for current operation.
+              </p>
+              <div class="file-grid">
+                <div class="file-item">
+                  <a href="archive_20260427/archived_20260428/MASTER_DOCUMENTATION.md"><span class="file-icon">�</span>MASTER_DOCUMENTATION.md<span
+                      class="badge badge-doc">REFERENCE</span></a>
+                  <div class="file-desc">Complete session history, design decisions, DMAIC framework</div>
+          </div>
+          <div class="file-item">
+            <a href="FINAL_HANDOVER.md"><span class="file-icon">📄</span>FINAL_HANDOVER.md<span
+                class="badge badge-doc">REFERENCE</span></a>
+            <div class="file-desc">Engineering handover package</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/DOCUMENTATION_STATUS_REPORT.md"><span class="file-icon">�</span>DOCUMENTATION_STATUS_REPORT.md<span
+                class="badge badge-doc">REFERENCE</span></a>
+            <div class="file-desc">Documentation audit findings (2026-04-28)</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/MERGE_COMPLETION_REPORT.md"><span class="file-icon">�</span>MERGE_COMPLETION_REPORT.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v1.10 → v0.4.x merge technical report</div>
+          </div>
+          <div class="file-item">
+            <a href="VALIDATION_REPORT.md"><span class="file-icon">✅</span>VALIDATION_REPORT.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Debug session validation results</div>
+          </div>
+          <div class="file-item">
+            <a href="SESSION_SUMMARY.md"><span class="file-icon">📋</span>SESSION_SUMMARY.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Session completion summary</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/V1_10_SESSION_HANDOVER.md"><span class="file-icon">🎯</span>V1_10_SESSION_HANDOVER.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v1.10 session handover — materials, features, validation</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/V1_10_MATERIAL_COMPARISON_REPORT.md"><span class="file-icon">�</span>V1_10_MATERIAL_COMPARISON_REPORT.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Material properties comparison v1.10 vs v0.4.x</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/V040_COMPLETION_SUMMARY.md"><span class="file-icon">✔️</span>V040_COMPLETION_SUMMARY.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v0.4.x completion summary</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/VALIDATION_REPORT_v1_10.md"><span class="file-icon">✔️</span>VALIDATION_REPORT_v1_10.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v1.10 validation and testing</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/MATERIAL_PROPERTIES_INTEGRATION_SUMMARY.md"><span
+                class="file-icon">🔗</span>MATERIAL_PROPERTIES_INTEGRATION_SUMMARY.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Material properties integration guide</div>
+          </div>
+          <div class="file-item">
+            <a href="README_ZIP_CREATION.md"><span class="file-icon">📦</span>README_ZIP_CREATION.md<span
+                class="badge badge-doc">UTILITY</span></a>
+            <div class="file-desc">Instructions for creating distribution packages</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎯 Scripts & Tools</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="start_dashboard.ps1"><span class="file-icon">▶️</span>start_dashboard.ps1</a>
+            <div class="file-desc">PowerShell script to start the server</div>
+          </div>
+          <div class="file-item">
+            <a href="start_server.bat"><span class="file-icon">▶️</span>start_server.bat</a>
+            <div class="file-desc">Windows batch script to start server</div>
+          </div>
+          <div class="file-item">
+            <a href="create_handover_package.ps1"><span class="file-icon">📦</span>create_handover_package.ps1</a>
+            <div class="file-desc">Create handover package script</div>
+          </div>
+          <div class="file-item">
+            <a href="CREATE_V040_ZIP.ps1"><span class="file-icon">🗜️</span>CREATE_V040_ZIP.ps1</a>
+            <div class="file-desc">Create v0.4.x distribution zip</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🧪 Testing & Validation</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="tests/"><span class="file-icon">🧪</span>tests/</a>
+            <div class="file-desc">Test suite directory</div>
+          </div>
+          <div class="file-item">
+            <a href="schemas/"><span class="file-icon">📐</span>schemas/</a>
+            <div class="file-desc">JSON schemas for validation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📋 Configuration & Metadata</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="handover.glob.yaml"><span class="file-icon">⚙️</span>handover.glob.yaml</a>
+            <div class="file-desc">Handover configuration (YAML)</div>
+          </div>
+          <div class="file-item">
+            <a href="SESSION_CONTEXT.json"><span class="file-icon">💾</span>SESSION_CONTEXT.json</a>
+            <div class="file-desc">Session context metadata (JSON)</div>
+          </div>
+          <div class="file-item">
+            <a href="MANIFEST.txt"><span class="file-icon">📋</span>MANIFEST.txt</a>
+            <div class="file-desc">Complete file listing manifest</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔗 Quick Navigation</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="index.html" style="color: #28a745;"><span class="file-icon">🏠</span>Home / Landing Page</a>
+            <div class="file-desc">Return to main landing page with version selector</div>
+          </div>
+          <div class="file-item">
+            <a href="dashboard_modular.html" style="color: #007bff;"><span class="file-icon">📊</span>Modular Dashboard (v0.4.6)</a>
+            <div class="file-desc">Launch the modular dashboard with advanced integration</div>
+          </div>
+          <div class="file-item">
+            <a href="material_properties_dashboard_v1_10.html" style="color: #a15c00;"><span class="file-icon">🔬</span>Legacy Dashboard (v1.10, deprecated)</a>
+            <div class="file-desc">Open legacy v1.10 page for reference-only validation</div>
+          </div>
+          <div class="file-item">
+            <a href="files.html" style="color: #fd7e14;"><span class="file-icon">🔄</span>Refresh Browser</a>
+            <div class="file-desc">Reload this file browser page</div>
+          </div>
+          <div class="file-item">
+            <a href="README.md" style="color: #17a2b8;"><span class="file-icon">📖</span>Read Documentation</a>
+            <div class="file-desc">Project overview and getting started</div>
+          </div>
+          <div class="file-item">
+            <a href="DASHBOARD_TESTING_GUIDE.md" style="color: #20c997;"><span class="file-icon">🧪</span>Testing Guide</a>
+            <div class="file-desc">How to test and validate the dashboard</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>Cryogenic Material Dashboard</strong> <span id="footerVersion">v0.4.6</span></p>
+      <p id="footerStatus">File Browser | Checking server status...</p>
+      <p style="margin-top: 10px; opacity: 0.7;">Navigate to any file above or <a href="dashboard_modular.html"
+          style="color: #667eea; font-weight: bold;">launch the modular dashboard</a></p>
+    </footer>
+  </div>
+
+  <script>
+    const EXPECTED_FOLDER = 'C:\\Users\\gbonthuy\\OneDrive - Studiecentrum voor Kernenergie\\Documents\\cryo_dashboard_v0_3_0\\cryo_dashboard_v0_3_0';
+
+    async function checkStatus() {
+      const statusBanner = document.getElementById('statusBanner');
+      const startupGuide = document.getElementById('startupGuide');
+      const gettingStartedGuide = document.getElementById('gettingStartedGuide');
+      const folderPath = document.getElementById('folderPath');
+      const versionBadge = document.getElementById('versionBadge');
+      const footerVersion = document.getElementById('footerVersion');
+      const footerStatus = document.getElementById('footerStatus');
+
+      const protocol = window.location.protocol;
+      const isFileProtocol = protocol === 'file:';
+      const isHttp = protocol === 'http:' || protocol === 'https:';
+
+      let version = 'v0.4.6';
+
+      if (isHttp) {
+        try {
+          const versionResponse = await fetch('VERSION');
+          if (versionResponse.ok) {
+            version = (await versionResponse.text()).trim();
+            if (versionBadge) versionBadge.textContent = version;
+            footerVersion.textContent = version;
+          }
+        } catch (e) {
+          console.log('Could not fetch VERSION file:', e);
+        }
+      }
+
+      if (isFileProtocol) {
+        if (statusBanner) {
+          statusBanner.className = 'status-banner status-warning';
+          statusBanner.innerHTML = `
+            <span class="status-icon">⚠️</span>
+            <div class="status-text">
+              <div><strong>Warning:</strong> Opened via file:// protocol - Server not running!</div>
+              <div class="folder-path">${window.location.pathname}</div>
+            </div>
+          `;
+        }
+        if (startupGuide) startupGuide.classList.add('show');
+        if (gettingStartedGuide) gettingStartedGuide.classList.remove('show');
+        footerStatus.textContent = 'File Browser | ⚠️ Server NOT running - Dashboard features require HTTP server!';
+      } else if (isHttp) {
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const portText = port ? `:${port}` : '';
+
+        if (statusBanner) {
+          statusBanner.className = 'status-banner status-ok';
+          statusBanner.innerHTML = `
+            <span class="status-icon">✅</span>
+            <div class="status-text">
+              <div><strong>Server Running:</strong> ${hostname}${portText} | Version: ${version}</div>
+              <div class="folder-path">${EXPECTED_FOLDER}</div>
+            </div>
+          `;
+        }
+        if (startupGuide) startupGuide.classList.remove('show');
+        footerStatus.textContent = `File Browser | ✅ Server active on ${hostname}${portText} - All features enabled`;
+      } else {
+        if (statusBanner) {
+          statusBanner.className = 'status-banner status-error';
+          statusBanner.innerHTML = `
+            <span class="status-icon">❌</span>
+            <div class="status-text">
+              <div><strong>Unknown Protocol:</strong> ${protocol}</div>
+              <div class="folder-path">Please use HTTP server</div>
+            </div>
+          `;
+        }
+        if (startupGuide) startupGuide.classList.add('show');
+        footerStatus.textContent = 'File Browser | ❌ Unknown protocol';
+      }
+    }
+
+    checkStatus();
+    setInterval(checkStatus, 30000);
+  </script>
+</body>
+</html>
