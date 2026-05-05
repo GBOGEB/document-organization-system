@@ -35,7 +35,7 @@
 - v0.4.8 planning remains open for extended comparison analytics (for example,
   optional B2/B3 multi-material overlays) after validation and UX gate review.
 
-## Unreleased (post-v0.4.6 session finalization)
+## Unreleased (post-v0.4.7 session finalization)
 
 ### Added
 
