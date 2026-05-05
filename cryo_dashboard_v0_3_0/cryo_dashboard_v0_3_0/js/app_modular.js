@@ -17,6 +17,32 @@ let currentState = null;
 let resultMode = "single";
 let cursorPins = [];
 let lastPinContext = null;
+const MAX_COMPARISON_OVERLAYS = 4;
+
+function setCompSelectionStatus(message, isWarning = false) {
+  const statusEl = document.getElementById("compSelectionStatus");
+  if (!statusEl) return;
+  statusEl.textContent = message;
+  statusEl.style.color = isWarning ? "#f59e0b" : "";
+}
+
+function enforceCompSelectionLimit(limit = MAX_COMPARISON_OVERLAYS) {
+  const compSelect = document.getElementById("compMaterialSelect");
+  if (!compSelect) return { trimmed: false, selected: 0, dropped: 0 };
+  const primaryKey = document.getElementById("materialSelect")?.value;
+
+  const selectedComparison = Array.from(compSelect.options).filter(
+    opt => opt.selected && !opt.disabled && opt.value !== primaryKey
+  );
+  if (selectedComparison.length <= limit) {
+    return { trimmed: false, selected: selectedComparison.length, dropped: 0 };
+  }
+
+  selectedComparison.slice(limit).forEach(opt => {
+    opt.selected = false;
+  });
+  return { trimmed: true, selected: limit, dropped: selectedComparison.length - limit };
+}
 
 function formatTemperature(value) {
   return formatModularTemperature(value);
@@ -561,6 +587,30 @@ function setupResultModeToggle() {
   applyResultModeVisibility();
 }
 
+function refreshCompSelectLabels(primaryKey) {
+  const compSelect = document.getElementById("compMaterialSelect");
+  if (!compSelect) return;
+  Array.from(compSelect.options).forEach(opt => {
+    const baseName = opt.dataset.baseName || opt.value;
+    if (opt.disabled) {
+      const missingProp = opt.dataset.missingProperty || "selected";
+      opt.textContent = `${baseName} (no ${missingProp} data)`;
+      opt.style.fontStyle = "";
+      opt.style.color = "";
+      return;
+    }
+    if (opt.value === primaryKey) {
+      opt.textContent = baseName + " ★ (selected)";
+      opt.style.fontStyle = "italic";
+      opt.style.color = "";
+    } else {
+      opt.textContent = baseName;
+      opt.style.fontStyle = "";
+      opt.style.color = "";
+    }
+  });
+}
+
 function populateMaterialSelect(preferredKey) {
   const select = document.getElementById("materialSelect");
   const requestedProperty = document.getElementById("propertySelect")?.value;
@@ -597,6 +647,33 @@ function populateMaterialSelect(preferredKey) {
 
   const stillAvailable = available.some(([key]) => key === currentValue);
   select.value = stillAvailable ? currentValue : available[0][0];
+
+  // Also sync comparison materials select with all materials:
+  // available materials are selectable; unavailable are disabled/greyed by the browser.
+  const compSelect = document.getElementById("compMaterialSelect");
+  if (compSelect) {
+    const prevComp = new Set(Array.from(compSelect.selectedOptions).map(o => o.value));
+    compSelect.innerHTML = "";
+    Object.entries(materialDatabase.materials).forEach(([key, material]) => {
+      const hasProperty = !!(material.properties && material.properties[property]);
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.dataset.baseName = material.name || key;
+      opt.dataset.missingProperty = property;
+      opt.disabled = !hasProperty;
+      opt.textContent = material.name || key;
+      if (hasProperty && prevComp.has(key)) opt.selected = true;
+      compSelect.appendChild(opt);
+    });
+  }
+  const limitState = enforceCompSelectionLimit();
+  refreshCompSelectLabels(select.value);
+  setCompSelectionStatus(
+    limitState.trimmed
+      ? `Max ${MAX_COMPARISON_OVERLAYS} comparison overlays allowed. ${limitState.dropped} selection(s) were deselected.`
+      : `Select up to ${MAX_COMPARISON_OVERLAYS} comparisons. Primary is solid line; others are dashed overlays.`,
+    limitState.trimmed
+  );
 }
 
 function populateLayerSelects() {
@@ -771,7 +848,7 @@ function updatePlot() {
   const { plotT, plotValues, property, material, Tmin, Tmax, mass } = currentState;
   const propertyPresentation = getPropertyPresentation(property);
 
-  const yAxisTitle = property === "k"
+  const rawYAxisTitle = property === "k"
     ? "Thermal Conductivity k(T) [W/(m\u00b7K)]"
     : property === "cp"
       ? "Specific Heat cp(T) [J/(kg\u00b7K)]"
@@ -785,6 +862,19 @@ function updatePlot() {
   const isDark = document.documentElement.getAttribute("data-theme") === "dark";
   const fontColor = isDark ? "#e0e0e0" : "#20242a";
   const gridColor = isDark ? "#2a3550" : "#d8dde6";
+  const logTemp = document.getElementById("logTempAxis")?.checked ?? false;
+  const compViewMode = document.getElementById("compViewMode")?.value || "raw";
+
+  const normalizeSeries = (arr) => {
+    const finite = arr.map(v => Number(v)).filter(Number.isFinite);
+    if (!finite.length) return arr.map(() => 0);
+    const denom = Math.max(...finite.map(v => Math.abs(v)));
+    if (!(denom > 0)) return arr.map(() => 0);
+    return arr.map(v => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n / denom : null;
+    });
+  };
 
   const trace = {
     x: plotT,
@@ -796,10 +886,11 @@ function updatePlot() {
   };
 
   const mainLegend = chooseAdaptiveLegendPlacement(plotT, plotValues, 1 + cursorPins.length);
+  currentState.mainLegendPlacement = mainLegend;
 
   const layout = {
-    xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor },
-    yaxis: { title: yAxisTitle, color: fontColor, gridcolor: gridColor, ...(yRange ? { range: yRange } : {}) },
+    xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor, ...(logTemp ? { type: 'log' } : {}) },
+    yaxis: { title: rawYAxisTitle, color: fontColor, gridcolor: gridColor, ...(yRange ? { range: yRange } : {}) },
     legend: {
       ...mainLegend,
       bgcolor: isDark ? "rgba(15,17,23,0.58)" : "rgba(255,255,255,0.72)",
@@ -813,7 +904,81 @@ function updatePlot() {
     plot_bgcolor: "rgba(0,0,0,0)"
   };
 
-  Plotly.newPlot("mainPlot", [trace], layout, { responsive: true });
+  // Build comparison overlay traces for B1
+  const COMP_COLORS = ["#f472b6", "#fb923c", "#a78bfa", "#34d399", "#fbbf24", "#38bdf8", "#f87171"];
+  const compSelect = document.getElementById("compMaterialSelect");
+  const compTraces = [];
+  const primaryKey = document.getElementById("materialSelect")?.value;
+  const limitState = enforceCompSelectionLimit();
+  if (compSelect && compSelect.selectedOptions.length > 0) {
+    let colorIdx = 0;
+    Array.from(compSelect.selectedOptions).forEach((opt) => {
+      if (opt.value === primaryKey) return; // already shown as the primary solid line
+      const compMat = materialDatabase.materials[opt.value];
+      if (!compMat) return;
+      const compVals = plotT.map(t => {
+        try { return propertyValue(compMat, property, t) ?? null; } catch { return null; }
+      });
+      compTraces.push({
+        x: plotT,
+        y: compVals,
+        type: "scatter",
+        mode: "lines",
+        name: compMat.name || opt.value,
+        line: { color: COMP_COLORS[colorIdx % COMP_COLORS.length], width: 1.5, dash: "dash" }
+      });
+      colorIdx++;
+    });
+  }
+
+  const allRawTraces = [trace, ...compTraces];
+  const allNormalizedTraces = allRawTraces.map((t, idx) => ({
+    ...t,
+    y: normalizeSeries(t.y),
+    line: { ...(t.line || {}), width: idx === 0 ? 2.2 : 1.7 }
+  }));
+
+  const compAppliedCount = compTraces.length;
+  setCompSelectionStatus(
+    limitState.trimmed
+      ? `Max ${MAX_COMPARISON_OVERLAYS} overlays applied. ${limitState.dropped} extra selection(s) deselected.`
+      : `Primary + ${compAppliedCount} comparison overlay(s). Max ${MAX_COMPARISON_OVERLAYS}.`,
+    limitState.trimmed
+  );
+
+  if (compViewMode === "normalized") {
+    layout.yaxis = { title: "Normalized value (y / max|y|)", color: fontColor, gridcolor: gridColor, range: [-1.05, 1.05] };
+    Plotly.newPlot("mainPlot", allNormalizedTraces, layout, { responsive: true });
+  } else {
+    Plotly.newPlot("mainPlot", allRawTraces, layout, { responsive: true });
+  }
+
+  const normalizedPanel = document.getElementById("b1NormalizedPanel");
+  if (normalizedPanel) {
+    const showSplit = compViewMode === "split" && compAppliedCount > 0;
+    normalizedPanel.style.display = showSplit ? "" : "none";
+    if (showSplit) {
+      Plotly.newPlot("mainPlotNormalized", allNormalizedTraces, {
+        xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor, ...(logTemp ? { type: 'log' } : {}) },
+        yaxis: { title: "Normalized value (y / max|y|)", color: fontColor, gridcolor: gridColor, range: [-1.05, 1.05] },
+        legend: {
+          x: 0.02,
+          y: 0.98,
+          xanchor: "left",
+          yanchor: "top",
+          bgcolor: isDark ? "rgba(15,17,23,0.58)" : "rgba(255,255,255,0.72)",
+          bordercolor: gridColor,
+          borderwidth: 1,
+          font: { size: 10, color: fontColor }
+        },
+        font: { color: fontColor },
+        margin: { l: 60, r: 40, t: 40, b: 50 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)"
+      }, { responsive: true });
+    }
+  }
+
   attachCursorPinHandler();
 
   const cumulativeIntegral = [0];
@@ -1012,6 +1177,138 @@ function updatePlot() {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)"
   }, { responsive: true });
+
+  // B4 plot: normalized equal-scale comparison (selected actual/cumulative/rate + reference materials)
+  const normalizedPlotEl = document.getElementById("normalizedPlot");
+  const normalizedSummaryEl = document.getElementById("normalizedSummary");
+  const toFiniteNumbers = (arr) => Array.isArray(arr) ? arr.map(v => Number(v)).filter(Number.isFinite) : [];
+  const maxAbs = (arr) => {
+    const finite = toFiniteNumbers(arr);
+    if (!finite.length) return 0;
+    return finite.reduce((m, v) => Math.max(m, Math.abs(v)), 0);
+  };
+  const normalizeAbsSeries = (arr) => {
+    const scale = maxAbs(arr);
+    if (!(scale > 0)) return (arr || []).map(() => 0);
+    return (arr || []).map(v => {
+      const n = Number(v);
+      return Number.isFinite(n) ? Math.abs(n) / scale : 0;
+    });
+  };
+
+  if (normalizedPlotEl && plotT.length > 1) {
+    const selectedNormalized = normalizeAbsSeries(plotValues);
+    const cumulativeNormalized = normalizeAbsSeries(cumulativeIntegral);
+    const rateMagnitudeNormalized = normalizeAbsSeries(dydT);
+
+    const selectedTraceSet = [
+      {
+        x: plotT,
+        y: selectedNormalized,
+        type: "scatter",
+        mode: "lines",
+        name: "Selected |value| normalized",
+        line: { color: "#60a5fa", width: 2.4 }
+      },
+      {
+        x: plotT,
+        y: cumulativeNormalized,
+        type: "scatter",
+        mode: "lines",
+        name: "Selected |cumulative| normalized",
+        line: { color: "#f59e0b", width: 2, dash: "dot" }
+      },
+      {
+        x: plotT,
+        y: rateMagnitudeNormalized,
+        type: "scatter",
+        mode: "lines",
+        name: "Selected |rate| normalized",
+        line: { color: "#8b5cf6", width: 2, dash: "dash" }
+      }
+    ];
+
+    const benchmarkDefs = [
+      { key: "AISI316", label: "SS", color: "#38bdf8" },
+      { key: "Al6061T6", label: "Al", color: "#22d3ee" },
+      { key: "Ti64", label: "Ti", color: "#818cf8" },
+      { key: "CuRRR100", label: "Cu", color: "#34d399" },
+      { key: "G10Normal", label: "Composite", color: "#f97316" }
+    ];
+
+    const benchmarkTraces = [];
+    const benchmarkSummary = [];
+    const propertyUnits = property === "k"
+      ? "W/(m·K)"
+      : property === "cp"
+        ? "J/(kg·K)"
+        : "x1e-5";
+
+    benchmarkDefs.forEach(def => {
+      const refMat = materialDatabase?.materials?.[def.key];
+      if (!refMat?.properties?.[property]) {
+        return;
+      }
+      const rawValues = plotT.map(t => {
+        const n = Number(propertyValue(refMat, property, t));
+        return Number.isFinite(n) ? n : 0;
+      });
+      const refMaxAbs = maxAbs(rawValues);
+      if (!(refMaxAbs > 0)) {
+        return;
+      }
+      benchmarkTraces.push({
+        x: plotT,
+        y: normalizeAbsSeries(rawValues),
+        type: "scatter",
+        mode: "lines",
+        name: `${def.label} normalized`,
+        line: { color: def.color, width: 1.5, dash: "longdashdot" },
+        opacity: 0.7
+      });
+      benchmarkSummary.push(`${def.label}: max=${refMaxAbs.toExponential(3)} ${propertyUnits}`);
+    });
+
+    Plotly.newPlot("normalizedPlot", [...selectedTraceSet, ...benchmarkTraces], {
+      title: `B4 Normalized Equal-Scale View<br><span style="font-size:12px;color:${fontColor};">Selected value/cumulative/rate plus SS-Al-Ti-Cu-Composite references</span>`,
+      xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor },
+      yaxis: {
+        title: "Normalized magnitude (0..1)",
+        color: fontColor,
+        gridcolor: gridColor,
+        range: [0, 1.05]
+      },
+      legend: {
+        x: 0.02,
+        y: 0.98,
+        xanchor: "left",
+        yanchor: "top",
+        orientation: "h",
+        bgcolor: isDark ? "rgba(15,17,23,0.58)" : "rgba(255,255,255,0.72)",
+        bordercolor: gridColor,
+        borderwidth: 1,
+        font: { size: 10, color: fontColor }
+      },
+      font: { color: fontColor },
+      margin: { l: 70, r: 30, t: 74, b: 52 },
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)"
+    }, { responsive: true });
+
+    if (normalizedSummaryEl) {
+      const selectedMaxAbs = maxAbs(plotValues);
+      const cumulativeMaxAbs = maxAbs(cumulativeIntegral);
+      const rateMaxAbs = maxAbs(dydT);
+      normalizedSummaryEl.textContent = [
+        `Selected max |value|=${selectedMaxAbs.toExponential(3)} ${propertyUnits}`,
+        `max |cumulative|=${cumulativeMaxAbs.toExponential(3)}`,
+        `max |rate|=${rateMaxAbs.toExponential(3)}`,
+        benchmarkSummary.length ? `Reference maxima: ${benchmarkSummary.join(" · ")}` : "Reference maxima: unavailable for current property/range"
+      ].join(" | ");
+    }
+  } else if (normalizedSummaryEl) {
+    normalizedSummaryEl.textContent = "B4 normalized benchmark unavailable (insufficient data points).";
+  }
 }
 
 function updateTable() {
@@ -1019,7 +1316,6 @@ function updateTable() {
   const unit = property === "k" ? "W/(m·K)" : property === "cp" ? "J/(kg·K)" : "x1e-5";
   const last = Math.max(0, T.length - 1);
   const desiredRows = 10;
-  const isDark = document.body.classList.contains("dark");
   const sampled = [];
 
   if (last === 0) {
@@ -1043,14 +1339,14 @@ function updateTable() {
         ? "Point 2 (T2)"
         : `Sample ${listPos}`;
     const rowStyle = isP1
-      ? `background:${isDark ? "rgba(254,226,226,0.92)" : "rgba(254,226,226,0.95)"}; color:${isDark ? "#111827" : "inherit"}; box-shadow: inset 4px 0 0 #ef4444;`
+      ? `background:rgba(254,226,226,0.95); color:#111827; box-shadow: inset 4px 0 0 #ef4444;`
       : isP2
-        ? `background:${isDark ? "rgba(220,252,231,0.92)" : "rgba(220,252,231,0.95)"}; color:${isDark ? "#111827" : "inherit"}; box-shadow: inset 4px 0 0 #22c55e;`
+        ? `background:rgba(220,252,231,0.95); color:#111827; box-shadow: inset 4px 0 0 #22c55e;`
         : "";
     const labelStyle = isP1
-      ? `color:#b91c1c; font-weight:700;`
+      ? `color:#7f1d1d; font-weight:700;`
       : isP2
-        ? `color:#166534; font-weight:700;`
+        ? `color:#14532d; font-weight:700;`
         : "font-weight:600;";
     return `<tr style="${rowStyle}"><td style="${labelStyle}">${pointLabel}</td><td>${formatTemperature(T[idx])}</td><td>${formatPropertyValue(values[idx])}</td><td>${unit}</td></tr>`;
   });
@@ -1226,11 +1522,15 @@ function computeRateAtIndex(idx) {
 function attachCursorPinHandler() {
   const mainPlotEl = document.getElementById("mainPlot");
   if (!mainPlotEl || !currentState) return;
+  const compViewMode = document.getElementById("compViewMode")?.value || "raw";
+  const finitePrimary = currentState.plotValues.map(v => Number(v)).filter(Number.isFinite);
+  const primaryScale = finitePrimary.length ? Math.max(...finitePrimary.map(v => Math.abs(v))) : 1;
+  const toDisplayedY = (v) => (compViewMode === "normalized" && primaryScale > 0) ? (v / primaryScale) : v;
 
   // Transparent hit-area trace makes the line surface clickable
   Plotly.addTraces("mainPlot", [{
     x: currentState.plotT,
-    y: currentState.plotValues,
+    y: currentState.plotValues.map(toDisplayedY),
     type: "scatter",
     mode: "markers",
     marker: { size: 10, opacity: 0 },
@@ -1271,14 +1571,48 @@ function renderPinMarkers() {
     Plotly.deleteTraces("mainPlot", -1);
   }
   const pinColors = ["#f87171", "#fbbf24", "#a78bfa"];
+  const compViewMode = document.getElementById("compViewMode")?.value || "raw";
+  const finitePrimary = currentState?.plotValues?.map(v => Number(v)).filter(Number.isFinite) || [];
+  const primaryScale = finitePrimary.length ? Math.max(...finitePrimary.map(v => Math.abs(v))) : 1;
+  const toDisplayedY = (v) => (compViewMode === "normalized" && primaryScale > 0) ? (v / primaryScale) : v;
+  const isDarkPins = document.documentElement.getAttribute("data-theme") === "dark";
+  const pinFontColor = isDarkPins ? "#f8fafc" : "#111827";
+
+  // Build collision-avoidance list: start with the adaptive legend box
+  const pinAvoidBoxes = [];
+  if (currentState?.mainLegendPlacement) {
+    const legendW = Math.min(0.38, 0.19 + (1 + cursorPins.length) * 0.035 + 0.04);
+    const legendH = Math.min(0.36, 0.08 + (1 + cursorPins.length) * 0.05 + 0.05);
+    pinAvoidBoxes.push(getLegendBounds(currentState.mainLegendPlacement, legendW, legendH));
+  }
+  const pinNormalized = (currentState?.plotT && currentState?.plotValues)
+    ? normalizePlotPoints(currentState.plotT, currentState.plotValues)
+    : null;
+  const pinLabelW = 0.18;
+  const pinLabelH = 0.07;
+
   cursorPins.forEach((pin, i) => {
+    let pinTextPos = "top center";
+    if (pinNormalized) {
+      pinTextPos = choosePointLabelPosition(
+        currentState.plotT, currentState.plotValues,
+        { x: pin.T, y: pin.value },
+        { boxWidth: pinLabelW, boxHeight: pinLabelH, avoidBoxes: [...pinAvoidBoxes] }
+      );
+      // Register this label's bounding box so subsequent pins avoid it
+      const normPt = pinNormalized.normalizePoint({ x: pin.T, y: pin.value });
+      pinAvoidBoxes.push(getTextBoxBounds(normPt, pinTextPos, pinLabelW, pinLabelH));
+    }
     Plotly.addTraces("mainPlot", [{
       x: [pin.T],
-      y: [pin.value],
-      mode: "markers",
+      y: [toDisplayedY(pin.value)],
+      mode: "markers+text",
       type: "scatter",
       marker: { size: 14, color: pinColors[i], symbol: "diamond" },
       name: `Pin ${i + 1}: T=${pin.T.toFixed(2)} K, Value=${pin.value.toFixed(6)}`,
+      text: [`P${i + 1}: ${pin.T.toFixed(1)} K`],
+      textposition: pinTextPos,
+      textfont: { size: 11, color: pinFontColor },
       showlegend: true,
       hovertemplate: `T=%{x:.2f} K<br>Value=%{y:.6f}<extra>Pin ${i + 1}</extra>`
     }]);
@@ -1494,6 +1828,39 @@ export async function initApp() {
     if (materialSelect) {
       materialSelect.addEventListener("change", () => {
         calculate();
+        refreshCompSelectLabels(materialSelect.value);
+      });
+    }
+
+    const compSelect = document.getElementById("compMaterialSelect");
+    if (compSelect) {
+      compSelect.addEventListener("change", () => {
+        const primaryKey = document.getElementById("materialSelect")?.value;
+        const limitState = enforceCompSelectionLimit();
+        const selectedCount = Array.from(compSelect.options).filter(
+          opt => opt.selected && !opt.disabled && opt.value !== primaryKey
+        ).length;
+        setCompSelectionStatus(
+          limitState.trimmed
+            ? `Max ${MAX_COMPARISON_OVERLAYS} overlays allowed. ${limitState.dropped} selection(s) were deselected.`
+            : `Primary + ${selectedCount} comparison overlay(s). Max ${MAX_COMPARISON_OVERLAYS}.`,
+          limitState.trimmed
+        );
+        if (currentState) updatePlot();
+      });
+    }
+
+    const compViewMode = document.getElementById("compViewMode");
+    if (compViewMode) {
+      compViewMode.addEventListener("change", () => {
+        if (currentState) updatePlot();
+      });
+    }
+
+    const logTempAxis = document.getElementById("logTempAxis");
+    if (logTempAxis) {
+      logTempAxis.addEventListener("change", () => {
+        if (currentState) updatePlot();
       });
     }
 
@@ -1527,7 +1894,7 @@ export async function initApp() {
       "afterbegin",
       `<div style="background: #fbbf24; color: #000; padding: 20px; margin: 20px; border-radius: 8px;">
         <strong>Error loading dashboard:</strong> ${error.message}<br>
-        Tip: v0.4.6 uses ES6 modules. Open via a local server: <code>python -m http.server</code>
+        Tip: v0.4.7 uses ES6 modules. Open via a local server: <code>python -m http.server</code>
       </div>`
     );
     console.error(error);

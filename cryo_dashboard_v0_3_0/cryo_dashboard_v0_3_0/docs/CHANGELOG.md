@@ -2,6 +2,39 @@
 
 # Changelog
 
+## v0.4.7
+
+### Added
+
+- `dashboard_modular.html` + `js/app_modular.js`: Comparison view mode control
+  (`raw`, `normalized`, `split`) for B1 overlays.
+- `dashboard_modular.html`: New `B1N — Normalized Comparison View` panel shown
+  in split mode.
+- `js/app_modular.js`: Explicit overlay limit (`MAX_COMPARISON_OVERLAYS = 4`)
+  with user-facing status messaging.
+- `js/app_modular.js`: Comparison selector now includes all materials and marks
+  unavailable-property entries as disabled (`no <property> data`) instead of
+  silently hiding them.
+- `js/app_modular.js`: Immediate comparison refresh on selector/mode changes (no
+  mandatory recalculate click for B1-only view updates).
+- `dashboard_modular.html`: Theme toggle label now shows current state
+  (`Theme: Light`/`Theme: Dark`) for visibility.
+
+### Changed
+
+- `dashboard_modular.html`: version label/title bumped from v0.4.6 to v0.4.7;
+  cache-bust updated to `app_modular.js?v=20260505d`.
+- `js/app_modular.js`: B1 comparison overlay logic now skips duplicate primary
+  material trace and preserves color sequencing for remaining overlays.
+- `js/app_modular.js`: Cursor-pin hit targets and markers remain aligned when B1
+  is displayed in normalized mode.
+- `VERSION`: updated to `v0.4.7`.
+
+### Notes
+
+- v0.4.8 planning remains open for extended comparison analytics (for example,
+  optional B2/B3 multi-material overlays) after validation and UX gate review.
+
 ## Unreleased (post-v0.4.6 session finalization)
 
 ### Added
