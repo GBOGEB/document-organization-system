@@ -1536,7 +1536,8 @@ function attachCursorPinHandler() {
     marker: { size: 10, opacity: 0 },
     showlegend: false,
     hoverinfo: "skip",
-    name: "_hit"
+    name: "_hit",
+    meta: { role: "pin-hit-area" }
   }]);
 
   // Re-render surviving pins (same context re-calculate)
@@ -1566,10 +1567,13 @@ function attachCursorPinHandler() {
 function renderPinMarkers() {
   const plotEl = document.getElementById("mainPlot");
   if (!plotEl || !plotEl.data) return;
-  // Remove all traces beyond index 1 (line + hit-area)
-  while (plotEl.data.length > 2) {
-    Plotly.deleteTraces("mainPlot", -1);
-  }
+  // Remove only pin-marker and hit-area traces (tagged via meta.role),
+  // leaving comparison overlay traces untouched.
+  const indicesToRemove = plotEl.data
+    .map((t, i) => (t.meta?.role === "pin-marker" || t.meta?.role === "pin-hit-area") ? i : -1)
+    .filter(i => i >= 0)
+    .reverse(); // delete from highest index first to keep earlier indices stable
+  indicesToRemove.forEach(i => Plotly.deleteTraces("mainPlot", i));
   const pinColors = ["#f87171", "#fbbf24", "#a78bfa"];
   const compViewMode = document.getElementById("compViewMode")?.value || "raw";
   const finitePrimary = currentState?.plotValues?.map(v => Number(v)).filter(Number.isFinite) || [];
@@ -1614,7 +1618,8 @@ function renderPinMarkers() {
       textposition: pinTextPos,
       textfont: { size: 11, color: pinFontColor },
       showlegend: true,
-      hovertemplate: `T=%{x:.2f} K<br>Value=%{y:.6f}<extra>Pin ${i + 1}</extra>`
+      hovertemplate: `T=%{x:.2f} K<br>Value=%{y:.6f}<extra>Pin ${i + 1}</extra>`,
+      meta: { role: "pin-marker" }
     }]);
   });
 
@@ -1713,9 +1718,11 @@ function clearPins() {
   cursorPins = [];
   const plotEl = document.getElementById("mainPlot");
   if (plotEl && plotEl.data) {
-    while (plotEl.data.length > 2) {
-      Plotly.deleteTraces("mainPlot", -1);
-    }
+    const toRemove = plotEl.data
+      .map((t, i) => (t.meta?.role === "pin-marker" || t.meta?.role === "pin-hit-area") ? i : -1)
+      .filter(i => i >= 0)
+      .reverse();
+    toRemove.forEach(i => Plotly.deleteTraces("mainPlot", i));
   }
   const integrationPlotEl = document.getElementById("integrationPlot");
   if (integrationPlotEl && integrationPlotEl.data) {
