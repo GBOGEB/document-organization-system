@@ -1,5 +1,5 @@
 import { loadMaterialDatabase } from "./materials.js";
-import { propertyValue, rangeStatus, equationText } from "./materials.js";
+import { propertyValue, rangeStatus, getPropertyRange, equationText } from "./materials.js";
 import { linspace, trapezoidIntegral, simpsonIntegralUniform, rombergIntegration, gaussLegendre4 } from "./numerics.js";
 import { downloadMainPlotPng } from "./plots.js";
 import {
@@ -76,6 +76,271 @@ function getPropertyPresentation(property) {
     valueUnits: "J/(kg·K)",
     integralUnits: "J/kg"
   };
+}
+
+function clamp01(value) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function getLegendBounds(candidate, width, height) {
+  let left = candidate.x;
+  if (candidate.xanchor === "center") left -= width / 2;
+  if (candidate.xanchor === "right") left -= width;
+
+  let bottom = candidate.y;
+  if (candidate.yanchor === "middle") bottom -= height / 2;
+  if (candidate.yanchor === "top") bottom -= height;
+
+  left = clamp01(left);
+  bottom = clamp01(bottom);
+
+  return {
+    left,
+    right: clamp01(left + width),
+    bottom,
+    top: clamp01(bottom + height)
+  };
+}
+
+function chooseAdaptiveLegendPlacement(plotT, plotValues, legendItems) {
+  const finitePoints = plotT
+    .map((x, index) => ({ x, y: plotValues[index] }))
+    .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+
+  if (finitePoints.length < 2) {
+    return { x: 0.02, y: 0.98, xanchor: "left", yanchor: "top", legendSlot: "A1" };
+  }
+
+  const xMin = Math.min(...finitePoints.map((point) => point.x));
+  const xMax = Math.max(...finitePoints.map((point) => point.x));
+  const yMin = Math.min(...finitePoints.map((point) => point.y));
+  const yMax = Math.max(...finitePoints.map((point) => point.y));
+  const xSpan = xMax - xMin || 1;
+  const ySpan = yMax - yMin || 1;
+
+  const normalized = finitePoints.map((point) => ({
+    x: (point.x - xMin) / xSpan,
+    y: (point.y - yMin) / ySpan
+  }));
+
+  const width = Math.min(0.34, 0.19 + legendItems * 0.035);
+  const height = Math.min(0.32, 0.08 + legendItems * 0.05);
+  const paddedWidth = Math.min(0.38, width + 0.04);
+  const paddedHeight = Math.min(0.36, height + 0.05);
+
+  const candidates = [
+    { legendSlot: "A1", x: 0.02, y: 0.98, xanchor: "left", yanchor: "top" },
+    { legendSlot: "A2", x: 0.5, y: 0.98, xanchor: "center", yanchor: "top" },
+    { legendSlot: "A3", x: 0.98, y: 0.98, xanchor: "right", yanchor: "top" },
+    { legendSlot: "B1", x: 0.02, y: 0.5, xanchor: "left", yanchor: "middle" },
+    { legendSlot: "B3", x: 0.98, y: 0.5, xanchor: "right", yanchor: "middle" },
+    { legendSlot: "B2", x: 0.5, y: 0.5, xanchor: "center", yanchor: "middle" },
+    { legendSlot: "C1", x: 0.02, y: 0.02, xanchor: "left", yanchor: "bottom" },
+    { legendSlot: "C2", x: 0.5, y: 0.02, xanchor: "center", yanchor: "bottom" },
+    { legendSlot: "C3", x: 0.98, y: 0.02, xanchor: "right", yanchor: "bottom" }
+  ];
+
+  const ranked = candidates.map((candidate, preferenceIndex) => {
+    const bounds = getLegendBounds(candidate, width, height);
+    const paddedBounds = getLegendBounds(candidate, paddedWidth, paddedHeight);
+
+    let overlapScore = 0;
+    normalized.forEach((point) => {
+      const insideLegend = point.x >= bounds.left && point.x <= bounds.right && point.y >= bounds.bottom && point.y <= bounds.top;
+      if (insideLegend) {
+        overlapScore += 5;
+        return;
+      }
+
+      const insidePadding = point.x >= paddedBounds.left && point.x <= paddedBounds.right && point.y >= paddedBounds.bottom && point.y <= paddedBounds.top;
+      if (insidePadding) {
+        overlapScore += 1;
+      }
+    });
+
+    const centerPenalty = candidate.legendSlot === "B2" ? 2 : 0;
+    const bottomPenalty = candidate.legendSlot.startsWith("C") ? 1.5 : 0;
+    return { candidate, score: overlapScore + centerPenalty + bottomPenalty, preferenceIndex };
+  });
+
+  ranked.sort((left, right) => {
+    if (left.score !== right.score) return left.score - right.score;
+    return left.preferenceIndex - right.preferenceIndex;
+  });
+
+  return ranked[0].candidate;
+}
+
+function getTextBoxBounds(point, textPosition, width, height) {
+  let left = point.xNorm - width / 2;
+  let right = point.xNorm + width / 2;
+  let bottom = point.yNorm - height / 2;
+  let top = point.yNorm + height / 2;
+
+  if (textPosition.includes("left")) {
+    right = point.xNorm - 0.02;
+    left = right - width;
+  } else if (textPosition.includes("right")) {
+    left = point.xNorm + 0.02;
+    right = left + width;
+  }
+
+  if (textPosition.startsWith("top")) {
+    bottom = point.yNorm + 0.03;
+    top = bottom + height;
+  } else if (textPosition.startsWith("bottom")) {
+    top = point.yNorm - 0.03;
+    bottom = top - height;
+  }
+
+  return { left, right, bottom, top };
+}
+
+function boundsOverlap(a, b) {
+  return !(a.right < b.left || a.left > b.right || a.top < b.bottom || a.bottom > b.top);
+}
+
+function normalizePlotPoints(plotT, plotValues) {
+  const finitePoints = plotT
+    .map((x, index) => ({ x, y: plotValues[index] }))
+    .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+
+  if (finitePoints.length < 2) {
+    return null;
+  }
+
+  const xMin = Math.min(...finitePoints.map((point) => point.x));
+  const xMax = Math.max(...finitePoints.map((point) => point.x));
+  const yMin = Math.min(...finitePoints.map((point) => point.y));
+  const yMax = Math.max(...finitePoints.map((point) => point.y));
+  const xSpan = xMax - xMin || 1;
+  const ySpan = yMax - yMin || 1;
+
+  return {
+    normalizedCurve: finitePoints.map((point) => ({
+      xNorm: (point.x - xMin) / xSpan,
+      yNorm: (point.y - yMin) / ySpan
+    })),
+    normalizePoint(point) {
+      return {
+        ...point,
+        xNorm: (point.x - xMin) / xSpan,
+        yNorm: (point.y - yMin) / ySpan
+      };
+    }
+  };
+}
+
+function choosePointLabelPosition(plotT, plotValues, point, options = {}) {
+  const normalized = normalizePlotPoints(plotT, plotValues);
+  if (!normalized) {
+    return "top center";
+  }
+
+  const normalizedPoint = normalized.normalizePoint(point);
+  const candidates = options.candidates || [
+    "top left",
+    "top center",
+    "top right",
+    "middle left",
+    "middle right",
+    "bottom left",
+    "bottom center",
+    "bottom right"
+  ];
+  const boxWidth = options.boxWidth || 0.23;
+  const boxHeight = options.boxHeight || 0.09;
+  const avoidBoxes = options.avoidBoxes || [];
+
+  let best = { score: Infinity, position: candidates[0] || "top center" };
+  candidates.forEach((position, preferenceIndex) => {
+    const box = getTextBoxBounds(normalizedPoint, position, boxWidth, boxHeight);
+    let score = 0;
+
+    const overflow = [
+      Math.max(0, -box.left),
+      Math.max(0, box.right - 1),
+      Math.max(0, -box.bottom),
+      Math.max(0, box.top - 1)
+    ].reduce((sum, value) => sum + value, 0);
+    score += overflow * 50;
+
+    normalized.normalizedCurve.forEach((curvePoint) => {
+      const inside = curvePoint.xNorm >= box.left && curvePoint.xNorm <= box.right && curvePoint.yNorm >= box.bottom && curvePoint.yNorm <= box.top;
+      if (inside) score += 1;
+    });
+
+    avoidBoxes.forEach((avoidBox) => {
+      if (boundsOverlap(box, avoidBox)) score += 30;
+    });
+
+    if (score < best.score || (score === best.score && preferenceIndex < candidates.indexOf(best.position))) {
+      best = { score, position };
+    }
+  });
+
+  return best.position;
+}
+
+function chooseEndpointLabelPositions(plotT, plotValues, endpoints) {
+  const normalized = normalizePlotPoints(plotT, plotValues);
+  if (!normalized || endpoints.length !== 2) {
+    return ["top left", "top right"];
+  }
+
+  const normalizedEndpoints = endpoints.map((point) => normalized.normalizePoint(point));
+  const candidates = [
+    "top left",
+    "top center",
+    "top right",
+    "middle left",
+    "middle right",
+    "bottom left",
+    "bottom center",
+    "bottom right"
+  ];
+
+  const boxWidth = 0.23;
+  const boxHeight = 0.09;
+  let best = { score: Infinity, positions: ["top left", "top right"] };
+
+  candidates.forEach((firstPosition) => {
+    candidates.forEach((secondPosition) => {
+      const positions = [firstPosition, secondPosition];
+      const boxes = normalizedEndpoints.map((endpoint, index) => getTextBoxBounds(endpoint, positions[index], boxWidth, boxHeight));
+
+      let score = 0;
+      boxes.forEach((box, index) => {
+        const overflow = [
+          Math.max(0, -box.left),
+          Math.max(0, box.right - 1),
+          Math.max(0, -box.bottom),
+          Math.max(0, box.top - 1)
+        ].reduce((sum, value) => sum + value, 0);
+        score += overflow * 50;
+
+        normalized.normalizedCurve.forEach((point) => {
+          const inside = point.xNorm >= box.left && point.xNorm <= box.right && point.yNorm >= box.bottom && point.yNorm <= box.top;
+          if (inside) score += 1;
+        });
+
+        normalizedEndpoints.forEach((endpoint, endpointIndex) => {
+          if (endpointIndex === index) return;
+          const pointInside = endpoint.xNorm >= box.left && endpoint.xNorm <= box.right && endpoint.yNorm >= box.bottom && endpoint.yNorm <= box.top;
+          if (pointInside) score += 20;
+        });
+      });
+
+      if (boundsOverlap(boxes[0], boxes[1])) score += 40;
+      if (positions[0] === positions[1]) score += 2;
+
+      if (score < best.score) {
+        best = { score, positions };
+      }
+    });
+  });
+
+  return best.positions;
 }
 
 function getThermalContractionBranch(material, T) {
@@ -155,6 +420,12 @@ function updateDeltaSummary() {
   const propertyPresentation = getPropertyPresentation(currentState.property);
   const rs = rangeStatus(currentState.material, currentState.property, currentState.Tmin, currentState.Tmax);
   const rsClass = rs === "PASS" ? "ok" : "warning";
+  const [rangeLo, rangeHi] = getPropertyRange(currentState.material, currentState.property);
+  const selectedLo = Math.min(currentState.Tmin, currentState.Tmax);
+  const selectedHi = Math.max(currentState.Tmin, currentState.Tmax);
+  const extrapolationNote = rs === "PASS"
+    ? `Inside NIST validity range ${formatTemperature(rangeLo)}-${formatTemperature(rangeHi)} K; no extrapolation used.`
+    : `Selected range ${formatTemperature(selectedLo)}-${formatTemperature(selectedHi)} K exceeds NIST validity range ${formatTemperature(rangeLo)}-${formatTemperature(rangeHi)} K; extrapolation risk.`;
 
   const integ = deltaSummaryValues.integralK;
   let derivedLine = "";
@@ -180,7 +451,9 @@ function updateDeltaSummary() {
     <p title="Endpoint change in the selected property across the current temperature range.">Δ${propertyPresentation.symbol} = ${propertyPresentation.functionLabel.replace("(T)", "(T2)")} - ${propertyPresentation.functionLabel.replace("(T)", "(T1)")} = ${formatPropertyValue(deltaSummaryValues.deltaK)} ${propertyPresentation.valueUnits}</p>
     <p title="Integral of the selected property over the current temperature range using the active integration method.">∫${propertyPresentation.symbol} dT [T1→T2] = ${formatIntegralValue(integ)} ${propertyPresentation.integralUnits} (active method)</p>
     ${derivedLine}
-    <p title="Indicates whether the selected temperature range lies within the NIST equation validity range for this material and property.">Range check: <span class="${rsClass}">${rs}</span></p>
+    <p title="Published NIST temperature validity range for the selected material and property.">NIST validity range: ${formatTemperature(rangeLo)} K to ${formatTemperature(rangeHi)} K</p>
+    <p title="Indicates whether the selected temperature range lies within the NIST equation validity range for this material and property.">Range check: <span class="${rsClass}">${rs === "PASS" ? "PASS - inside NIST range" : "OUT OF RANGE - extrapolation warning"}</span></p>
+    <p title="Explains whether the current evaluation stays inside published validity limits or requires extrapolation."><em>${extrapolationNote}</em></p>
   `;
 }
 
@@ -465,6 +738,8 @@ function calculate() {
     values,
     plotT,
     plotValues,
+    cumulativeIntegral: [],
+    dydT: [],
     integral,
     methodResults,
     methodDeltasPct
@@ -520,9 +795,18 @@ function updatePlot() {
     line: { color: "#60a5fa", width: 2 }
   };
 
+  const mainLegend = chooseAdaptiveLegendPlacement(plotT, plotValues, 1 + cursorPins.length);
+
   const layout = {
     xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor },
     yaxis: { title: yAxisTitle, color: fontColor, gridcolor: gridColor, ...(yRange ? { range: yRange } : {}) },
+    legend: {
+      ...mainLegend,
+      bgcolor: isDark ? "rgba(15,17,23,0.58)" : "rgba(255,255,255,0.72)",
+      bordercolor: gridColor,
+      borderwidth: 1,
+      font: { size: 10, color: fontColor }
+    },
     font: { color: fontColor },
     margin: { l: 60, r: 40, t: 40, b: 50 },
     paper_bgcolor: "rgba(0,0,0,0)",
@@ -538,6 +822,7 @@ function updatePlot() {
     const area = 0.5 * (plotValues[i] + plotValues[i - 1]) * dT;
     cumulativeIntegral.push(cumulativeIntegral[i - 1] + area);
   }
+  currentState.cumulativeIntegral = cumulativeIntegral;
 
   const integrationTrace = {
     x: plotT,
@@ -563,27 +848,54 @@ function updatePlot() {
   const endpointY1 = propertyValue(material, property, Tmin) || 0;
   const endpointY2 = propertyValue(material, property, Tmax) || 0;
   const endpointLabelPrefix = property === "k" ? "k" : property === "cp" ? "cp" : "Y";
-  const endpointTrace = {
-    x: [Tmin, Tmax],
-    y: [endpointY1, endpointY2],
+  const [endpointT1Position, endpointT2Position] = chooseEndpointLabelPositions(
+    plotT,
+    plotValues,
+    [
+      { x: Tmin, y: endpointY1 },
+      { x: Tmax, y: endpointY2 }
+    ]
+  );
+  const endpointT1Trace = {
+    x: [Tmin],
+    y: [endpointY1],
     type: "scatter",
     mode: "markers+text",
     name: "Endpoint values",
-    marker: { color: ["#ef4444", "#22c55e"], size: 10, symbol: "diamond" },
-    text: [
-      `${endpointLabelPrefix}(T1)=${formatPropertyValue(endpointY1)}`,
-      `${endpointLabelPrefix}(T2)=${formatPropertyValue(endpointY2)}`
-    ],
-    textposition: ["top left", "top right"],
-    textfont: { size: 12 }
+    marker: { color: "#ef4444", size: 10, symbol: "diamond" },
+    text: [`${endpointLabelPrefix}(T1)=${formatPropertyValue(endpointY1)}`],
+    textposition: endpointT1Position,
+    textfont: { size: 12 },
+    showlegend: false
+  };
+
+  const endpointT2Trace = {
+    x: [Tmax],
+    y: [endpointY2],
+    type: "scatter",
+    mode: "markers+text",
+    name: "Endpoint values",
+    marker: { color: "#22c55e", size: 10, symbol: "diamond" },
+    text: [`${endpointLabelPrefix}(T2)=${formatPropertyValue(endpointY2)}`],
+    textposition: endpointT2Position,
+    textfont: { size: 12 },
+    showlegend: false
+  };
+
+  const endpointLegendTrace = {
+    x: [null],
+    y: [null],
+    type: "scatter",
+    mode: "markers",
+    name: "Endpoints (diamonds)",
+    marker: { color: "#64748b", size: 10, symbol: "diamond" },
+    hoverinfo: "skip",
+    showlegend: true
   };
 
   const integralExpr = `I(T) = ∫[Tmin→T] ${propertyPresentation.functionLabel} dT`;
-  const endpointExpr = property === "k"
-    ? `k(T1)=${formatPropertyValue(endpointY1)} W/(m·K), k(T2)=${formatPropertyValue(endpointY2)} W/(m·K)`
-    : property === "cp"
-      ? `cp(T1)=${formatPropertyValue(endpointY1)} J/(kg·K), cp(T2)=${formatPropertyValue(endpointY2)} J/(kg·K)`
-      : `Y(T1)=${formatPropertyValue(endpointY1)} x1e-5, Y(T2)=${formatPropertyValue(endpointY2)} x1e-5`;
+  const endpointUnits = property === "k" ? "W/(m·K)" : property === "cp" ? "J/(kg·K)" : "x1e-5";
+  const endpointExpr = `<span style=\"color:#ef4444;\">${endpointLabelPrefix}(T1)=${formatPropertyValue(endpointY1)} ${endpointUnits}</span> · <span style=\"color:#22c55e;\">${endpointLabelPrefix}(T2)=${formatPropertyValue(endpointY2)} ${endpointUnits}</span>`;
 
   const integrationLayout = {
     title: {
@@ -606,14 +918,100 @@ function updatePlot() {
       side: "right",
       showgrid: false
     },
-    legend: { x: 0.01, y: 0.99, bgcolor: "rgba(0,0,0,0)" },
+    legend: {
+      x: 0.02,
+      y: 0.98,
+      xanchor: "left",
+      yanchor: "top",
+      orientation: "h",
+      bgcolor: isDark ? "rgba(15,17,23,0.55)" : "rgba(255,255,255,0.65)",
+      bordercolor: gridColor,
+      borderwidth: 1
+    },
     font: { color: fontColor },
     margin: { l: 70, r: 70, t: 72, b: 50 },
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)"
   };
 
-  Plotly.newPlot("integrationPlot", [integrationTrace, cumulativeTrace, endpointTrace], integrationLayout, { responsive: true });
+  Plotly.newPlot("integrationPlot", [integrationTrace, cumulativeTrace, endpointT1Trace, endpointT2Trace, endpointLegendTrace], integrationLayout, { responsive: true });
+
+  // B3 plot: local rate-of-change with knee indicator
+  const dydT = [];
+  for (let i = 0; i < plotT.length; i++) {
+    if (i === 0) {
+      dydT.push((plotValues[i + 1] - plotValues[i]) / (plotT[i + 1] - plotT[i]));
+    } else if (i === plotT.length - 1) {
+      dydT.push((plotValues[i] - plotValues[i - 1]) / (plotT[i] - plotT[i - 1]));
+    } else {
+      dydT.push((plotValues[i + 1] - plotValues[i - 1]) / (plotT[i + 1] - plotT[i - 1]));
+    }
+  }
+  currentState.dydT = dydT;
+
+  let kneeIdx = 1;
+  let maxCurvature = -Infinity;
+  for (let i = 1; i < dydT.length - 1; i++) {
+    const dSlope = Math.abs(dydT[i + 1] - dydT[i - 1]);
+    if (dSlope > maxCurvature) {
+      maxCurvature = dSlope;
+      kneeIdx = i;
+    }
+  }
+
+  const kneeT = plotT[kneeIdx];
+  const kneeSlope = dydT[kneeIdx];
+  const derivLabel = property === "k" ? "dk/dT" : property === "cp" ? "dcp/dT" : "dY/dT";
+  const derivUnits = property === "k" ? "W/(m·K²)" : property === "cp" ? "J/(kg·K²)" : "x1e-5/K";
+  const b3LegendBox = getLegendBounds({ x: 0.98, y: 0.98, xanchor: "right", yanchor: "top" }, 0.2, 0.1);
+  const kneeTextPosition = choosePointLabelPosition(plotT, dydT, { x: kneeT, y: kneeSlope }, {
+    candidates: ["top left", "bottom left", "middle left", "bottom center", "top center", "bottom right", "top right"],
+    boxWidth: 0.2,
+    boxHeight: 0.08,
+    avoidBoxes: [b3LegendBox]
+  });
+
+  Plotly.newPlot("ratePlot", [
+    {
+      x: plotT,
+      y: dydT,
+      type: "scatter",
+      mode: "lines",
+      name: derivLabel,
+      line: { color: "#8b5cf6", width: 2 }
+    },
+    {
+      x: [kneeT],
+      y: [kneeSlope],
+      type: "scatter",
+      mode: "markers+text",
+      name: "Knee indicator",
+      marker: { color: "#ef4444", size: 10, symbol: "diamond" },
+      text: [`Knee @ ${formatTemperature(kneeT)} K`],
+      textposition: kneeTextPosition,
+      textfont: {
+        size: 12,
+        color: isDark ? "#f8fafc" : "#111827"
+      }
+    }
+  ], {
+    title: `${derivLabel} vs Temperature<br><span style="font-size:12px;color:${fontColor};">Knee estimate where slope change is strongest</span>`,
+    xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor },
+    yaxis: { title: `${derivLabel} [${derivUnits}]`, color: fontColor, gridcolor: gridColor },
+    legend: {
+      x: 0.98,
+      y: 0.98,
+      xanchor: "right",
+      yanchor: "top",
+      bgcolor: isDark ? "rgba(15,17,23,0.58)" : "rgba(255,255,255,0.72)",
+      bordercolor: gridColor,
+      borderwidth: 1
+    },
+    font: { color: fontColor },
+    margin: { l: 70, r: 30, t: 72, b: 50 },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)"
+  }, { responsive: true });
 }
 
 function updateTable() {
@@ -621,6 +1019,7 @@ function updateTable() {
   const unit = property === "k" ? "W/(m·K)" : property === "cp" ? "J/(kg·K)" : "x1e-5";
   const last = Math.max(0, T.length - 1);
   const desiredRows = 10;
+  const isDark = document.body.classList.contains("dark");
   const sampled = [];
 
   if (last === 0) {
@@ -636,12 +1035,24 @@ function updateTable() {
 
   const indices = Array.from(new Set(sampled)).sort((a, b) => a - b);
   const rows = indices.map((idx, listPos) => {
+    const isP1 = idx === 0;
+    const isP2 = idx === last;
     const pointLabel = idx === 0
       ? "Point 1 (T1)"
       : idx === last
         ? "Point 2 (T2)"
         : `Sample ${listPos}`;
-    return `<tr><td>${pointLabel}</td><td>${formatTemperature(T[idx])}</td><td>${formatPropertyValue(values[idx])}</td><td>${unit}</td></tr>`;
+    const rowStyle = isP1
+      ? `background:${isDark ? "rgba(254,226,226,0.92)" : "rgba(254,226,226,0.95)"}; color:${isDark ? "#111827" : "inherit"}; box-shadow: inset 4px 0 0 #ef4444;`
+      : isP2
+        ? `background:${isDark ? "rgba(220,252,231,0.92)" : "rgba(220,252,231,0.95)"}; color:${isDark ? "#111827" : "inherit"}; box-shadow: inset 4px 0 0 #22c55e;`
+        : "";
+    const labelStyle = isP1
+      ? `color:#b91c1c; font-weight:700;`
+      : isP2
+        ? `color:#166534; font-weight:700;`
+        : "font-weight:600;";
+    return `<tr style="${rowStyle}"><td style="${labelStyle}">${pointLabel}</td><td>${formatTemperature(T[idx])}</td><td>${formatPropertyValue(values[idx])}</td><td>${unit}</td></tr>`;
   });
 
   document.getElementById("evalTable").innerHTML = `
@@ -787,12 +1198,29 @@ Material Source: ${material.source || "NIST"}
 }
 
 function computeCumIntAtIndex(idx) {
+  if (Array.isArray(currentState?.cumulativeIntegral) && Number.isFinite(currentState.cumulativeIntegral[idx])) {
+    return currentState.cumulativeIntegral[idx];
+  }
   const { plotT, plotValues } = currentState;
   let acc = 0;
   for (let i = 1; i <= idx; i++) {
     acc += 0.5 * (plotValues[i] + plotValues[i - 1]) * (plotT[i] - plotT[i - 1]);
   }
   return acc;
+}
+
+function computeRateAtIndex(idx) {
+  if (Array.isArray(currentState?.dydT) && Number.isFinite(currentState.dydT[idx])) {
+    return currentState.dydT[idx];
+  }
+  const { plotT, plotValues } = currentState;
+  if (idx <= 0) {
+    return (plotValues[1] - plotValues[0]) / (plotT[1] - plotT[0]);
+  }
+  if (idx >= plotT.length - 1) {
+    return (plotValues[idx] - plotValues[idx - 1]) / (plotT[idx] - plotT[idx - 1]);
+  }
+  return (plotValues[idx + 1] - plotValues[idx - 1]) / (plotT[idx + 1] - plotT[idx - 1]);
 }
 
 function attachCursorPinHandler() {
@@ -822,9 +1250,11 @@ function attachCursorPinHandler() {
       0
     );
     const pin = {
+      idx,
       T: currentState.plotT[idx],
       value: currentState.plotValues[idx],
-      cumulativeIntegral: computeCumIntAtIndex(idx)
+      cumulativeIntegral: computeCumIntAtIndex(idx),
+      rate: computeRateAtIndex(idx)
     };
     if (cursorPins.length >= 3) cursorPins.shift();
     cursorPins.push(pin);
@@ -845,15 +1275,62 @@ function renderPinMarkers() {
     Plotly.addTraces("mainPlot", [{
       x: [pin.T],
       y: [pin.value],
-      mode: "markers+text",
+      mode: "markers",
       type: "scatter",
       marker: { size: 14, color: pinColors[i], symbol: "diamond" },
-      text: [`${pin.T.toFixed(1)} K`],
-      textposition: "top center",
-      name: `\uD83D\uDCCD Pin ${i + 1}`,
-      showlegend: true
+      name: `Pin ${i + 1}: T=${pin.T.toFixed(2)} K, Value=${pin.value.toFixed(6)}`,
+      showlegend: true,
+      hovertemplate: `T=%{x:.2f} K<br>Value=%{y:.6f}<extra>Pin ${i + 1}</extra>`
     }]);
   });
+
+  const integrationPlotEl = document.getElementById("integrationPlot");
+  if (integrationPlotEl && integrationPlotEl.data) {
+    while (integrationPlotEl.data.length > 5) {
+      Plotly.deleteTraces("integrationPlot", -1);
+    }
+    cursorPins.forEach((pin, i) => {
+      Plotly.addTraces("integrationPlot", [
+        {
+          x: [pin.T],
+          y: [pin.value],
+          type: "scatter",
+          mode: "markers",
+          marker: { size: 12, color: pinColors[i], symbol: "diamond" },
+          showlegend: false,
+          hovertemplate: `T=%{x:.2f} K<br>Value=%{y:.6f}<extra>B2 property Pin ${i + 1}</extra>`
+        },
+        {
+          x: [pin.T],
+          y: [pin.cumulativeIntegral],
+          type: "scatter",
+          mode: "markers",
+          yaxis: "y2",
+          marker: { size: 11, color: pinColors[i], symbol: "circle-open", line: { width: 2, color: pinColors[i] } },
+          showlegend: false,
+          hovertemplate: `T=%{x:.2f} K<br>Cumulative integral=%{y:.6f}<extra>B2 integral Pin ${i + 1}</extra>`
+        }
+      ]);
+    });
+  }
+
+  const ratePlotEl = document.getElementById("ratePlot");
+  if (ratePlotEl && ratePlotEl.data) {
+    while (ratePlotEl.data.length > 2) {
+      Plotly.deleteTraces("ratePlot", -1);
+    }
+    cursorPins.forEach((pin, i) => {
+      Plotly.addTraces("ratePlot", [{
+        x: [pin.T],
+        y: [pin.rate],
+        type: "scatter",
+        mode: "markers",
+        marker: { size: 12, color: pinColors[i], symbol: "diamond" },
+        showlegend: false,
+        hovertemplate: `T=%{x:.2f} K<br>Rate=%{y:.6f}<extra>B3 rate Pin ${i + 1}</extra>`
+      }]);
+    });
+  }
 }
 
 function updatePinsUI() {
@@ -868,6 +1345,7 @@ function updatePinsUI() {
   const prop = currentState?.property || "k";
   const unit = prop === "k" ? "W/(m\u00b7K)" : prop === "cp" ? "J/(kg\u00b7K)" : "x1e-5";
   const intUnit = prop === "k" ? "W/m" : prop === "cp" ? "J/kg" : "x1e-5\u00b7K";
+  const rateUnit = prop === "k" ? "W/(m\u00b7K\u00b2)" : prop === "cp" ? "J/(kg\u00b7K\u00b2)" : "x1e-5/K";
   const pinColors = ["#f87171", "#fbbf24", "#a78bfa"];
   const rows = cursorPins.map((pin, i) => `
     <tr>
@@ -877,6 +1355,8 @@ function updatePinsUI() {
       <td style="color:var(--muted);">${unit}</td>
       <td>${pin.cumulativeIntegral.toFixed(6)}</td>
       <td style="color:var(--muted);">${intUnit}</td>
+      <td>${Number.isFinite(pin.rate) ? pin.rate.toFixed(6) : "n/a"}</td>
+      <td style="color:var(--muted);">${rateUnit}</td>
     </tr>`).join("");
   panel.innerHTML = `
     <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
@@ -887,9 +1367,12 @@ function updatePinsUI() {
         <th style="text-align:left;padding:4px 8px;">Unit</th>
         <th style="text-align:left;padding:4px 8px;">Cumul. Integral</th>
         <th style="text-align:left;padding:4px 8px;">Int. Unit</th>
+        <th style="text-align:left;padding:4px 8px;">Rate</th>
+        <th style="text-align:left;padding:4px 8px;">Rate Unit</th>
       </tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>
+    <p style="margin-top:8px;color:var(--muted);font-size:0.85rem;">Pins are selected once on B1 and mirrored onto B2 (value + cumulative integral) and B3 (rate of change).</p>`;
 }
 
 function clearPins() {
@@ -898,6 +1381,18 @@ function clearPins() {
   if (plotEl && plotEl.data) {
     while (plotEl.data.length > 2) {
       Plotly.deleteTraces("mainPlot", -1);
+    }
+  }
+  const integrationPlotEl = document.getElementById("integrationPlot");
+  if (integrationPlotEl && integrationPlotEl.data) {
+    while (integrationPlotEl.data.length > 5) {
+      Plotly.deleteTraces("integrationPlot", -1);
+    }
+  }
+  const ratePlotEl = document.getElementById("ratePlot");
+  if (ratePlotEl && ratePlotEl.data) {
+    while (ratePlotEl.data.length > 2) {
+      Plotly.deleteTraces("ratePlot", -1);
     }
   }
   updatePinsUI();

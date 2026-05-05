@@ -19,13 +19,13 @@
       --ok: #4ade80;
     }
     :root[data-theme="light"] {
-      --bg: #f6f7f9;
-      --panel: #ffffff;
-      --border: #d8dde6;
-      --text: #20242a;
-      --muted: #606a78;
+      --bg: #eef2f7;
+      --panel: #dde4ee;
+      --border: #8ea0b8;
+      --text: #1a2230;
+      --muted: #3c4a5d;
       --active: #1f6feb;
-      --active-soft: #e8f1ff;
+      --active-soft: #cfd9e8;
       --warn: #a15c00;
       --ok: #116329;
     }
@@ -435,6 +435,14 @@
     <div id="integrationPlot"></div>
   </div>
 
+  <div class="panel" title="Rate-of-change view (B3): derivative of selected property vs temperature with knee indicator.">
+    <h2>B3 — Rate of Change / Knee Indicator</h2>
+    <div class="plot-toolbar">
+      <button class="btn-popup" onclick="openPlotPopup('ratePlot','B3 Rate of Change Plot')">⛶ Landscape View / PDF</button>
+    </div>
+    <div id="ratePlot"></div>
+  </div>
+
   <div class="panel">
     <h2>Export</h2>
     <button id="exportCsvBtn">Export CSV</button>
@@ -456,10 +464,10 @@
         </select>
       </div>
     </div>
-    <div class="field-hint" style="margin-bottom:10px;">Publication exports use vector SVG plots for legibility. Sizing defaults apply to portrait/landscape A4; log mode only affects B1 when valid.</div>
+    <div class="field-hint" style="margin-bottom:10px;">Publication exports use vector SVG plots for legibility. B1 (value), B2 (integration), and B3 (rate/knee) are exported together with proportional legend/axis scaling.</div>
     <button class="btn-popup" onclick="openDashboardPagePopup()">🧾 Dashboard Page PDF (A4)</button>
-    <button class="btn-popup" onclick="openPlotsLandscapePagePopup()">🖼 B1+B2 Full Page (A4 Landscape)</button>
-    <button class="btn-popup" onclick="openPlotsPortraitPagePopup()">🖼 B1+B2 Full Page (A4 Portrait)</button>
+    <button class="btn-popup" onclick="openPlotsLandscapePagePopup()">🖼 B1+B2+B3 Full Page (A4 Landscape)</button>
+    <button class="btn-popup" onclick="openPlotsPortraitPagePopup()">🖼 B1+B2+B3 Full Page (A4 Portrait)</button>
     <button class="btn-popup" onclick="openSlideLandscapePopup()">🎞 Single Slide (16:9 Landscape)</button>
   </div>
 
@@ -828,11 +836,19 @@
       if (!layout.font) layout.font = {};
       if (!layout.legend) layout.legend = {};
       const sizeScale = Math.min(width / 1300, height / 900);
-      const baseFont = publication ? 14 : 12;
-      const fontSize = Math.max(11, Math.round(baseFont * sizeScale));
+      const baseFont = publication ? 11 : 11;
+      const fontSize = Math.min(12, Math.max(10, Math.round(baseFont * sizeScale)));
       layout.font.size = fontSize;
-      layout.legend.font = Object.assign({}, layout.legend.font || {}, { size: Math.max(10, fontSize - 1) });
+      layout.legend.font = Object.assign({}, layout.legend.font || {}, { size: Math.max(9, fontSize - 1) });
       layout.legend.itemsizing = 'constant';
+      if (layout.legend.x == null) layout.legend.x = 0.02;
+      if (layout.legend.y == null) layout.legend.y = 0.02;
+      if (!layout.legend.xanchor) layout.legend.xanchor = 'left';
+      if (!layout.legend.yanchor) layout.legend.yanchor = 'bottom';
+      if (!layout.legend.orientation) layout.legend.orientation = 'h';
+      layout.legend.bgcolor = layout.legend.bgcolor || 'rgba(255,255,255,0.72)';
+      layout.legend.bordercolor = layout.legend.bordercolor || '#cbd5e1';
+      layout.legend.borderwidth = layout.legend.borderwidth || 1;
 
       if (layout.xaxis) {
         layout.xaxis.tickfont = Object.assign({}, layout.xaxis.tickfont || {}, { size: Math.max(10, fontSize - 1) });

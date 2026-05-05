@@ -292,6 +292,49 @@
       color: #1e3c72;
       margin-bottom: 4px;
     }
+    .legend-block {
+      margin: 16px 30px;
+      background: #fff8e6;
+      border: 1px solid #ffe08a;
+      border-left: 4px solid #f59e0b;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #6b4f00;
+    }
+    .legend-block h3 {
+      margin-bottom: 8px;
+      color: #7c4a03;
+      font-size: 1.05em;
+    }
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .legend-note {
+      font-size: 0.9em;
+      color: #7c5c12;
+    }
+    .kickoff-box {
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 12px 0 16px;
+    }
+    .kickoff-box pre {
+      margin: 10px 0 0;
+      white-space: pre-wrap;
+      font-size: 0.9em;
+      color: #1e3c72;
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-radius: 6px;
+      padding: 10px;
+    }
     footer {
       background: #f8f9fa;
       padding: 20px;
@@ -400,7 +443,70 @@
       </div>
     </div>
 
+    <div class="legend-block">
+      <h3>🏷️ Badge / Color Legend</h3>
+      <div class="legend-row">
+        <span class="badge badge-core">CORE / CANONICAL / INDEX</span>
+        <span>Blue badges mark current runtime-critical, canonical, baseline, preview, or machine-readable index artifacts.</span>
+      </div>
+      <div class="legend-row">
+        <span class="badge badge-doc">LEGACY / REFERENCE / HISTORICAL / TOOLING</span>
+        <span>Amber badges mark legacy, reference, snapshot, historical, or tooling/support artifacts.</span>
+      </div>
+      <div class="legend-note">The colors are semantic first and visual second. They are not just for contrast: blue means current/canonical use, amber means keep for context, reference, migration, or tooling.</div>
+    </div>
+
     <div class="content">
+      <div class="section">
+        <h2>🧾 Current Session Continuity</h2>
+        <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
+          Current continuation state for v0.4.6. Use this block for intent, tuple summary, version-control references, active TODO, and copy-ready restart text.
+        </p>
+        <div class="kickoff-box">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
+            <strong style="color:#1e3c72;">Copy-Ready Next Session Kickoff</strong>
+            <button class="mini-copy-btn" onclick="copyText(this, document.getElementById('nextSessionKickoffText').innerText)">Copy kickoff text</button>
+          </div>
+          <pre id="nextSessionKickoffText">I am continuing from Cryogenic Dashboard v0.4.6 continuation state.
+
+Treat v0.4.6 as the current canonical baseline, but not a concluded release close.
+
+Start intake in this order:
+1. README.md
+2. FINAL_HANDOVER.md
+3. docs/SESSION_DROPIN_HANDOVER_v0.4.6.md
+4. docs/CHANGELOG.md
+5. file_index.yaml or file_index.json
+6. files.html
+
+Authoring branch: feature/method-comparison-panel
+Transport/PR branch: feature/method-comparison-panel-clean-v2
+
+Immediate carry-forward TODO:
+- testing-depth improvements
+- GitHub roundtrip / clean branch sync
+- export consistency follow-up</pre>
+        </div>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="SESSION_SUMMARY.md" class="md-toggle-target" data-md-path="SESSION_SUMMARY.md"><span class="file-icon">🧾</span>SESSION_SUMMARY.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Current tuple session summary, intent, canonical sources, version-control references, and active TODO carry-forward.</div>
+          </div>
+          <div class="file-item">
+            <a href="FINAL_HANDOVER.md" class="md-toggle-target" data-md-path="FINAL_HANDOVER.md"><span class="file-icon">📄</span>FINAL_HANDOVER.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Retrieval runbook, canonical artifacts, and minimum artifact set for the current continuation baseline.</div>
+          </div>
+          <div class="file-item">
+            <a href="docs/SESSION_DROPIN_HANDOVER_v0.4.6.md" class="md-toggle-target" data-md-path="docs/SESSION_DROPIN_HANDOVER_v0.4.6.md"><span class="file-icon">🚪</span>SESSION_DROPIN_HANDOVER_v0.4.6.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Copy-ready next-session intake sequence, minimum share set, and clean-branch roundtrip guidance.</div>
+          </div>
+          <div class="file-item">
+            <a href="docs/CHANGELOG.md" class="md-toggle-target" data-md-path="docs/CHANGELOG.md"><span class="file-icon">🧭</span>docs/CHANGELOG.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Change log for this session's canonical updates, continuity work, and next-iteration TODO framing.</div>
+          </div>
+        </div>
+      </div>
+
       <div class="section">
         <h2>🏠 Dashboard Versions</h2>
         <div class="file-grid">
@@ -518,6 +624,9 @@
           <button id="mdModeRaw" type="button" onclick="setMarkdownMode('raw')">Raw Markdown (.md file)</button>
           <span class="md-mode-note" id="mdModeNote">Current mode: rendered view for readability.</span>
         </div>
+        <p style="margin:0 0 14px; color:#64748b; font-size:0.9em;">
+          Reader workflow: use <strong>Rendered Markdown</strong> for styled reading, structure review, and browser PDF print; use <strong>Raw Markdown</strong> for source inspection and diff-oriented review. HTML pages are previewed via <a href="html_preview_hub.html">html_preview_hub.html</a>.
+        </p>
         <div class="file-grid">
           <div class="file-item">
             <a href="README.md" class="md-toggle-target" data-md-path="README.md"><span class="file-icon">📖</span>README.md<span class="badge badge-core">CANONICAL</span></a>
@@ -551,6 +660,14 @@
                 class="badge badge-core">CANONICAL</span></a>
             <div class="file-desc"><strong>Path:</strong> <code>./GIT_TRACKING_MANIFEST.md</code><br>Git strategy and tracked files
               (v0.4.6)</div>
+            </div>
+            <div class="file-item">
+              <a href="file_index.yaml"><span class="file-icon">🧭</span>file_index.yaml<span class="badge badge-core">INDEX</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./file_index.yaml</code><br>Machine-readable start-here and minimum-artifact index for scripted intake or packaging</div>
+            </div>
+            <div class="file-item">
+              <a href="file_index.json"><span class="file-icon">🧭</span>file_index.json<span class="badge badge-core">INDEX</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./file_index.json</code><br>JSON companion to <code>file_index.yaml</code> for external tools and automated handover checks</div>
             </div>
             <div class="file-item">
               <a href="FILE_INDEX_v0.4.5.md" class="md-toggle-target" data-md-path="FILE_INDEX_v0.4.5.md"><span class="file-icon">🗂️</span>FILE_INDEX_v0.4.5.md<span
@@ -743,6 +860,7 @@
     <footer>
       <p><strong>Cryogenic Material Dashboard</strong> <span id="footerVersion">v0.4.6</span></p>
       <p id="footerStatus">File Browser | Checking server status...</p>
+      <p style="margin-top: 10px; font-size: 0.9em; color: #7c5c12;">Badge meaning: <span class="badge badge-core">blue</span> = current/canonical/index/baseline, <span class="badge badge-doc">amber</span> = legacy/reference/historical/tooling. Colors support readability, but the badge text carries the real status meaning.</p>
       <p style="margin-top: 10px; opacity: 0.7;">Navigate to any file above or <a href="dashboard_modular.html"
           style="color: #667eea; font-weight: bold;">launch the modular dashboard</a></p>
     </footer>
