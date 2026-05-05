@@ -17,7 +17,6 @@ let currentState = null;
 let resultMode = "single";
 let cursorPins = [];
 let lastPinContext = null;
-let _pinClickHandler = null; // tracks the active plotly_click handler for surgical removal
 const MAX_COMPARISON_OVERLAYS = 4;
 
 function setCompSelectionStatus(message, isWarning = false) {
@@ -59,6 +58,100 @@ function formatIntegralValue(value) {
 
 function formatPercent(value) {
   return formatModularPercent(value);
+}
+
+function computeCentralDerivative(xValues, yValues) {
+  const derivative = [];
+  for (let index = 0; index < xValues.length; index += 1) {
+    if (index === 0) {
+      derivative.push((yValues[index + 1] - yValues[index]) / (xValues[index + 1] - xValues[index]));
+    } else if (index === xValues.length - 1) {
+      derivative.push((yValues[index] - yValues[index - 1]) / (xValues[index] - xValues[index - 1]));
+    } else {
+      derivative.push((yValues[index + 1] - yValues[index - 1]) / (xValues[index + 1] - xValues[index - 1]));
+    }
+  }
+  return derivative;
+}
+
+function computeCumulativeIntegral(xValues, yValues) {
+  const cumulative = [0];
+  for (let index = 1; index < xValues.length; index += 1) {
+    const deltaT = xValues[index] - xValues[index - 1];
+    const area = 0.5 * (yValues[index] + yValues[index - 1]) * deltaT;
+    cumulative.push(cumulative[index - 1] + area);
+  }
+  return cumulative;
+}
+
+function findKneePoint(xValues, firstDerivative) {
+  let kneeIdx = 1;
+  let maxSecondDerivativeMagnitude = -Infinity;
+
+  for (let index = 1; index < firstDerivative.length - 1; index += 1) {
+    const deltaT = xValues[index + 1] - xValues[index - 1];
+    if (!(deltaT > 0)) continue;
+    const secondDerivative = (firstDerivative[index + 1] - firstDerivative[index - 1]) / deltaT;
+    const magnitude = Math.abs(secondDerivative);
+    if (magnitude > maxSecondDerivativeMagnitude) {
+      maxSecondDerivativeMagnitude = magnitude;
+      kneeIdx = index;
+    }
+  }
+
+  return {
+    kneeIdx,
+    secondDerivativeMagnitude: Number.isFinite(maxSecondDerivativeMagnitude) ? maxSecondDerivativeMagnitude : 0
+  };
+}
+
+function findDerivativeZeroCrossing(xValues, firstDerivative, referenceIdx = null) {
+  const candidates = [];
+
+  for (let index = 0; index < firstDerivative.length - 1; index += 1) {
+    const leftValue = firstDerivative[index];
+    const rightValue = firstDerivative[index + 1];
+    const leftTemp = xValues[index];
+    const rightTemp = xValues[index + 1];
+
+    if (!Number.isFinite(leftValue) || !Number.isFinite(rightValue)) continue;
+    if (!(rightTemp > leftTemp)) continue;
+
+    if (leftValue === 0) {
+      candidates.push({ t: leftTemp, y: 0, sourceIndex: index });
+      continue;
+    }
+
+    if (rightValue === 0) {
+      candidates.push({ t: rightTemp, y: 0, sourceIndex: index + 1 });
+      continue;
+    }
+
+    if (leftValue * rightValue < 0) {
+      const fraction = Math.abs(leftValue) / (Math.abs(leftValue) + Math.abs(rightValue));
+      candidates.push({
+        t: leftTemp + fraction * (rightTemp - leftTemp),
+        y: 0,
+        sourceIndex: index + fraction
+      });
+    }
+  }
+
+  if (!candidates.length) return null;
+  if (referenceIdx === null) return candidates[0];
+
+  const referenceTemp = xValues[Math.max(0, Math.min(xValues.length - 1, Math.round(referenceIdx)))];
+  candidates.sort((left, right) => Math.abs(left.t - referenceTemp) - Math.abs(right.t - referenceTemp));
+  return candidates[0];
+}
+
+function isLegendVisible(buttonId) {
+  return document.getElementById(buttonId)?.dataset.visible !== "false";
+}
+
+function updatePanelSummary(elementId, message) {
+  const element = document.getElementById(elementId);
+  if (element) element.textContent = message;
 }
 
 function getMethodLabel(method) {
@@ -482,6 +575,10 @@ function updateDeltaSummary() {
     <p title="Indicates whether the selected temperature range lies within the NIST equation validity range for this material and property.">Range check: <span class="${rsClass}">${rs === "PASS" ? "PASS - inside NIST range" : "OUT OF RANGE - extrapolation warning"}</span></p>
     <p title="Explains whether the current evaluation stays inside published validity limits or requires extrapolation."><em>${extrapolationNote}</em></p>
   `;
+  updatePanelSummary(
+    "deltaSummaryHint",
+    `Δ${propertyPresentation.symbol} = ${formatPropertyValue(deltaSummaryValues.deltaK)} ${propertyPresentation.valueUnits} · ${rs === "PASS" ? "inside NIST range" : "extrapolation warning"}`
+  );
 }
 
 function updateQuickOutputs() {
@@ -667,10 +764,14 @@ function populateMaterialSelect(preferredKey) {
       compSelect.appendChild(opt);
     });
   }
+  const limitState = enforceCompSelectionLimit();
   refreshCompSelectLabels(select.value);
-  // Show a static hint; the live limit-enforcement status is set by updatePlot() whenever
-  // calculate() runs, avoiding a redundant enforceCompSelectionLimit() call here.
-  setCompSelectionStatus(`Select up to ${MAX_COMPARISON_OVERLAYS} comparisons. Primary is solid line; others are dashed overlays.`);
+  setCompSelectionStatus(
+    limitState.trimmed
+      ? `Max ${MAX_COMPARISON_OVERLAYS} comparison overlays allowed. ${limitState.dropped} selection(s) were deselected.`
+      : `Select up to ${MAX_COMPARISON_OVERLAYS} comparisons. Primary is solid line; others are dashed overlays.`,
+    limitState.trimmed
+  );
 }
 
 function populateLayerSelects() {
@@ -842,7 +943,7 @@ function updateEquationPanel() {
 }
 
 function updatePlot() {
-  const { plotT, plotValues, property, material, Tmin, Tmax, mass } = currentState;
+  const { plotT, plotValues, property, material, Tmin, Tmax } = currentState;
   const propertyPresentation = getPropertyPresentation(property);
 
   const rawYAxisTitle = property === "k"
@@ -860,18 +961,28 @@ function updatePlot() {
   const fontColor = isDark ? "#e0e0e0" : "#20242a";
   const gridColor = isDark ? "#2a3550" : "#d8dde6";
   const logTemp = document.getElementById("logTempAxis")?.checked ?? false;
+  const logValue = document.getElementById("logValueAxis")?.checked ?? false;
   const compViewMode = document.getElementById("compViewMode")?.value || "raw";
+  const b4Absolute = document.getElementById("b4AbsoluteToggle")?.checked ?? true;
+  const b4LogX = document.getElementById("b4LogXAxis")?.checked ?? false;
+  const b4ReferenceMode = document.getElementById("b4ReferenceMode")?.value || "all";
 
-  const normalizeSeries = (arr) => {
+  const normalizeSeries = (arr, useAbsolute = false) => {
     const finite = arr.map(v => Number(v)).filter(Number.isFinite);
     if (!finite.length) return arr.map(() => 0);
     const denom = Math.max(...finite.map(v => Math.abs(v)));
     if (!(denom > 0)) return arr.map(() => 0);
     return arr.map(v => {
       const n = Number(v);
-      return Number.isFinite(n) ? n / denom : null;
+      if (!Number.isFinite(n)) return null;
+      return useAbsolute ? Math.abs(n) / denom : n / denom;
     });
   };
+
+  const canUseLogOnSeries = (seriesCollection) => seriesCollection.every((series) => {
+    const finite = Array.isArray(series) ? series.map(Number).filter(Number.isFinite) : [];
+    return finite.length === 0 || finite.every((value) => value > 0);
+  });
 
   const trace = {
     x: plotT,
@@ -888,6 +999,7 @@ function updatePlot() {
   const layout = {
     xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor, ...(logTemp ? { type: 'log' } : {}) },
     yaxis: { title: rawYAxisTitle, color: fontColor, gridcolor: gridColor, ...(yRange ? { range: yRange } : {}) },
+    showlegend: isLegendVisible("legendToggleB1"),
     legend: {
       ...mainLegend,
       bgcolor: isDark ? "rgba(15,17,23,0.58)" : "rgba(255,255,255,0.72)",
@@ -934,6 +1046,20 @@ function updatePlot() {
     y: normalizeSeries(t.y),
     line: { ...(t.line || {}), width: idx === 0 ? 2.2 : 1.7 }
   }));
+  const displayedTraces = compViewMode === "normalized" ? allNormalizedTraces : allRawTraces;
+  const useLogY = logValue && canUseLogOnSeries(displayedTraces.map(traceItem => traceItem.y));
+  layout.yaxis = {
+    ...layout.yaxis,
+    ...(useLogY ? { type: "log" } : {})
+  };
+
+  const b1AxisModeNote = document.getElementById("b1AxisModeNote");
+  if (b1AxisModeNote) {
+    const yState = logValue
+      ? (useLogY ? "Y log" : "Y requested log, held linear because visible values include zero/negative")
+      : "Y linear";
+    b1AxisModeNote.textContent = `Scale mode: X ${logTemp ? "log" : "linear"} · ${yState}.`;
+  }
 
   const compAppliedCount = compTraces.length;
   setCompSelectionStatus(
@@ -944,7 +1070,7 @@ function updatePlot() {
   );
 
   if (compViewMode === "normalized") {
-    layout.yaxis = { title: "Normalized value (y / max|y|)", color: fontColor, gridcolor: gridColor, range: [-1.05, 1.05] };
+    layout.yaxis = { title: "Normalized value (y / max|y|)", color: fontColor, gridcolor: gridColor, range: [-1.05, 1.05], ...(useLogY ? { type: "log" } : {}) };
     Plotly.newPlot("mainPlot", allNormalizedTraces, layout, { responsive: true });
   } else {
     Plotly.newPlot("mainPlot", allRawTraces, layout, { responsive: true });
@@ -958,6 +1084,7 @@ function updatePlot() {
       Plotly.newPlot("mainPlotNormalized", allNormalizedTraces, {
         xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor, ...(logTemp ? { type: 'log' } : {}) },
         yaxis: { title: "Normalized value (y / max|y|)", color: fontColor, gridcolor: gridColor, range: [-1.05, 1.05] },
+        showlegend: isLegendVisible("legendToggleB1"),
         legend: {
           x: 0.02,
           y: 0.98,
@@ -978,12 +1105,7 @@ function updatePlot() {
 
   attachCursorPinHandler();
 
-  const cumulativeIntegral = [0];
-  for (let i = 1; i < plotT.length; i++) {
-    const dT = plotT[i] - plotT[i - 1];
-    const area = 0.5 * (plotValues[i] + plotValues[i - 1]) * dT;
-    cumulativeIntegral.push(cumulativeIntegral[i - 1] + area);
-  }
+  const cumulativeIntegral = computeCumulativeIntegral(plotT, plotValues);
   currentState.cumulativeIntegral = cumulativeIntegral;
 
   const integrationTrace = {
@@ -1099,27 +1221,11 @@ function updatePlot() {
   Plotly.newPlot("integrationPlot", [integrationTrace, cumulativeTrace, endpointT1Trace, endpointT2Trace, endpointLegendTrace], integrationLayout, { responsive: true });
 
   // B3 plot: local rate-of-change with knee indicator
-  const dydT = [];
-  for (let i = 0; i < plotT.length; i++) {
-    if (i === 0) {
-      dydT.push((plotValues[i + 1] - plotValues[i]) / (plotT[i + 1] - plotT[i]));
-    } else if (i === plotT.length - 1) {
-      dydT.push((plotValues[i] - plotValues[i - 1]) / (plotT[i] - plotT[i - 1]));
-    } else {
-      dydT.push((plotValues[i + 1] - plotValues[i - 1]) / (plotT[i + 1] - plotT[i - 1]));
-    }
-  }
+  const dydT = computeCentralDerivative(plotT, plotValues);
   currentState.dydT = dydT;
 
-  let kneeIdx = 1;
-  let maxCurvature = -Infinity;
-  for (let i = 1; i < dydT.length - 1; i++) {
-    const dSlope = Math.abs(dydT[i + 1] - dydT[i - 1]);
-    if (dSlope > maxCurvature) {
-      maxCurvature = dSlope;
-      kneeIdx = i;
-    }
-  }
+  const { kneeIdx, secondDerivativeMagnitude } = findKneePoint(plotT, dydT);
+  const derivativeZeroCrossing = findDerivativeZeroCrossing(plotT, dydT, kneeIdx);
 
   const kneeT = plotT[kneeIdx];
   const kneeSlope = dydT[kneeIdx];
@@ -1133,7 +1239,7 @@ function updatePlot() {
     avoidBoxes: [b3LegendBox]
   });
 
-  Plotly.newPlot("ratePlot", [
+  const b3Traces = [
     {
       x: plotT,
       y: dydT,
@@ -1156,10 +1262,39 @@ function updatePlot() {
         color: isDark ? "#f8fafc" : "#111827"
       }
     }
-  ], {
-    title: `${derivLabel} vs Temperature<br><span style="font-size:12px;color:${fontColor};">Knee estimate where slope change is strongest</span>`,
+  ];
+
+  if (derivativeZeroCrossing) {
+    b3Traces.push({
+      x: [derivativeZeroCrossing.t],
+      y: [0],
+      type: "scatter",
+      mode: "markers+text",
+      name: "dy/dT = 0",
+      marker: {
+        color: "#10b981",
+        size: 9,
+        symbol: "circle-open",
+        line: { color: "#10b981", width: 2 }
+      },
+      text: [`dy/dT = 0 @ ${formatTemperature(derivativeZeroCrossing.t)} K`],
+      textposition: "bottom right",
+      textfont: {
+        size: 11,
+        color: isDark ? "#d1fae5" : "#065f46"
+      }
+    });
+  }
+
+  const zeroCrossingNote = derivativeZeroCrossing
+    ? ` Zero crossing near ${formatTemperature(derivativeZeroCrossing.t)} K marks dy/dT = 0.`
+    : "";
+
+  Plotly.newPlot("ratePlot", b3Traces, {
+    title: `${derivLabel} vs Temperature<br><span style="font-size:12px;color:${fontColor};">B3 shows dy/dT. Knee estimate = max |d²y/dT²| central-difference score (${secondDerivativeMagnitude.toExponential(3)} max score).${zeroCrossingNote}</span>`,
     xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor },
     yaxis: { title: `${derivLabel} [${derivUnits}]`, color: fontColor, gridcolor: gridColor },
+    showlegend: isLegendVisible("legendToggleB3"),
     legend: {
       x: 0.98,
       y: 0.98,
@@ -1178,49 +1313,62 @@ function updatePlot() {
   // B4 plot: normalized equal-scale comparison (selected actual/cumulative/rate + reference materials)
   const normalizedPlotEl = document.getElementById("normalizedPlot");
   const normalizedSummaryEl = document.getElementById("normalizedSummary");
-  const toFiniteNumbers = (arr) => Array.isArray(arr) ? arr.map(v => Number(v)).filter(Number.isFinite) : [];
+  const normalizedHeadingEl = document.getElementById("b4Heading");
+  const toFiniteNumbers = (arr) => Array.isArray(arr) ? arr.filter(v => v != null).map(v => Number(v)).filter(Number.isFinite) : [];
   const maxAbs = (arr) => {
     const finite = toFiniteNumbers(arr);
     if (!finite.length) return 0;
     return finite.reduce((m, v) => Math.max(m, Math.abs(v)), 0);
   };
-  const normalizeAbsSeries = (arr) => {
+  const normalizeSelectedSeries = (arr) => {
     const scale = maxAbs(arr);
-    if (!(scale > 0)) return (arr || []).map(() => 0);
+    if (!(scale > 0)) return (arr || []).map(() => null);
     return (arr || []).map(v => {
       const n = Number(v);
-      return Number.isFinite(n) ? Math.abs(n) / scale : 0;
+      if (!Number.isFinite(n)) return null;
+      return b4Absolute ? Math.abs(n) / scale : n / scale;
     });
   };
 
   if (normalizedPlotEl && plotT.length > 1) {
-    const selectedNormalized = normalizeAbsSeries(plotValues);
-    const cumulativeNormalized = normalizeAbsSeries(cumulativeIntegral);
-    const rateMagnitudeNormalized = normalizeAbsSeries(dydT);
+    const selectedNormalized = normalizeSelectedSeries(plotValues);
+    const cumulativeNormalized = normalizeSelectedSeries(cumulativeIntegral);
+    const rateMagnitudeNormalized = normalizeSelectedSeries(dydT);
 
+    if (normalizedHeadingEl) {
+      normalizedHeadingEl.textContent = `B4 — Normalized Benchmark for ${propertyPresentation.name} (Equal Scale)`;
+    }
+
+    const b4DerivUnits = property === "k" ? "W/(m·K²)" : property === "cp" ? "J/(kg·K²)" : "x1e-5/K";
     const selectedTraceSet = [
       {
         x: plotT,
         y: selectedNormalized,
+        customdata: plotValues,
+        hovertemplate: `T: %{x:.1f} K<br>Normalized: %{y:.4f}<br>Actual: %{customdata:.4g} ${propertyPresentation.valueUnits}<extra></extra>`,
         type: "scatter",
         mode: "lines",
-        name: "Selected |value| normalized",
+        name: `Selected ${b4Absolute ? "|value|" : "value"} normalized`,
         line: { color: "#60a5fa", width: 2.4 }
       },
       {
         x: plotT,
         y: cumulativeNormalized,
+        customdata: cumulativeIntegral,
+        hovertemplate: `T: %{x:.1f} K<br>Normalized: %{y:.4f}<br>Actual: %{customdata:.4g} ${propertyPresentation.integralUnits}<extra></extra>`,
         type: "scatter",
         mode: "lines",
-        name: "Selected |cumulative| normalized",
+        name: `Selected ${b4Absolute ? "|cumulative|" : "cumulative"} normalized`,
         line: { color: "#f59e0b", width: 2, dash: "dot" }
       },
       {
         x: plotT,
         y: rateMagnitudeNormalized,
+        customdata: dydT,
+        hovertemplate: `T: %{x:.1f} K<br>Normalized: %{y:.4f}<br>Actual: %{customdata:.4g} ${b4DerivUnits}<extra></extra>`,
         type: "scatter",
         mode: "lines",
-        name: "Selected |rate| normalized",
+        name: `Selected ${b4Absolute ? "|rate|" : "rate"} normalized`,
         line: { color: "#8b5cf6", width: 2, dash: "dash" }
       }
     ];
@@ -1247,34 +1395,50 @@ function updatePlot() {
         return;
       }
       const rawValues = plotT.map(t => {
-        const n = Number(propertyValue(refMat, property, t));
-        return Number.isFinite(n) ? n : 0;
+        try {
+          const n = Number(propertyValue(refMat, property, t));
+          return Number.isFinite(n) ? n : null;
+        } catch { return null; }
       });
       const refMaxAbs = maxAbs(rawValues);
       if (!(refMaxAbs > 0)) {
         return;
       }
-      benchmarkTraces.push({
-        x: plotT,
-        y: normalizeAbsSeries(rawValues),
-        type: "scatter",
-        mode: "lines",
-        name: `${def.label} normalized`,
-        line: { color: def.color, width: 1.5, dash: "longdashdot" },
-        opacity: 0.7
+      const referenceSeries = {
+        value: rawValues,
+        cumulative: computeCumulativeIntegral(plotT, rawValues),
+        rate: computeCentralDerivative(plotT, rawValues)
+      };
+      const includeSeries = b4ReferenceMode === "all" ? ["value", "cumulative", "rate"] : [b4ReferenceMode];
+      const refSeriesUnits = { value: propertyPresentation.valueUnits, cumulative: propertyPresentation.integralUnits, rate: b4DerivUnits };
+      includeSeries.forEach((seriesKey) => {
+        const dashMap = { value: "longdashdot", cumulative: "dot", rate: "dash" };
+        const seriesActual = referenceSeries[seriesKey];
+        benchmarkTraces.push({
+          x: plotT,
+          y: normalizeSelectedSeries(seriesActual),
+          customdata: seriesActual,
+          hovertemplate: `T: %{x:.1f} K<br>Normalized: %{y:.4f}<br>Actual: %{customdata:.4g} ${refSeriesUnits[seriesKey] || propertyPresentation.valueUnits}<extra></extra>`,
+          type: "scatter",
+          mode: "lines",
+          name: `${def.label} ${b4Absolute ? `|${seriesKey}|` : seriesKey} normalized`,
+          line: { color: def.color, width: 1.5, dash: dashMap[seriesKey] || "longdashdot" },
+          opacity: 0.72
+        });
       });
       benchmarkSummary.push(`${def.label}: max=${refMaxAbs.toExponential(3)} ${propertyUnits}`);
     });
 
     Plotly.newPlot("normalizedPlot", [...selectedTraceSet, ...benchmarkTraces], {
-      title: `B4 Normalized Equal-Scale View<br><span style="font-size:12px;color:${fontColor};">Selected value/cumulative/rate plus SS-Al-Ti-Cu-Composite references</span>`,
-      xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor },
+      title: `B4 Normalized Equal-Scale View — ${propertyPresentation.symbol}(T)<br><span style="font-size:12px;color:${fontColor};">Selected traces always show value, cumulative, and rate. Reference mode: ${b4ReferenceMode}. Magnitude mode: ${b4Absolute ? "absolute" : "signed"}.</span>`,
+      xaxis: { title: "Temperature [K]", color: fontColor, gridcolor: gridColor, ...(b4LogX ? { type: "log" } : {}) },
       yaxis: {
-        title: "Normalized magnitude (0..1)",
+        title: b4Absolute ? "Normalized magnitude (0..1)" : "Normalized signed value (-1..1)",
         color: fontColor,
         gridcolor: gridColor,
-        range: [0, 1.05]
+        range: b4Absolute ? [0, 1.05] : [-1.05, 1.05]
       },
+      showlegend: isLegendVisible("legendToggleB4"),
       legend: {
         x: 0.02,
         y: 0.98,
@@ -1297,21 +1461,16 @@ function updatePlot() {
       const cumulativeMaxAbs = maxAbs(cumulativeIntegral);
       const rateMaxAbs = maxAbs(dydT);
       normalizedSummaryEl.textContent = [
+        `Current property: ${propertyPresentation.name} (${propertyPresentation.symbol}(T))`,
         `Selected max |value|=${selectedMaxAbs.toExponential(3)} ${propertyUnits}`,
         `max |cumulative|=${cumulativeMaxAbs.toExponential(3)}`,
         `max |rate|=${rateMaxAbs.toExponential(3)}`,
+        `X scale: ${b4LogX ? "log" : "linear"}; normalization: ${b4Absolute ? "absolute" : "signed"}; references: ${b4ReferenceMode}`,
         benchmarkSummary.length ? `Reference maxima: ${benchmarkSummary.join(" · ")}` : "Reference maxima: unavailable for current property/range"
       ].join(" | ");
     }
-  } else {
-    // Insufficient data: purge any stale B4 chart left from a previous calculation,
-    // then update the summary element if present.
-    if (normalizedPlotEl) {
-      Plotly.purge("normalizedPlot");
-    }
-    if (normalizedSummaryEl) {
-      normalizedSummaryEl.textContent = "B4 normalized benchmark unavailable (insufficient data points).";
-    }
+  } else if (normalizedSummaryEl) {
+    normalizedSummaryEl.textContent = "B4 normalized benchmark unavailable (insufficient data points).";
   }
 }
 
@@ -1369,6 +1528,7 @@ function updateResults() {
   const propertyPresentation = getPropertyPresentation(property);
 
   if (property === "k") {
+    updatePanelSummary("integrationResultsSummary", `${selectedMethodLabel} · ∫k dT = ${formatIntegralValue(integral)} W/m`);
     document.getElementById("integrationResults").innerHTML = `
       <p><strong>Selected Method:</strong> ${selectedMethodLabel}</p>
       <p title="Formula used by the active integration method."><em>${methodEquationNote(method)}</em></p>
@@ -1383,6 +1543,7 @@ function updateResults() {
     `;
   } else if (property === "cp") {
     const energy = mass * integral;
+    updatePanelSummary("integrationResultsSummary", `${selectedMethodLabel} · ∫cp dT = ${formatIntegralValue(integral)} J/kg`);
     document.getElementById("integrationResults").innerHTML = `
       <p><strong>Selected Method:</strong> ${selectedMethodLabel}</p>
       <p title="Formula used by the active integration method."><em>${methodEquationNote(method)}</em></p>
@@ -1400,6 +1561,7 @@ function updateResults() {
     `;
   } else {
     const tc = getThermalContractionMetrics();
+    updatePanelSummary("integrationResultsSummary", `${selectedMethodLabel} · Y(T) endpoint ratio / delta length view`);
     document.getElementById("integrationResults").innerHTML = `
       <p><strong>Selected Method:</strong> ${selectedMethodLabel}</p>
       <p title="Formula used by the active integration method."><em>${methodEquationNote(method)}</em></p>
@@ -1540,20 +1702,13 @@ function attachCursorPinHandler() {
     marker: { size: 10, opacity: 0 },
     showlegend: false,
     hoverinfo: "skip",
-    name: "_hit",
-    meta: { role: "pin-hit-area" }
+    name: "_hit"
   }]);
 
   // Re-render surviving pins (same context re-calculate)
   renderPinMarkers();
 
-  // Guard against duplicate handlers: remove the previously registered click listener
-  // by reference before attaching a fresh one. Without this, each updatePlot() call
-  // would stack an additional handler, causing N pins to be added per click after N updates.
-  if (_pinClickHandler) {
-    mainPlotEl.off("plotly_click", _pinClickHandler);
-  }
-  _pinClickHandler = (eventData) => {
+  mainPlotEl.on("plotly_click", (eventData) => {
     if (!currentState || !eventData.points.length) return;
     const clickedT = eventData.points[0].x;
     const idx = currentState.plotT.reduce(
@@ -1571,20 +1726,16 @@ function attachCursorPinHandler() {
     cursorPins.push(pin);
     renderPinMarkers();
     updatePinsUI();
-  };
-  mainPlotEl.on("plotly_click", _pinClickHandler);
+  });
 }
 
 function renderPinMarkers() {
   const plotEl = document.getElementById("mainPlot");
   if (!plotEl || !plotEl.data) return;
-  // Remove only pin-marker and hit-area traces (tagged via meta.role),
-  // leaving comparison overlay traces untouched.
-  const indicesToRemove = plotEl.data
-    .map((t, i) => (t.meta?.role === "pin-marker" || t.meta?.role === "pin-hit-area") ? i : -1)
-    .filter(i => i >= 0)
-    .reverse(); // delete from highest index first to keep earlier indices stable
-  indicesToRemove.forEach(i => Plotly.deleteTraces("mainPlot", i));
+  // Remove all traces beyond index 1 (line + hit-area)
+  while (plotEl.data.length > 2) {
+    Plotly.deleteTraces("mainPlot", -1);
+  }
   const pinColors = ["#f87171", "#fbbf24", "#a78bfa"];
   const compViewMode = document.getElementById("compViewMode")?.value || "raw";
   const finitePrimary = currentState?.plotValues?.map(v => Number(v)).filter(Number.isFinite) || [];
@@ -1629,8 +1780,7 @@ function renderPinMarkers() {
       textposition: pinTextPos,
       textfont: { size: 11, color: pinFontColor },
       showlegend: true,
-      hovertemplate: `T=%{x:.2f} K<br>Value=%{y:.6f}<extra>Pin ${i + 1}</extra>`,
-      meta: { role: "pin-marker" }
+      hovertemplate: `T=%{x:.2f} K<br>Value=%{y:.6f}<extra>Pin ${i + 1}</extra>`
     }]);
   });
 
@@ -1729,11 +1879,9 @@ function clearPins() {
   cursorPins = [];
   const plotEl = document.getElementById("mainPlot");
   if (plotEl && plotEl.data) {
-    const toRemove = plotEl.data
-      .map((t, i) => (t.meta?.role === "pin-marker" || t.meta?.role === "pin-hit-area") ? i : -1)
-      .filter(i => i >= 0)
-      .reverse();
-    toRemove.forEach(i => Plotly.deleteTraces("mainPlot", i));
+    while (plotEl.data.length > 2) {
+      Plotly.deleteTraces("mainPlot", -1);
+    }
   }
   const integrationPlotEl = document.getElementById("integrationPlot");
   if (integrationPlotEl && integrationPlotEl.data) {
@@ -1881,6 +2029,22 @@ export async function initApp() {
         if (currentState) updatePlot();
       });
     }
+
+    const logValueAxis = document.getElementById("logValueAxis");
+    if (logValueAxis) {
+      logValueAxis.addEventListener("change", () => {
+        if (currentState) updatePlot();
+      });
+    }
+
+    ["b4AbsoluteToggle", "b4LogXAxis", "b4ReferenceMode"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", () => {
+          if (currentState) updatePlot();
+        });
+      }
+    });
 
     const yAxisInputHandler = () => { if (currentState) updatePlot(); };
     ["yAxisMin", "yAxisMax"].forEach(id => {
