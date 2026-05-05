@@ -4,6 +4,20 @@
 
 
 
+
+## v0.4.9
+**Date:** 2026-05-05
+
+### Added
+- Describe new feature 1
+- Describe new feature 2
+
+### Changed
+- Describe changed behavior
+
+### Fixed
+- Describe bug fix
+
 ## v0.4.8
 **Date:** 2026-05-05
 
