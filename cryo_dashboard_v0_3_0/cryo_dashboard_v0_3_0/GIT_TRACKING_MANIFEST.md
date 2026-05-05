@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD022 MD032 -->
 
-# GIT TRACKING MANIFEST v0.4.7
-**Generated:** 2026-04-28  
+# GIT TRACKING MANIFEST v0.4.9
+**Generated:** 2026-05-05  
 **Purpose:** Definitive tracked-file manifest for the current release
 
 
@@ -41,12 +41,12 @@
 - `DASHBOARD_TESTING_GUIDE.md`
 - `STANDALONE_VS_PYTHON.md`
 - `GIT_TRACKING_MANIFEST.md`
-- `FILE_INDEX_v0.4.7.md`
+- `FILE_INDEX_v0.4.9.md`
 - `FINAL_HANDOVER.md`
 - `docs/CHANGELOG.md`
-- `docs/SESSION_DROPIN_HANDOVER_v0.4.7.md`
+- `docs/SESSION_DROPIN_HANDOVER_v0.4.9.md`
 - `docs/GRAPH_EXPORT_HANDLING_AND_FALLBACK.md`
-- `docs/PR_RELEASE_v0.4.7.md`
+- `docs/PR_RELEASE_v0.4.9.md`
 - `docs/BASELINE_VERIFICATION_v0.4.5.md`
 - `docs/ENGINEERING_HANDOVER.md`
 - `docs/HANDOVER_v0.4.5.md`
@@ -82,8 +82,8 @@
 ```bash
 git status
 git --no-pager log --oneline -10
-git tag -a v0.4.7 -m "v0.4.7 release"
-git archive --format=zip --output=cryo_dashboard_v0.4.7_clean.zip HEAD
+git tag -a v0.4.9 -m "v0.4.9 release"
+git archive --format=zip --output=cryo_dashboard_v0.4.9_clean.zip HEAD
 ```
 
 
@@ -97,7 +97,7 @@ git archive --format=zip --output=cryo_dashboard_v0.4.7_clean.zip HEAD
 
 
 
-**Manifest Status:** Current for v0.4.7
+**Manifest Status:** Current for v0.4.9
 
 
 

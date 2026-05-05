@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD060 -->
 
-# 🧊 Cryogenic Material Property Dashboard — v0.4.7
+# 🧊 Cryogenic Material Property Dashboard — v0.4.9
 
 **SCK CEN Engineering Tool** — 10 NIST materials · k(T) + cp(T) + Thermal
 Contraction · 1–300 K
@@ -11,7 +11,7 @@ Contraction · 1–300 K
 
 Open the hosted URL in any browser. No Python, no server, no install.
 
-```text
+``github`text
 https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html
 ```
 
@@ -46,7 +46,7 @@ Windows shortcuts: double-click `start_server.bat` or run `start_dashboard.ps1`.
 | Page | GitHub Pages | Double-click file:// | Local http:// |
 |---|---|---|---|
 | `index.html` (landing) | ✅ | ✅ | ✅ |
-| `dashboard_modular.html` *(primary v0.4.7)* | ✅ | ❌ ES6 modules blocked | ✅ |
+| `dashboard_modular.html` *(primary v0.4.9)* | ✅ | ❌ ES6 modules blocked | ✅ |
 | `material_properties_dashboard_v1_10.html` *(legacy v1.10)* | ✅ | ✅ self-contained | ✅ |
 | `files.html` (this navigator) | ✅ | ✅ | ✅ |
 | `html_preview_hub.html` | ✅ | ✅ | ✅ |
@@ -57,7 +57,7 @@ Windows shortcuts: double-click `start_server.bat` or run `start_dashboard.ps1`.
 
 ```
 index.html          ← Start here — version selector and capability tier guide
-  ├─ dashboard_modular.html     ← Primary v0.4.7 dashboard (GitHub Pages or localhost)
+  ├─ dashboard_modular.html     ← Primary v0.4.9 dashboard (GitHub Pages or localhost)
   ├─ material_properties_dashboard_v1_10.html  ← Legacy v1.10 (double-click OK)
   └─ files.html     ← Full artifact navigator + this spot-check guide
 ```
@@ -68,7 +68,7 @@ If you only open three things, use this order:
 
 1. `index.html` — first entry point and runtime chooser.
 2. `files.html` — canonical navigator for docs, previews, and artifact classes.
-3. `dashboard_modular.html` — primary v0.4.7 runtime once you are ready to
+3. `dashboard_modular.html` — primary v0.4.9 runtime once you are ready to
    calculate/export.
 
 Minimum artifact set for handover or clean reuse:
@@ -82,7 +82,7 @@ Minimum artifact set for handover or clean reuse:
 - `README.md`
 - `FINAL_HANDOVER.md`
 - `docs/CHANGELOG.md`
-- `docs/SESSION_DROPIN_HANDOVER_v0.4.7.md`
+- `docs/SESSION_DROPIN_HANDOVER_v0.4.9.md`
 - `VERSION`
 
 Machine-readable companion indexes:
@@ -108,7 +108,7 @@ SPECIFIC HEAT cp(T)  [J/(kg·K)]
   ∫cp(T)dT [J/kg]    — integral over T1→T2
   Energy   [J]       — m [kg] × ∫cp dT  (cooldown/warmup energy)
 
-THERMAL CONTRACTION Y(T)  [×10⁻⁵]  (v0.4.7, 5 materials)
+THERMAL CONTRACTION Y(T)  [×10⁻⁵]  (v0.4.9, 5 materials)
   Y = (L(T) − L₂₉₃) / L₂₉₃
   Strain   [m/m]
   ΔL       [m]       — between T1 and T2
@@ -169,7 +169,7 @@ NIST reference values.
 | v0.4.4 | Modular JS | Single Method / Compare All result mode |
 | v0.4.5 | Modular JS | Delta Summary panel; delta/integral export alignment |
 | v0.4.6 | Modular JS | Thermal contraction Y(T); KPI strip; dual-axis plot; v1.10 deprecated |
-| v0.4.7 | Modular JS | B1 comparison raw/normalized/split view; max-4 overlays; disabled no-data compare entries |
+| v0.4.9 | Modular JS | B1 comparison raw/normalized/split view; max-4 overlays; disabled no-data compare entries |
 
 Full modular changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md)
 
@@ -217,7 +217,7 @@ Target artifact updates for next iteration:
 | `data/materials.json` | Canonical NIST coefficient database |
 | `js/materials.js` | Property evaluator and NIST equation forms |
 | `js/numerics.js` | All 4 numerical integration methods |
-| `js/app_modular.js` | v0.4.7 primary orchestrator |
+| `js/app_modular.js` | v0.4.9 primary orchestrator |
 | `docs/CHANGELOG.md` | v0.4.x engineering changelog |
 | `material_properties_docs/DMAIC_VERSION_LOG.md` | v1.x VBA/HTML lineage log |
 | `DASHBOARD_TESTING_GUIDE.md` | Manual test procedures with expected output guide |

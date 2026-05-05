@@ -2,6 +2,25 @@
 
 # Changelog
 
+
+
+
+## v0.4.9
+**Date:** 2026-05-05
+
+### Added
+- Describe new feature 1
+- Describe new feature 2
+
+### Changed
+- Describe changed behavior
+
+### Fixed
+- Describe bug fix
+
+## v0.4.8
+**Date:** 2026-05-05
+
 ## v0.4.7
 
 ### Added
@@ -35,7 +54,7 @@
 - v0.4.8 planning remains open for extended comparison analytics (for example,
   optional B2/B3 multi-material overlays) after validation and UX gate review.
 
-## Unreleased (post-v0.4.7 session finalization)
+## Unreleased (post-v0.4.6 session finalization)
 
 ### Added
 
