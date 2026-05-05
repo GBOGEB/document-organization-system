@@ -17,6 +17,7 @@ let currentState = null;
 let resultMode = "single";
 let cursorPins = [];
 let lastPinContext = null;
+let _pinClickHandler = null; // tracks the active plotly_click handler for surgical removal
 const MAX_COMPARISON_OVERLAYS = 4;
 
 function setCompSelectionStatus(message, isWarning = false) {
@@ -1546,11 +1547,13 @@ function attachCursorPinHandler() {
   // Re-render surviving pins (same context re-calculate)
   renderPinMarkers();
 
-  // Guard against duplicate handlers: remove any previously registered click listeners
-  // before attaching a fresh one. Without this, each updatePlot() call would stack an
-  // additional handler, causing N pins to be added per click after N plot updates.
-  mainPlotEl.removeAllListeners("plotly_click");
-  mainPlotEl.on("plotly_click", (eventData) => {
+  // Guard against duplicate handlers: remove the previously registered click listener
+  // by reference before attaching a fresh one. Without this, each updatePlot() call
+  // would stack an additional handler, causing N pins to be added per click after N updates.
+  if (_pinClickHandler) {
+    mainPlotEl.off("plotly_click", _pinClickHandler);
+  }
+  _pinClickHandler = (eventData) => {
     if (!currentState || !eventData.points.length) return;
     const clickedT = eventData.points[0].x;
     const idx = currentState.plotT.reduce(
@@ -1568,7 +1571,8 @@ function attachCursorPinHandler() {
     cursorPins.push(pin);
     renderPinMarkers();
     updatePinsUI();
-  });
+  };
+  mainPlotEl.on("plotly_click", _pinClickHandler);
 }
 
 function renderPinMarkers() {
