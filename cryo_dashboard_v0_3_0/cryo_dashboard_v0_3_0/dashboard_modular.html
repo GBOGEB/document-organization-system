@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cryogenic Material Dashboard v0.4.6 — Modular</title>
+  <title>Cryogenic Material Dashboard v0.4.7 — Modular</title>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <link rel="stylesheet" href="style.css" />
   <style>
@@ -220,23 +220,71 @@
       font-weight: 700;
       vertical-align: middle;
     }
+
+    /* ── Layout toggle button ── */
+    .layout-toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 180px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text);
+      z-index: 1000;
+      transition: all 0.2s;
+    }
+    .layout-toggle-btn:hover { border-color: var(--active); transform: scale(1.05); }
+    .layout-toggle-btn.active { background: var(--active-soft); border-color: var(--active); color: var(--active); }
+
+    /* ── Fixed 16:9 landscape layout ── */
+    body.layout-fixed { max-width: 1600px; min-width: 1200px; margin-left: auto; margin-right: auto; }
+
+    /* ── Quick nav bar ── */
+    .nav-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.85rem; }
+    .nav-bar strong { color: var(--muted); font-size: 0.78rem; margin-right: 2px; }
+    .nav-bar .back-link { margin-bottom: 0; }
+
+    /* ── Plot square toggle ── */
+    #mainPlot { min-height: 300px; }
+    #mainPlotNormalized { min-height: 300px; }
+    #mainPlot.plot-square { aspect-ratio: 1 / 1; }
+
+    /* ── Comparison multi-select ── */
+    #compMaterialSelect option:checked { background: var(--active-soft); }
   </style>
 </head>
 <body>
   <button class="theme-toggle-btn" onclick="toggleTheme()">
-    <span id="theme-icon">🌙</span> Toggle Theme
+    <span id="theme-icon">🌙</span> <span id="theme-label">Theme: Light</span>
   </button>
+  <button class="layout-toggle-btn" id="layoutToggleBtn" onclick="toggleLayout()" title="Toggle fixed 16:9 landscape viewport (max-width: 1600px, centred). Good for laptop screens.">&#x1F4D0; Fixed View</button>
 
   <a href="index.html" class="back-link">← Back to Version Selector</a>
-  <div style="margin-bottom:12px;font-size:0.9rem;">
-    <a href="files.html" class="back-link" style="margin-right:12px;">File Browser</a>
-    <a href="html_preview_hub.html" class="back-link" style="margin-right:12px;">HTML Preview Hub</a>
-    <a href="visual_key.yaml" class="back-link">Visual Key</a>
+  <div class="nav-bar" style="margin-top:10px;margin-bottom:4px;">
+    <strong>Navigate:</strong>
+    <a href="files.html" class="back-link">📁 File Browser</a>
+    <a href="html_preview_hub.html" class="back-link">🌐 HTML Preview Hub</a>
+    <a href="visual_key.yaml" class="back-link">🔑 Visual Key</a>
+    <a href="index.html" class="back-link">🏠 Version Selector</a>
+  </div>
+  <div class="nav-bar" style="margin-bottom:16px;">
+    <strong>Jump to:</strong>
+    <a href="#controlsPanel" class="back-link">⚙ Controls</a>
+    <a href="#quickOutputsPanel" class="back-link">📊 Outputs</a>
+    <a href="#b1Panel" class="back-link">B1 Plot</a>
+    <a href="#cursorPinsPanel" class="back-link">📍 Pins</a>
+    <a href="#b2Panel" class="back-link">B2 Integration</a>
+    <a href="#b3Panel" class="back-link">B3 Rate</a>
+    <a href="#b4Panel" class="back-link">B4 Normalized</a>
+    <a href="#exportPanel" class="back-link">📤 Export</a>
   </div>
   
   <h1>
     Cryogenic Material Property Dashboard 
-    <span class="note">v0.4.6</span>
+    <span class="note">v0.4.7</span>
     <span class="version-badge">MODULAR</span>
   </h1>
 
@@ -278,6 +326,22 @@
           <option value="cp">Specific Heat cp(T)</option>
           <option value="tc">Thermal Contraction Y(T)</option>
         </select>
+      </div>
+
+      <div>
+        <details style="margin-top:2px;">
+          <summary style="cursor:pointer;font-size:0.85rem;color:var(--active);user-select:none;list-style:none;" title="Select additional materials to overlay on B1 for visual comparison. Hold Ctrl/Cmd to select multiple.">+ Comparison overlays on B1 (optional)</summary>
+          <div style="margin-top:6px;">
+            <label for="compViewMode" style="font-size:0.78rem;font-weight:600;color:var(--muted);margin-bottom:4px;">Comparison View</label>
+            <select id="compViewMode" style="width:100%;font-size:0.82rem;margin-bottom:6px;" title="Choose how B1 comparison is shown.">
+              <option value="raw" selected>Raw values (default)</option>
+              <option value="normalized">Normalized values</option>
+              <option value="split">Split view: raw + normalized</option>
+            </select>
+            <select id="compMaterialSelect" multiple size="6" style="width:100%;font-size:0.82rem;" title="Hold Ctrl/Cmd to select up to 4 comparison materials. Primary selected material is always shown as solid line."></select>
+            <div id="compSelectionStatus" class="field-hint">Select up to 4 comparisons. Primary is solid line; others are dashed overlays.</div>
+          </div>
+        </details>
       </div>
 
       <div>
@@ -371,20 +435,30 @@
     </div>
   </div>
 
-  <div class="panel" title="Quick calculation outputs for the current inputs and selected method.">
+  <div class="panel" id="quickOutputsPanel" title="Quick calculation outputs for the current inputs and selected method.">
     <h2>Quick Outputs</h2>
     <div id="quickOutputs" class="quick-kpis"></div>
   </div>
 
-  <div class="panel" title="Plot of the currently selected property across the chosen temperature range.">
+  <div class="panel" id="b1Panel" title="Plot of the currently selected property across the chosen temperature range.">
     <h2>Selected Property vs Temperature</h2>
     <div class="plot-toolbar">
-      <label>Y-axis min: <input type="number" id="yAxisMin" style="width:80px;" placeholder="auto" title="Leave blank for auto-range"></label>
-      <label>Y-axis max: <input type="number" id="yAxisMax" style="width:80px;" placeholder="auto" title="Leave blank for auto-range"></label>
+      <label title="Y minimum: leave blank for Plotly auto-range (fits to data). Enter a value to lock the lower bound.">Y min: <input type="number" id="yAxisMin" style="width:70px;" placeholder="auto"></label>
+      <label title="Y maximum: leave blank for Plotly auto-range. Enter a value to lock the upper bound.">Y max: <input type="number" id="yAxisMax" style="width:70px;" placeholder="auto"></label>
+      <label title="Apply log scale to the temperature (x) axis. Useful for wide ranges (e.g. 4–300 K) to show low-T detail clearly." style="font-size:0.85rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="logTempAxis"> Log T (x)</label>
       <button id="downloadPlotBtn">⬇ PNG</button>
+      <button class="btn-popup" id="legendToggleB1" data-visible="true" onclick="toggleLegend('mainPlot', this)" title="Show or hide the plot legend">👁 Legend</button>
+      <button class="btn-popup" id="squareToggleB1" onclick="togglePlotAspect('mainPlot', this)" title="Toggle between landscape (wide) and square aspect ratio">□ Square</button>
       <button class="btn-popup" onclick="openPlotPopup('mainPlot','Property vs Temperature')">⛶ Landscape View / PDF</button>
     </div>
+    <div class="field-hint" style="margin-bottom:4px;">Y-axis: blank = auto-scale to data · enter value to lock range · use mouse scroll/drag to zoom/pan on plot · double-click to reset zoom. Log T useful for wide T ranges.</div>
     <div id="mainPlot"></div>
+  </div>
+
+  <div class="panel" id="b1NormalizedPanel" style="display:none;" title="Normalized comparison view for B1 overlays.">
+    <h2>B1N — Normalized Comparison View</h2>
+    <div class="field-hint" style="margin-bottom:6px;">Each visible B1 curve is scaled by its own max absolute value over the current range: y_norm = y / max(|y|). Use for shape comparison.</div>
+    <div id="mainPlotNormalized"></div>
   </div>
 
   <div class="panel" id="cursorPinsPanel">
@@ -427,23 +501,34 @@
     <div id="energyResults"></div>
   </div>
 
-  <div class="panel" title="Cumulative integral of the selected property from T1 to T over the chosen range.">
+  <div class="panel" id="b2Panel" title="Cumulative integral of the selected property from T1 to T over the chosen range.">
     <h2>Selected Property Over Temperature Range</h2>
     <div class="plot-toolbar">
+      <button class="btn-popup" id="legendToggleB2" data-visible="true" onclick="toggleLegend('integrationPlot', this)" title="Show or hide the plot legend">👁 Legend</button>
       <button class="btn-popup" onclick="openPlotPopup('integrationPlot','Cumulative Integration Plot')">⛶ Landscape View / PDF</button>
     </div>
     <div id="integrationPlot"></div>
   </div>
 
-  <div class="panel" title="Rate-of-change view (B3): derivative of selected property vs temperature with knee indicator.">
+  <div class="panel" id="b3Panel" title="Rate-of-change view (B3): derivative of selected property vs temperature with knee indicator.">
     <h2>B3 — Rate of Change / Knee Indicator</h2>
     <div class="plot-toolbar">
+      <button class="btn-popup" id="legendToggleB3" data-visible="true" onclick="toggleLegend('ratePlot', this)" title="Show or hide the plot legend">👁 Legend</button>
       <button class="btn-popup" onclick="openPlotPopup('ratePlot','B3 Rate of Change Plot')">⛶ Landscape View / PDF</button>
     </div>
     <div id="ratePlot"></div>
   </div>
 
-  <div class="panel">
+  <div class="panel" id="b4Panel" title="B4 normalized benchmark view: selected curve, cumulative integral, and |rate| normalized to 0..1 with equal scale references across SS/Al/Ti/Cu/Composite.">
+    <h2>B4 — Normalized Benchmark (Equal Scale)</h2>
+    <div class="plot-toolbar">
+      <button class="btn-popup" onclick="openPlotPopup('normalizedPlot','B4 Normalized Benchmark Plot')">⛶ Landscape View / PDF</button>
+    </div>
+    <div id="normalizedPlot"></div>
+    <div id="normalizedSummary" class="field-hint" style="margin-top:8px;">Run Calculate to generate normalized benchmark view.</div>
+  </div>
+
+  <div class="panel" id="exportPanel">
     <h2>Export</h2>
     <button id="exportCsvBtn">Export CSV</button>
     <button id="exportJsonBtn">Export JSON</button>
@@ -464,10 +549,12 @@
         </select>
       </div>
     </div>
-    <div class="field-hint" style="margin-bottom:10px;">Publication exports use vector SVG plots for legibility. B1 (value), B2 (integration), and B3 (rate/knee) are exported together with proportional legend/axis scaling.</div>
+    <div class="field-hint" style="margin-bottom:6px;">Publication exports use vector SVG plots for legibility. B1/B2 are exported together; B3 has a dedicated page export.</div>
+    <div class="field-hint" style="margin-bottom:10px;">🌓 Theme preview: export follows active theme at click-time · 📐 Preset changes B1/B2 tile proportions · 📊 Scale mode affects B1 y-axis (linear or auto-log)</div>
     <button class="btn-popup" onclick="openDashboardPagePopup()">🧾 Dashboard Page PDF (A4)</button>
-    <button class="btn-popup" onclick="openPlotsLandscapePagePopup()">🖼 B1+B2+B3 Full Page (A4 Landscape)</button>
-    <button class="btn-popup" onclick="openPlotsPortraitPagePopup()">🖼 B1+B2+B3 Full Page (A4 Portrait)</button>
+    <button class="btn-popup" onclick="openPlotsLandscapePagePopup()">🖼 B1+B2 Full Page (A4 Landscape)</button>
+    <button class="btn-popup" onclick="openPlotsPortraitPagePopup()">🖼 B1+B2 Full Page (A4 Portrait)</button>
+    <button class="btn-popup" onclick="openB3RatePagePopup()">🖼 B3 Rate Plot Page (A4 Landscape)</button>
     <button class="btn-popup" onclick="openSlideLandscapePopup()">🎞 Single Slide (16:9 Landscape)</button>
   </div>
 
@@ -518,7 +605,7 @@
   </div>
 
   <script type="module">
-    import { initApp } from './js/app_modular.js?v=20260504b';
+    import { initApp } from './js/app_modular.js?v=20260505d';
     
     window.addEventListener('DOMContentLoaded', () => {
       initApp();
@@ -526,6 +613,7 @@
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       document.getElementById('theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = savedTheme === 'dark' ? 'Theme: Dark' : 'Theme: Light';
     });
     
     window.toggleTheme = function() {
@@ -534,6 +622,7 @@
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', newTheme);
       document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = newTheme === 'dark' ? 'Theme: Dark' : 'Theme: Light';
       localStorage.setItem('theme', newTheme);
       window._appRefreshPlot?.();
     };
@@ -559,6 +648,42 @@
     // ── Temperature preset buttons ────────────────────────────
     window.setT = function(id, val) {
       document.getElementById(id).value = val;
+    };
+
+    // ── Fixed 16:9 layout toggle ──────────────────────────────
+    window.toggleLayout = function() {
+      const btn = document.getElementById('layoutToggleBtn');
+      const isFixed = document.body.classList.toggle('layout-fixed');
+      if (btn) {
+        btn.classList.toggle('active', isFixed);
+        btn.innerHTML = isFixed ? '&#x1F4D0; Fixed &#x2713;' : '&#x1F4D0; Fixed View';
+      }
+      localStorage.setItem('layoutFixed', isFixed ? '1' : '0');
+    };
+    // Restore fixed layout on page load
+    if (localStorage.getItem('layoutFixed') === '1') {
+      document.body.classList.add('layout-fixed');
+      const btn = document.getElementById('layoutToggleBtn');
+      if (btn) { btn.classList.add('active'); btn.innerHTML = '&#x1F4D0; Fixed &#x2713;'; }
+    }
+
+    // ── Legend toggle ─────────────────────────────────────────
+    window.toggleLegend = function(divId, btn) {
+      const el = document.getElementById(divId);
+      if (!el || !el.data) return;
+      const isVisible = btn.dataset.visible !== 'false';
+      Plotly.relayout(divId, { showlegend: !isVisible });
+      btn.dataset.visible = String(!isVisible);
+      btn.innerHTML = !isVisible ? '\ud83d\udc41 Legend: ON' : '\ud83d\udc41 Legend: OFF';
+    };
+
+    // ── Plot aspect ratio toggle (square ↔ landscape) ─────────
+    window.togglePlotAspect = function(divId, btn) {
+      const el = document.getElementById(divId);
+      if (!el) return;
+      const isSquare = el.classList.toggle('plot-square');
+      btn.textContent = isSquare ? '\u25a4 Long' : '\u25a1 Square';
+      if (el.data) Plotly.relayout(divId, {});
     };
 
     // ── Known Length: show only for Thermal Contraction ───────
@@ -591,7 +716,12 @@
     window.openPlotPopup = function(plotDivId, title) {
       const el = document.getElementById(plotDivId);
       if (!el || !window.Plotly) { alert('Plot not yet rendered — calculate first.'); return; }
-      Plotly.toImage(el, { format: 'png', width: 1400, height: 700, scale: 2 }).then(function(url) {
+      const opts = getPlotsExportOptions();
+      const mainY = collectPositiveYFromPlot(plotDivId);
+      const canLogMain = mainY.length > 0 && mainY.every(function(v) { return v > 0; });
+      const useLogMain = plotDivId === 'mainPlot' && opts.scaleMode === 'log-main-auto' && canLogMain;
+
+      clonePlotImageWithMode(plotDivId, 1400, 700, useLogMain, 'png', true).then(function(url) {
         const w = window.open('', '_blank', 'width=1250,height=780,resizable=yes,scrollbars=yes');
         if (!w) { alert('Pop-up blocked. Allow pop-ups for this page and try again.'); return; }
         const ts = new Date().toISOString().slice(0,16).replace('T',' ');
@@ -614,11 +744,26 @@
 <div class='toolbar'>
   <strong>${title}</strong>
   <span>${ts}</span>
-  <button onclick='window.print()'>🖨 Print / Save PDF</button>
-  <a href='${url}' download='${title.replace(/[^a-z0-9]/gi,"_")}.png' style='text-decoration:none;'><button>⬇ Download PNG</button></a>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <a href='${escapeHtml(url)}' download='${title.replace(/[^a-z0-9]/gi,"_")}.png' style='text-decoration:none;'><button>⬇ Download PNG</button></a>
+  <button onclick='openImageTab()'>↗ Open Image Tab</button>
   <button onclick='window.close()'>✕ Close</button>
 </div>
-<div class='img-wrap'><img src='${url}' alt='${title}' /></div>
+<div class='img-wrap'><img src='${escapeHtml(url)}' alt='${escapeHtml(title)}' /></div>
+<script>
+  const __IMG_URL__ = '${escapeHtml(url)}';
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openImageTab();
+    }
+  }
+  function openImageTab() {
+    window.open(__IMG_URL__, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
 </body></html>`);
         w.document.close();
       }).catch(function() { alert('Could not render plot image. Make sure a calculation has been run first.'); });
@@ -739,9 +884,10 @@
 <div class='toolbar'>
   <strong>Single-Page Dashboard Export (A4 Portrait 2x2)</strong>
   <span>${escapeHtml(ts)}</span>
-  <button onclick='window.print()'>🖨 Print / Save PDF</button>
-  <a class='btn' href='${mainUrl}' download='main_plot_${(propSel?.value || 'prop')}.svg'>⬇ Main Plot SVG</a>
-  <a class='btn' href='${integUrl}' download='integration_plot_${(propSel?.value || 'prop')}.svg'>⬇ Integration Plot SVG</a>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(mainUrl)}' download='main_plot_${(propSel?.value || 'prop')}.svg'>⬇ Main Plot SVG</a>
+  <a class='btn' href='${escapeHtml(integUrl)}' download='integration_plot_${(propSel?.value || 'prop')}.svg'>⬇ Integration Plot SVG</a>
   <button onclick='window.close()'>✕ Close</button>
 </div>
 
@@ -767,17 +913,33 @@
 
     <section class='tile'>
       <h3>B1. Property vs Temperature</h3>
-      <div class='plot'><img src='${mainUrl}' alt='Main property plot'></div>
+      <div class='plot'><img src='${escapeHtml(mainUrl)}' alt='Main property plot'></div>
       <div class='cap'>B1 (3): Primary curve with endpoint markers and current y-axis context</div>
     </section>
 
     <section class='tile'>
       <h3>B2. Cumulative Integration Plot</h3>
-      <div class='plot'><img src='${integUrl}' alt='Integration plot'></div>
+      <div class='plot'><img src='${escapeHtml(integUrl)}' alt='Integration plot'></div>
       <div class='cap'>B2 (4): Cumulative integral and endpoint labels (single-page readable)</div>
     </section>
   </div>
 </div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
 </body></html>`);
         w.document.close();
       }).catch(function() {
@@ -838,30 +1000,51 @@
       const sizeScale = Math.min(width / 1300, height / 900);
       const baseFont = publication ? 11 : 11;
       const fontSize = Math.min(12, Math.max(10, Math.round(baseFont * sizeScale)));
+      // Mirror the live dashboard theme so popup exports look identical to screen.
+      const isExportDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const exportBg    = isExportDark ? '#0d1117' : '#ffffff';
+      const exportInk   = isExportDark ? '#e6edf3' : '#1e293b';
+      const exportGrid  = isExportDark ? '#2a3550' : '#d8dde6';
+      const exportLegBg = isExportDark ? 'rgba(22,27,34,0.80)' : 'rgba(255,255,255,0.72)';
+      layout.paper_bgcolor = exportBg;
+      layout.plot_bgcolor  = exportBg;
       layout.font.size = fontSize;
-      layout.legend.font = Object.assign({}, layout.legend.font || {}, { size: Math.max(9, fontSize - 1) });
+      layout.font.color = exportInk;
+      layout.legend.font = Object.assign({}, layout.legend.font || {}, { size: Math.max(9, fontSize - 1), color: exportInk });
       layout.legend.itemsizing = 'constant';
       if (layout.legend.x == null) layout.legend.x = 0.02;
       if (layout.legend.y == null) layout.legend.y = 0.02;
       if (!layout.legend.xanchor) layout.legend.xanchor = 'left';
       if (!layout.legend.yanchor) layout.legend.yanchor = 'bottom';
       if (!layout.legend.orientation) layout.legend.orientation = 'h';
-      layout.legend.bgcolor = layout.legend.bgcolor || 'rgba(255,255,255,0.72)';
-      layout.legend.bordercolor = layout.legend.bordercolor || '#cbd5e1';
+      layout.legend.bgcolor = exportLegBg;
+      layout.legend.bordercolor = exportGrid;
       layout.legend.borderwidth = layout.legend.borderwidth || 1;
 
       if (layout.xaxis) {
-        layout.xaxis.tickfont = Object.assign({}, layout.xaxis.tickfont || {}, { size: Math.max(10, fontSize - 1) });
-        layout.xaxis.title = Object.assign({}, layout.xaxis.title || {}, { font: Object.assign({}, (layout.xaxis.title || {}).font || {}, { size: fontSize }) });
+        layout.xaxis.color = exportInk;
+        layout.xaxis.gridcolor = exportGrid;
+        layout.xaxis.tickfont = Object.assign({}, layout.xaxis.tickfont || {}, { size: Math.max(10, fontSize - 1), color: exportInk });
+        layout.xaxis.title = Object.assign({}, layout.xaxis.title || {}, { font: Object.assign({}, (layout.xaxis.title || {}).font || {}, { size: fontSize, color: exportInk }) });
       }
       if (layout.yaxis) {
-        layout.yaxis.tickfont = Object.assign({}, layout.yaxis.tickfont || {}, { size: Math.max(10, fontSize - 1) });
-        layout.yaxis.title = Object.assign({}, layout.yaxis.title || {}, { font: Object.assign({}, (layout.yaxis.title || {}).font || {}, { size: fontSize }) });
+        layout.yaxis.color = exportInk;
+        layout.yaxis.gridcolor = exportGrid;
+        layout.yaxis.tickfont = Object.assign({}, layout.yaxis.tickfont || {}, { size: Math.max(10, fontSize - 1), color: exportInk });
+        layout.yaxis.title = Object.assign({}, layout.yaxis.title || {}, { font: Object.assign({}, (layout.yaxis.title || {}).font || {}, { size: fontSize, color: exportInk }) });
       }
       if (layout.yaxis2) {
-        layout.yaxis2.tickfont = Object.assign({}, layout.yaxis2.tickfont || {}, { size: Math.max(10, fontSize - 1) });
-        layout.yaxis2.title = Object.assign({}, layout.yaxis2.title || {}, { font: Object.assign({}, (layout.yaxis2.title || {}).font || {}, { size: fontSize }) });
+        layout.yaxis2.color = exportInk;
+        layout.yaxis2.gridcolor = exportGrid;
+        layout.yaxis2.tickfont = Object.assign({}, layout.yaxis2.tickfont || {}, { size: Math.max(10, fontSize - 1), color: exportInk });
+        layout.yaxis2.title = Object.assign({}, layout.yaxis2.title || {}, { font: Object.assign({}, (layout.yaxis2.title || {}).font || {}, { size: fontSize, color: exportInk }) });
       }
+      // Remap any trace-level text colors (e.g. pin labels) to the export ink color.
+      data.forEach(function(trace) {
+        if (trace.textfont && trace.textfont.color) {
+          trace.textfont = Object.assign({}, trace.textfont, { color: exportInk });
+        }
+      });
 
       if (useLogMain) {
         if (!layout.yaxis) layout.yaxis = {};
@@ -978,9 +1161,10 @@
 <div class='toolbar'>
   <strong>B1+B2 Full Page Export (${pageLabel}, Vector)</strong>
   <span>${escapeHtml(ts)}</span>
-  <button onclick='window.print()'>🖨 Print / Save PDF</button>
-  <a class='btn' href='${b1Url}' download='B1_property_plot.svg'>⬇ B1 SVG</a>
-  <a class='btn' href='${b2Url}' download='B2_integration_plot.svg'>⬇ B2 SVG</a>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(b1Url)}' download='B1_property_plot.svg'>⬇ B1 SVG</a>
+  <a class='btn' href='${escapeHtml(b2Url)}' download='B2_integration_plot.svg'>⬇ B2 SVG</a>
   <button onclick='window.close()'>✕ Close</button>
 </div>
 
@@ -993,17 +1177,33 @@
   <div class='grid'>
     <section class='tile'>
       <h3>B1. Property vs Temperature ${useLogMain ? '(log y)' : '(linear y)'}</h3>
-      <div class='plot'><img src='${b1Url}' alt='B1 property plot'></div>
+      <div class='plot'><img src='${escapeHtml(b1Url)}' alt='B1 property plot'></div>
       <div class='cap'>B1 (1): Primary property curve with endpoints and axes</div>
     </section>
 
     <section class='tile'>
       <h3>B2. Cumulative Integration Plot</h3>
-      <div class='plot'><img src='${b2Url}' alt='B2 cumulative integration plot'></div>
+      <div class='plot'><img src='${escapeHtml(b2Url)}' alt='B2 cumulative integration plot'></div>
       <div class='cap'>B2 (2): Cumulative integral and endpoint annotations</div>
     </section>
   </div>
 </div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
 </body></html>`);
         w.document.close();
       }).catch(function() {
@@ -1017,6 +1217,98 @@
 
     window.openPlotsPortraitPagePopup = function() {
       openPlotsPagePopup('portrait');
+    };
+
+    window.openB3RatePagePopup = function() {
+      const ratePlotEl = document.getElementById('ratePlot');
+      if (!ratePlotEl || !window.Plotly) {
+        alert('B3 plot is not available yet. Run Calculate first.');
+        return;
+      }
+
+      const matSel = document.getElementById('materialSelect');
+      const propSel = document.getElementById('propertySelect');
+      const matName = matSel?.options?.[matSel.selectedIndex]?.text || 'Material';
+      const propName = propSel?.options?.[propSel.selectedIndex]?.text || 'Property';
+      const t1 = document.getElementById('Tmin')?.value || '?';
+      const t2 = document.getElementById('Tmax')?.value || '?';
+      const ts = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+      clonePlotImageWithMode('ratePlot', 1900, 1040, false, 'svg', true).then(function(rateUrl) {
+        const w = window.open('', '_blank', 'width=1620,height=980,resizable=yes,scrollbars=yes');
+        if (!w) {
+          alert('Pop-up blocked. Allow pop-ups for this page and try again.');
+          return;
+        }
+
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>B3 Rate Plot Export</title>
+<style>
+  :root{ --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --accent:#7c3aed; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f8fafc; color:var(--ink); font-family:Segoe UI,Arial,sans-serif; }
+  .toolbar{ position:sticky; top:0; z-index:5; display:flex; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); background:#fff; }
+  .toolbar strong{ flex:1; font-size:0.95rem; }
+  .toolbar span{ color:var(--muted); font-size:0.8rem; }
+  button,a.btn{ border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font-size:0.82rem; padding:6px 12px; text-decoration:none; cursor:pointer; }
+  button:hover,a.btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .page{ width:277mm; height:190mm; margin:10mm auto; background:#fff; border:1px solid #dbe3ee; box-shadow:0 8px 24px rgba(15,23,42,.08); padding:7mm; display:grid; grid-template-rows:auto 1fr; gap:4mm; }
+  .head{ border-bottom:1px solid #e2e8f0; padding-bottom:2.5mm; }
+  .title{ margin:0; font-size:1.02rem; font-weight:700; }
+  .sub{ margin:1mm 0 0 0; color:var(--muted); font-size:0.8rem; }
+  .tile{ border:1px solid var(--line); border-radius:8px; padding:2.5mm; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .tile h3{ margin:0 0 2mm 0; font-size:0.9rem; color:var(--accent); }
+  .plot{ flex:1; min-height:0; border:1px solid #e2e8f0; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .plot img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .cap{ margin-top:1.5mm; border-top:1px solid #e2e8f0; padding-top:1mm; color:var(--muted); font-size:0.75rem; }
+  @media print{
+    @page{ size:A4 landscape; margin:8mm; }
+    body{ background:#fff; }
+    .toolbar{ display:none; }
+    .page{ width:100%; height:auto; margin:0; border:none; box-shadow:none; padding:0; }
+  }
+</style></head><body>
+<div class='toolbar'>
+  <strong>B3 Rate Plot Export (A4 Landscape, Vector)</strong>
+  <span>${escapeHtml(ts)}</span>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(rateUrl)}' download='B3_rate_plot.svg'>⬇ B3 SVG</a>
+  <button onclick='window.close()'>✕ Close</button>
+</div>
+
+<div class='page'>
+  <div class='head'>
+    <p class='title'>Cryogenic Dashboard — B3 Rate of Change</p>
+    <p class='sub'>${escapeHtml(matName)} · ${escapeHtml(propName)} · T=${escapeHtml(t1)}–${escapeHtml(t2)} K · A4 Landscape</p>
+  </div>
+
+  <section class='tile'>
+    <h3>B3. Rate of Change / Knee Indicator</h3>
+    <div class='plot'><img src='${escapeHtml(rateUrl)}' alt='B3 rate-of-change plot'></div>
+    <div class='cap'>B3: First-derivative curve with knee annotation for change-intensity screening.</div>
+  </section>
+</div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
+</body></html>`);
+        w.document.close();
+      }).catch(function() {
+        alert('Could not generate B3 rate export. Run Calculate first and try again.');
+      });
     };
 
     window.openSlideLandscapePopup = function() {
@@ -1083,9 +1375,10 @@
 <div class='toolbar'>
   <strong>Single Slide Export (16:9 Landscape, Vector)</strong>
   <span>${escapeHtml(ts)}</span>
-  <button onclick='window.print()'>🖨 Print / Save PDF</button>
-  <a class='btn' href='${b1Url}' download='slide_B1_property.svg'>⬇ B1 SVG</a>
-  <a class='btn' href='${b2Url}' download='slide_B2_integration.svg'>⬇ B2 SVG</a>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(b1Url)}' download='slide_B1_property.svg'>⬇ B1 SVG</a>
+  <a class='btn' href='${escapeHtml(b2Url)}' download='slide_B2_integration.svg'>⬇ B2 SVG</a>
   <button onclick='window.close()'>✕ Close</button>
 </div>
 
@@ -1098,17 +1391,33 @@
   <div class='grid'>
     <section class='tile'>
       <h3>B1. Property vs Temperature</h3>
-      <div class='plot'><img src='${b1Url}' alt='B1 property plot'></div>
+      <div class='plot'><img src='${escapeHtml(b1Url)}' alt='B1 property plot'></div>
       <div class='cap'>Vector render for slide reuse and zoom-safe legends.</div>
     </section>
 
     <section class='tile'>
       <h3>B2. Cumulative Integration Plot</h3>
-      <div class='plot'><img src='${b2Url}' alt='B2 cumulative integration plot'></div>
+      <div class='plot'><img src='${escapeHtml(b2Url)}' alt='B2 cumulative integration plot'></div>
       <div class='cap'>Vector render with proportional legend and axis typography.</div>
     </section>
   </div>
 </div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
 </body></html>`);
         w.document.close();
       }).catch(function() {

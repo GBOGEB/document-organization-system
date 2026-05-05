@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cryogenic Dashboard v0.4.6 - File Browser</title>
+  <title>Cryogenic Dashboard v0.4.7 - File Browser</title>
   <style>
     * {
       margin: 0;
@@ -147,6 +147,18 @@
     .md-mode-note {
       color: #64748b;
       font-size: 0.85em;
+    }
+    /* Grey out non-renderable files (YAML/JSON) in rendered mode */
+    .file-item.mode-na {
+      opacity: 0.45;
+      transition: opacity 0.2s;
+    }
+    .file-item.mode-na:hover { opacity: 0.8; }
+    .file-item.mode-na .file-icon::after {
+      content: ' (raw)';
+      font-size: 0.72em;
+      color: #94a3b8;
+      font-style: italic;
     }
     header {
       background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -409,7 +421,7 @@
     </div>
 
     <header>
-      <h1>🧊 Cryogenic Material Dashboard <span class="version-badge" id="versionBadge">v0.4.6</span></h1>
+      <h1>🧊 Cryogenic Material Dashboard <span class="version-badge" id="versionBadge">v0.4.7</span></h1>
       <p>File Browser & Documentation Index</p>
       <a href="dashboard_modular.html" class="main-link">🚀 Launch Modular Dashboard</a>
     </header>
@@ -431,7 +443,7 @@
         </div>
         <div class="gov-item" style="border-left: 3px solid #10b981;">
           <strong>Engineering Changelog — v0.4.x Lineage</strong>
-          <span>Covers v0.4.0–v0.4.6 (modular JS track).<br>
+          <span>Covers v0.4.0–v0.4.7 (modular JS track).<br>
           Each release requires: <em>npm test pass → validation → version bump → git push</em>.<br>
           <a href="docs/CHANGELOG.md">docs/CHANGELOG.md</a></span>
         </div>
@@ -460,21 +472,21 @@
       <div class="section">
         <h2>🧾 Current Session Continuity</h2>
         <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
-          Current continuation state for v0.4.6. Use this block for intent, tuple summary, version-control references, active TODO, and copy-ready restart text.
+          Current continuation state for v0.4.7. Use this block for intent, tuple summary, version-control references, active TODO, and copy-ready restart text.
         </p>
         <div class="kickoff-box">
           <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
             <strong style="color:#1e3c72;">Copy-Ready Next Session Kickoff</strong>
             <button class="mini-copy-btn" onclick="copyText(this, document.getElementById('nextSessionKickoffText').innerText)">Copy kickoff text</button>
           </div>
-          <pre id="nextSessionKickoffText">I am continuing from Cryogenic Dashboard v0.4.6 continuation state.
+          <pre id="nextSessionKickoffText">I am continuing from Cryogenic Dashboard v0.4.7 continuation state.
 
-Treat v0.4.6 as the current canonical baseline, but not a concluded release close.
+Treat v0.4.7 as the current canonical baseline.
 
 Start intake in this order:
 1. README.md
 2. FINAL_HANDOVER.md
-3. docs/SESSION_DROPIN_HANDOVER_v0.4.6.md
+3. docs/SESSION_DROPIN_HANDOVER_v0.4.7.md
 4. docs/CHANGELOG.md
 5. file_index.yaml or file_index.json
 6. files.html
@@ -497,7 +509,7 @@ Immediate carry-forward TODO:
             <div class="file-desc"><strong>Purpose:</strong> Retrieval runbook, canonical artifacts, and minimum artifact set for the current continuation baseline.</div>
           </div>
           <div class="file-item">
-            <a href="docs/SESSION_DROPIN_HANDOVER_v0.4.6.md" class="md-toggle-target" data-md-path="docs/SESSION_DROPIN_HANDOVER_v0.4.6.md"><span class="file-icon">🚪</span>SESSION_DROPIN_HANDOVER_v0.4.6.md<span class="badge badge-core">CANONICAL</span></a>
+            <a href="docs/SESSION_DROPIN_HANDOVER_v0.4.7.md" class="md-toggle-target" data-md-path="docs/SESSION_DROPIN_HANDOVER_v0.4.7.md"><span class="file-icon">🚪</span>SESSION_DROPIN_HANDOVER_v0.4.7.md<span class="badge badge-core">CANONICAL</span></a>
             <div class="file-desc"><strong>Purpose:</strong> Copy-ready next-session intake sequence, minimum share set, and clean-branch roundtrip guidance.</div>
           </div>
           <div class="file-item">
@@ -556,7 +568,7 @@ Immediate carry-forward TODO:
           </div>
           <div class="file-item">
             <a href="VERSION"><span class="file-icon">🏷️</span>VERSION</a>
-            <div class="file-desc">Current version: v0.4.6</div>
+            <div class="file-desc">Current version: v0.4.7</div>
           </div>
         </div>
       </div>
@@ -582,7 +594,7 @@ Immediate carry-forward TODO:
           </div>
           <div class="file-item">
             <a href="js/app_modular.js"><span class="file-icon">⚙️</span>app_modular.js<span class="badge badge-new">PRIMARY</span></a>
-            <div class="file-desc">Primary v0.4.6 orchestrator consuming materials/numerics/plots/export modules</div>
+            <div class="file-desc">Primary v0.4.7 orchestrator consuming materials/numerics/plots/export modules</div>
           </div>
           <div class="file-item">
             <a href="js/app.js"><span class="file-icon">⚙️</span>app.js<span class="badge badge-doc">LEGACY</span></a>
@@ -635,13 +647,13 @@ Immediate carry-forward TODO:
           </div>
           <div class="file-item">
             <a href="docs/CHANGELOG.md" class="md-toggle-target" data-md-path="docs/CHANGELOG.md"><span class="file-icon">🧾</span>docs/CHANGELOG.md<span class="badge badge-core">CANONICAL</span></a>
-            <div class="file-desc"><strong>Path:</strong> <code>./docs/CHANGELOG.md</code><br>Modular JS engineering track: v0.4.0–v0.4.6. <strong>Each v0.4.x release entry requires: npm test pass → validation → version bump in VERSION → git push.</strong></div>
+            <div class="file-desc"><strong>Path:</strong> <code>./docs/CHANGELOG.md</code><br>Modular JS engineering track: v0.4.0–v0.4.7. <strong>Each v0.4.x release entry requires: test pass → validation → version bump in VERSION → git push.</strong></div>
           </div>
           <div class="file-item">
             <a href="SETUP_GUIDE.md" class="md-toggle-target" data-md-path="SETUP_GUIDE.md"><span class="file-icon">🚀</span>SETUP_GUIDE.md<span
                 class="badge badge-core">CANONICAL</span></a>
             <div class="file-desc"><strong>Path:</strong> <code>./SETUP_GUIDE.md</code><br>Setup instructions, architecture,
-              troubleshooting (v0.4.6)</div>
+              troubleshooting (v0.4.7)</div>
           </div>
           <div class="file-item">
             <a href="DASHBOARD_TESTING_GUIDE.md" class="md-toggle-target" data-md-path="DASHBOARD_TESTING_GUIDE.md"><span class="file-icon">🧪</span>DASHBOARD_TESTING_GUIDE.md<span
@@ -659,7 +671,7 @@ Immediate carry-forward TODO:
             <a href="GIT_TRACKING_MANIFEST.md" class="md-toggle-target" data-md-path="GIT_TRACKING_MANIFEST.md"><span class="file-icon">📋</span>GIT_TRACKING_MANIFEST.md<span
                 class="badge badge-core">CANONICAL</span></a>
             <div class="file-desc"><strong>Path:</strong> <code>./GIT_TRACKING_MANIFEST.md</code><br>Git strategy and tracked files
-              (v0.4.6)</div>
+              (v0.4.7)</div>
             </div>
             <div class="file-item">
               <a href="file_index.yaml"><span class="file-icon">🧭</span>file_index.yaml<span class="badge badge-core">INDEX</span></a>
@@ -670,10 +682,10 @@ Immediate carry-forward TODO:
               <div class="file-desc"><strong>Path:</strong> <code>./file_index.json</code><br>JSON companion to <code>file_index.yaml</code> for external tools and automated handover checks</div>
             </div>
             <div class="file-item">
-              <a href="FILE_INDEX_v0.4.5.md" class="md-toggle-target" data-md-path="FILE_INDEX_v0.4.5.md"><span class="file-icon">🗂️</span>FILE_INDEX_v0.4.5.md<span
+              <a href="FILE_INDEX_v0.4.7.md" class="md-toggle-target" data-md-path="FILE_INDEX_v0.4.7.md"><span class="file-icon">🗂️</span>FILE_INDEX_v0.4.7.md<span
                   class="badge badge-doc">SNAPSHOT</span></a>
-              <div class="file-desc"><strong>Path:</strong> <code>./FILE_INDEX_v0.4.5.md</code><br>Complete file listing with
-                navigation (historical snapshot from v0.4.5; use files.html + docs/CHANGELOG.md for latest status)</div>
+              <div class="file-desc"><strong>Path:</strong> <code>./FILE_INDEX_v0.4.7.md</code><br>Complete file listing with
+                navigation (current canonical snapshot; use files.html + docs/CHANGELOG.md for live status)</div>
             </div>
             <div class="file-item">
               <a href="docs/BASELINE_VERIFICATION_v0.4.5.md" class="md-toggle-target" data-md-path="docs/BASELINE_VERIFICATION_v0.4.5.md"><span class="file-icon">✅</span>docs/BASELINE_VERIFICATION_v0.4.5.md<span
@@ -830,7 +842,7 @@ Immediate carry-forward TODO:
             <div class="file-desc">Return to main landing page with version selector</div>
           </div>
           <div class="file-item">
-            <a href="dashboard_modular.html" style="color: #007bff;"><span class="file-icon">📊</span>Modular Dashboard (v0.4.6)</a>
+            <a href="dashboard_modular.html" style="color: #007bff;"><span class="file-icon">📊</span>Modular Dashboard (v0.4.7)</a>
             <div class="file-desc">Launch the modular dashboard with advanced integration</div>
           </div>
           <div class="file-item">
@@ -858,7 +870,7 @@ Immediate carry-forward TODO:
     </div>
 
     <footer>
-      <p><strong>Cryogenic Material Dashboard</strong> <span id="footerVersion">v0.4.6</span></p>
+      <p><strong>Cryogenic Material Dashboard</strong> <span id="footerVersion">v0.4.7</span></p>
       <p id="footerStatus">File Browser | Checking server status...</p>
       <p style="margin-top: 10px; font-size: 0.9em; color: #7c5c12;">Badge meaning: <span class="badge badge-core">blue</span> = current/canonical/index/baseline, <span class="badge badge-doc">amber</span> = legacy/reference/historical/tooling. Colors support readability, but the badge text carries the real status meaning.</p>
       <p style="margin-top: 10px; opacity: 0.7;">Navigate to any file above or <a href="dashboard_modular.html"
@@ -913,6 +925,13 @@ Immediate carry-forward TODO:
           ? 'Current mode: rendered view for readability.'
           : 'Current mode: raw markdown source (.md) view.';
       }
+      // Dim non-renderable file items (YAML, JSON) in rendered mode
+      document.querySelectorAll(
+        '.file-item a[href$=".yaml"]:not(.md-toggle-target), .file-item a[href$=".json"]:not(.md-toggle-target)'
+      ).forEach(a => {
+        const item = a.closest('.file-item');
+        if (item) item.classList.toggle('mode-na', mode === 'rendered');
+      });
       localStorage.setItem('mdViewMode', mode);
     }
 
@@ -960,7 +979,7 @@ Immediate carry-forward TODO:
       const isFileProtocol = protocol === 'file:';
       const isHttp = protocol === 'http:' || protocol === 'https:';
 
-      let version = 'v0.4.6';
+      let version = 'v0.4.7';
 
       if (isHttp) {
         try {
