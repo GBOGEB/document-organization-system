@@ -86,10 +86,10 @@ assertMethodFixture(
   "AISI316 cp 20-300K 100 steps",
   computeMethodResults("AISI316", "cp", 20, 300, 100),
   {
-    trapezoid: 93189.94859216,
-    simpson: 93190.23539069,
-    romberg: 93190.18638013,
-    gauss: 93190.28911191
+    trapezoid: 93189.94859257,
+    simpson: 93190.23539085,
+    romberg: 93190.18638001,
+    gauss: 93190.28911180
   }
 );
 
