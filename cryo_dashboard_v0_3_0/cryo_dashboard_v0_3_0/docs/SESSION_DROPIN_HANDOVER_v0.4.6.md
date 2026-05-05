@@ -21,32 +21,73 @@ Reference source inputs integrated this session:
 - ../ENGINEERING_HANDOVER_ACTION_PLAN.md
 - ../DB_to_GITHUB_strucure.txt
 
+## Current State (2026-05-05)
+
+### ⚠ One Pending Human Action Before Next Session
+
+The `feature/method-comparison-panel-clean-v2` branch has been pushed with:
+- All runtime files (`style.css`, `data/materials.json`, all `js/` modules,
+  `schemas/`, `tests/`)
+- `.nojekyll` at repo root and dashboard subfolder (fixes Jekyll interference)
+- All linked files (`material_properties_dashboard_v1_10.html`,
+  `html_preview_hub.html`, `docs/ENGINEERING_HANDOVER.md`, `visual_key.yaml`)
+- All v0.4.6 session updates (adaptive legends, pin mirroring B2/B3, delta
+  summary NIST range, dark-mode table contrast, files.html badge legend)
+
+**Merge PR `feature/method-comparison-panel-clean-v2` → `main` on GitHub.** No
+code changes needed. After merge, verify the hosted URL:
+`https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html`
+
+### Remaining Code TODOs (Next Session)
+
+1. Add pin text labels in active plot area using `choosePointLabelPosition`
+   legibility helper (pins already show X/Y in legend + hover, not yet on-plot)
+2. Write copper low-T validation test (CuRRR300/500 peaked k behavior at 4-20 K)
+3. General shape/expectations validation across all 10 materials
+4. Export consistency follow-up for B3/B4 panels
+
 ## Drop-In Ready Kickoff Text
 
 Use this exact text to start a new session:
 
-I am continuing from Cryogenic Dashboard v0.4.6 handover.
+```
+I am continuing from Cryogenic Dashboard v0.4.6 continuation state.
 
-Primary review branch:
-https://github.com/GBOGEB/document-organization-system/tree/feature/method-comparison-panel-clean-v2/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+Hosted URL: https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html
+Authoring branch: feature/method-comparison-panel
+Transport/PR branch: feature/method-comparison-panel-clean-v2
 
 Treat v0.4.6 as canonical baseline. Do not regress tc mode, quick outputs,
-dual-axis integration plot, property-based material filtering, or inline error
-handling.
+dual-axis integration plot, property-based material filtering, cursor pins,
+or inline error handling.
 
-Required intake order: 1) README.md 2) FINAL_HANDOVER.md 3)
-docs/SESSION_DROPIN_HANDOVER_v0.4.6.md 4) docs/CHANGELOG.md 5) file_index.yaml
-or file_index.json 6) docs/DB_TO_GITHUB_STRUCTURE.md 7)
-docs/ENGINEERING_HANDOVER_ACTION_PLAN.md
+Required intake order:
+1) README.md
+2) FINAL_HANDOVER.md
+3) SESSION_SUMMARY.md
+4) docs/SESSION_DROPIN_HANDOVER_v0.4.6.md
+5) docs/CHANGELOG.md
+6) file_index.yaml or file_index.json
+
+CRITICAL pending human action:
+Merge PR feature/method-comparison-panel-clean-v2 -> main on GitHub before
+verifying hosted URL. No code changes needed, merge only.
+
+Next code TODOs:
+1. Pin text labels on B1 plot using choosePointLabelPosition
+2. Copper low-T validation test (CuRRR300/500)
+3. General material shape/expectations test
+4. B3/B4 export template integration
 
 Session scope for first chunk:
-- Intake only
-- Diff plan only
-- No implementation changes
+- Confirm merge done and hosted URL loads
+- Intake only if merge not yet done
+- No implementation changes until URL confirmed working
 
-Validation policy for any later implementation chunk:
+Validation policy for any implementation chunk:
 - npm test
 - manual k/cp/tc smoke checks
+```
 
 ## Minimum Share Artifacts
 

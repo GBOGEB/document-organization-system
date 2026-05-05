@@ -6,8 +6,34 @@
 
 ### Added
 
-- `js/app_modular.js` + `dashboard_modular.html`: Cursor pin workflow on main
-  plot (up to 3 pins, FIFO behavior) with pin CSV export and clear action.
+- `.nojekyll` at repo root and `cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`
+  subfolder: prevents GitHub Pages/Jekyll from interfering with ES module paths.
+- `feature/method-comparison-panel-clean-v2` now contains complete runtime file
+  set: `style.css`, `data/materials.json`, all `js/` modules, `schemas/`,
+  `tests/`, `material_properties_dashboard_v1_10.html`, `html_preview_hub.html`,
+  `visual_key.yaml`, `docs/ENGINEERING_HANDOVER.md`. Previous PRs had only 9
+  files in the dashboard subfolder; hosted dashboard could not load.
+- `js/app_modular.js`: Adaptive 3×3 legend placement
+  (`chooseAdaptiveLegendPlacement` with bottom-row penalty, B1 prefers top-left,
+  B2 fixed top-left, B3 fixed top-right); shared geometry helpers
+  (`getTextBoxBounds`, `boundsOverlap`, `getLegendBounds`).
+- `js/app_modular.js`: Adaptive endpoint label placement
+  (`chooseEndpointLabelPositions`) — scores 6 candidate positions per endpoint,
+  avoids axis edges, other endpoint, and curve density.
+- `js/app_modular.js`: Generalized single-point label scorer
+  (`choosePointLabelPosition`) — used by B3 knee label; intended for pin labels.
+- `js/app_modular.js`: Pin markers mirrored onto B2 (cumulative integral y-axis)
+  and B3 (rate-of-change y-axis); `computeRateAtIndex` helper added.
+- `js/app_modular.js`: `updatePinsUI` extended with Rate of Change column.
+- `js/app_modular.js`: `updateDeltaSummary` now shows explicit NIST validity
+  range and "PASS - inside NIST range" vs "OUT OF RANGE - extrapolation
+  warning".
+- `dashboard_modular.html` + `js/app_modular.js`: P1/P2 evaluation table rows
+  have color-coded fills (red/green); dark-mode contrast fix (ink forced to
+  `#111827` on colored fills).
+- `files.html`: Session-continuity block and badge/color legend added.
+- `js/app_modular.js`: Cursor pin workflow on main plot (up to 3 pins, FIFO
+  behavior) with pin CSV export and clear action.
 - `files.html`: Markdown view mode toggle for documentation links
   (`Rendered Markdown` via GitHub UI vs `Raw Markdown` local `.md` file view),
   persisted in local storage.
