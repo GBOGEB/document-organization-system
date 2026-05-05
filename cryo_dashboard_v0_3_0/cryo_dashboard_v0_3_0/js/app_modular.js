@@ -666,14 +666,10 @@ function populateMaterialSelect(preferredKey) {
       compSelect.appendChild(opt);
     });
   }
-  const limitState = enforceCompSelectionLimit();
   refreshCompSelectLabels(select.value);
-  setCompSelectionStatus(
-    limitState.trimmed
-      ? `Max ${MAX_COMPARISON_OVERLAYS} comparison overlays allowed. ${limitState.dropped} selection(s) were deselected.`
-      : `Select up to ${MAX_COMPARISON_OVERLAYS} comparisons. Primary is solid line; others are dashed overlays.`,
-    limitState.trimmed
-  );
+  // Show a static hint; the live limit-enforcement status is set by updatePlot() whenever
+  // calculate() runs, avoiding a redundant enforceCompSelectionLimit() call here.
+  setCompSelectionStatus(`Select up to ${MAX_COMPARISON_OVERLAYS} comparisons. Primary is solid line; others are dashed overlays.`);
 }
 
 function populateLayerSelects() {
@@ -1306,8 +1302,15 @@ function updatePlot() {
         benchmarkSummary.length ? `Reference maxima: ${benchmarkSummary.join(" · ")}` : "Reference maxima: unavailable for current property/range"
       ].join(" | ");
     }
-  } else if (normalizedSummaryEl) {
-    normalizedSummaryEl.textContent = "B4 normalized benchmark unavailable (insufficient data points).";
+  } else {
+    // Insufficient data: purge any stale B4 chart left from a previous calculation,
+    // then update the summary element if present.
+    if (normalizedPlotEl) {
+      Plotly.purge("normalizedPlot");
+    }
+    if (normalizedSummaryEl) {
+      normalizedSummaryEl.textContent = "B4 normalized benchmark unavailable (insufficient data points).";
+    }
   }
 }
 
@@ -1543,6 +1546,10 @@ function attachCursorPinHandler() {
   // Re-render surviving pins (same context re-calculate)
   renderPinMarkers();
 
+  // Guard against duplicate handlers: remove any previously registered click listeners
+  // before attaching a fresh one. Without this, each updatePlot() call would stack an
+  // additional handler, causing N pins to be added per click after N plot updates.
+  mainPlotEl.removeAllListeners("plotly_click");
   mainPlotEl.on("plotly_click", (eventData) => {
     if (!currentState || !eventData.points.length) return;
     const clickedT = eventData.points[0].x;
