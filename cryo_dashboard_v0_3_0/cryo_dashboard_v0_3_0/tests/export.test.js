@@ -73,6 +73,33 @@ function createCpCompareState() {
   };
 }
 
+function createRateOfIntegralCompareState() {
+  return {
+    materialKey: "AISI316",
+    material: { name: "AISI 316 Stainless Steel" },
+    property: "rateChange",
+    Tmin: 25,
+    Tmax: 300,
+    nsteps: 300,
+    method: "simpson",
+    integral: 40202.06900000,
+    methodResults: {
+      trapezoid: 40201.85230000,
+      simpson: 40202.06900000,
+      romberg: 40202.01340000,
+      gauss: 40202.09110000
+    },
+    methodDeltasPct: {
+      trapezoid: -0.000539,
+      simpson: 0.000138,
+      romberg: 0,
+      gauss: 0.000193
+    },
+    T: [25, 300],
+    values: [0.521220, 18.413440]
+  };
+}
+
 console.log("Running export consistency tests...");
 
 {
@@ -103,6 +130,22 @@ console.log("Running export consistency tests...");
   assert.equal(csvMetrics.get("Gauss-Legendre 4-pt % vs Romberg"), jsonData.methodComparison.gauss.percentVsRomberg);
   assert.equal(jsonData.deltaSummary.integral_k, jsonData.selectedIntegral);
   assert.equal(jsonData.methodComparison.romberg.integral, jsonData.selectedIntegral);
+}
+
+{
+  const state = createRateOfIntegralCompareState();
+  const csvMetrics = parseCsvMetrics(buildModularCsvText(state, "compare"));
+  const jsonData = buildModularJsonData(state, "compare");
+
+  assert.equal(csvMetrics.get("delta_Y"), jsonData.deltaSummary.delta_Y);
+  assert.equal(csvMetrics.get("integral_Y"), jsonData.deltaSummary.integral_Y);
+  assert.equal(csvMetrics.get("Romberg Integral (x1e-5*K)"), jsonData.methodComparison.romberg.integral);
+  assert.equal(csvMetrics.get("Trapezoid Integral (x1e-5*K)"), jsonData.methodComparison.trapezoid.integral);
+  assert.equal(csvMetrics.get("Simpson fixed Integral (x1e-5*K)"), jsonData.methodComparison.simpson.integral);
+  assert.equal(csvMetrics.get("Gauss-Legendre 4-pt Integral (x1e-5*K)"), jsonData.methodComparison.gauss.integral);
+  assert.equal(csvMetrics.get("Trapezoid % vs Romberg"), jsonData.methodComparison.trapezoid.percentVsRomberg);
+  assert.equal(csvMetrics.get("Simpson fixed % vs Romberg"), jsonData.methodComparison.simpson.percentVsRomberg);
+  assert.equal(csvMetrics.get("Gauss-Legendre 4-pt % vs Romberg"), jsonData.methodComparison.gauss.percentVsRomberg);
 }
 
 console.log("All export consistency tests passed.");
