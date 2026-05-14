@@ -154,7 +154,7 @@
     },
     "equation_types": {
       "polylog": "k(T) = 10^(Σ aᵢ·(log₁₀T)ⁱ)",
-      "rational": "log₁₀k = (P₁ + P₃x + P₅x² + P₇x³) / (1 + P₂x + P₄x² + P₆x³ + P₈x⁴), x = log₁₀T",
+      "rational": "log₁₀k = (a + c√T + eT + gT^(3/2) + iT²) / (1 + b√T + dT + fT^(3/2) + hT²) → k = 10^(above) (9 coefficients: a..i)",
       "piecewise-logpoly": "Piecewise polylog with separate coefficient sets per temperature range",
       "thermal-contraction": "Y(T) = a₀ + a₁T + a₂T² + a₃T³ + a₄T⁴ (with optional low-T constant branch)"
     }

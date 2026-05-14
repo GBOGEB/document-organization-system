@@ -143,8 +143,8 @@ using NIST polynomial/rational fits, with multiple integration methods for heat-
 <strong style="color:var(--cryo-blue)">Polylog:</strong> k(T) = 10^( Σᵢ aᵢ · (log₁₀ T)ⁱ )
 </div>
 <div class="formula-box">
-<strong style="color:var(--cryo-blue)">Rational:</strong> log₁₀ k = (P₁ + P₃x + P₅x² + P₇x³) / (1 + P₂x + P₄x² + P₆x³ + P₈x⁴)
-<br/><span style="font-size:.85em;color:var(--cryo-muted)">where x = log₁₀ T</span>
+<strong style="color:var(--cryo-blue)">Rational:</strong> log₁₀k = (a + c√T + eT + gT^(3/2) + iT²) / (1 + b√T + dT + fT^(3/2) + hT²)
+<br/><span style="font-size:.85em;color:var(--cryo-muted)">k = 10^(above), 9 coefficients (a..i)</span>
 </div>
 <div class="formula-box">
 <strong style="color:var(--cryo-blue)">Piecewise Logpoly:</strong> Separate coefficient sets per temperature sub-range
@@ -472,22 +472,25 @@ Reveal.initialize({
 }).then(() => {
   // Build charts when their slides become visible
   Reveal.on('slidechanged', e => {
-    if (e.currentSlide.querySelector('#chart-k') && !e.currentSlide.querySelector('#chart-k').data) {
+    if (e.currentSlide.querySelector('#chart-k') && !e.currentSlide.querySelector('#chart-k').dataset.rendered) {
       buildChart('chart-k', 'k', 'k [W/(m·K)]');
-      e.currentSlide.querySelector('#chart-k').data = true;
+      e.currentSlide.querySelector('#chart-k').dataset.rendered = 'true';
     }
-    if (e.currentSlide.querySelector('#chart-cp') && !e.currentSlide.querySelector('#chart-cp').data) {
+    if (e.currentSlide.querySelector('#chart-cp') && !e.currentSlide.querySelector('#chart-cp').dataset.rendered) {
       buildChart('chart-cp', 'cp', 'cp [J/(kg·K)]');
-      e.currentSlide.querySelector('#chart-cp').data = true;
+      e.currentSlide.querySelector('#chart-cp').dataset.rendered = 'true';
     }
-    if (e.currentSlide.querySelector('#chart-copper') && !e.currentSlide.querySelector('#chart-copper').data) {
+    if (e.currentSlide.querySelector('#chart-copper') && !e.currentSlide.querySelector('#chart-copper').dataset.rendered) {
       buildCopperChart();
-      e.currentSlide.querySelector('#chart-copper').data = true;
+      e.currentSlide.querySelector('#chart-copper').dataset.rendered = 'true';
     }
   });
   // Build first visible chart if starting on it
   const first = Reveal.getCurrentSlide();
-  if (first.querySelector('#chart-k')) buildChart('chart-k', 'k', 'k [W/(m·K)]');
+  if (first.querySelector('#chart-k') && !first.querySelector('#chart-k').dataset.rendered) {
+    buildChart('chart-k', 'k', 'k [W/(m·K)]');
+    first.querySelector('#chart-k').dataset.rendered = 'true';
+  }
 });
 </script>
 </body>
