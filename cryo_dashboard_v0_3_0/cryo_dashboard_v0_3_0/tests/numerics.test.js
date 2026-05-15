@@ -129,6 +129,8 @@ assertMethodFixture(
   "CuRRR300 k 4-20K 100 steps",
   computeMethodResults("CuRRR300", "k", 4, 20, 100),
   {
+    // Regression fixtures generated from current NIST coefficients + evaluators.
+    // Compared with approx() default tolerance (1e-8).
     trapezoid: 69640.38803246,
     simpson: 69641.67425544,
     romberg: 69641.68347849,
