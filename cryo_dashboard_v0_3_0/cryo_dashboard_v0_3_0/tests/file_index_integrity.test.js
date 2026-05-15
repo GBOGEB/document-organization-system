@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
+function escapeRegexLiteral(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function parseYamlList(yamlText, key) {
-  const pattern = new RegExp(`^${key}:\\n((?:  - .+\\n)+)`, "m");
+  const escapedKey = escapeRegexLiteral(key);
+  const pattern = new RegExp(`^${escapedKey}:\\n((?:  - .+\\n)+)`, "m");
   const match = yamlText.match(pattern);
   assert.ok(match, `Missing YAML list for key: ${key}`);
   return match[1]
@@ -12,7 +17,9 @@ function parseYamlList(yamlText, key) {
 }
 
 function parseYamlNestedScalar(yamlText, parentKey, childKey) {
-  const pattern = new RegExp(`^${parentKey}:\\n(?:  .+\\n)*?  ${childKey}:\\s*(.+)$`, "m");
+  const escapedParentKey = escapeRegexLiteral(parentKey);
+  const escapedChildKey = escapeRegexLiteral(childKey);
+  const pattern = new RegExp(`^${escapedParentKey}:\\n(?:  .+\\n)*?  ${escapedChildKey}:\\s*(.+)$`, "m");
   const match = yamlText.match(pattern);
   assert.ok(match, `Missing YAML nested scalar: ${parentKey}.${childKey}`);
   return match[1].trim();
