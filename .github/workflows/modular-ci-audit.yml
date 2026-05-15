@@ -1,0 +1,32 @@
+name: Modular CI Pipeline Audit
+
+on:
+  pull_request:
+    paths:
+      - "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/**"
+      - ".github/workflows/modular-ci-audit.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/**"
+      - ".github/workflows/modular-ci-audit.yml"
+
+jobs:
+  modular-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run modular test suite
+        run: npm test
