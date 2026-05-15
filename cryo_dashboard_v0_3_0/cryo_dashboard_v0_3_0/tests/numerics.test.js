@@ -49,6 +49,27 @@ function assertMethodFixture(name, actual, expected, tolerance = 1e-8) {
   console.log(`Verified regression fixture: ${name}`);
 }
 
+function assertCopperLowTPeak(materialKey, Tmin = 4, Tmax = 20) {
+  const material = materialDatabase.materials[materialKey];
+  const temperatures = [];
+  const values = [];
+
+  for (let T = Tmin; T <= Tmax; T += 1) {
+    temperatures.push(T);
+    values.push(propertyValue(material, "k", T));
+  }
+
+  const peakValue = Math.max(...values);
+  const peakIndex = values.indexOf(peakValue);
+
+  assert.ok(peakIndex > 0 && peakIndex < values.length - 1, `${materialKey}: low-T peak must be interior to ${Tmin}-${Tmax} K`);
+  assert.ok(values[0] < peakValue, `${materialKey}: k(${temperatures[0]}K) must be below low-T peak`);
+  assert.ok(values[values.length - 1] < peakValue, `${materialKey}: k(${temperatures[temperatures.length - 1]}K) must be below low-T peak`);
+  assert.ok(values[peakIndex - 1] < peakValue, `${materialKey}: left neighbor near peak should be lower`);
+  assert.ok(values[peakIndex + 1] < peakValue, `${materialKey}: right neighbor near peak should be lower`);
+  console.log(`Verified low-T copper peak shape: ${materialKey} (peak at ${temperatures[peakIndex]} K)`);
+}
+
 console.log("Running numerics tests...");
 
 const xs = linspace(0, 4, 5);
@@ -103,5 +124,30 @@ assertMethodFixture(
     gauss: 194330.63341523
   }
 );
+
+assertMethodFixture(
+  "CuRRR300 k 4-20K 100 steps",
+  computeMethodResults("CuRRR300", "k", 4, 20, 100),
+  {
+    trapezoid: 69640.38803246,
+    simpson: 69641.67425544,
+    romberg: 69641.68347849,
+    gauss: 69641.68347849
+  }
+);
+
+assertMethodFixture(
+  "CuRRR500 k 4-20K 100 steps",
+  computeMethodResults("CuRRR500", "k", 4, 20, 100),
+  {
+    trapezoid: 104092.38213004,
+    simpson: 104094.52201929,
+    romberg: 104094.52823822,
+    gauss: 104094.52823821
+  }
+);
+
+assertCopperLowTPeak("CuRRR300");
+assertCopperLowTPeak("CuRRR500");
 
 console.log("All numerics tests passed.");
