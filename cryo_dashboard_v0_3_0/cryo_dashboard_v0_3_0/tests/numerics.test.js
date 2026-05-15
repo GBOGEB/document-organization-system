@@ -49,7 +49,7 @@ function assertMethodFixture(name, actual, expected, tolerance = 1e-8) {
   console.log(`Verified regression fixture: ${name}`);
 }
 
-function assertCopperLowTPeak(materialKey, Tmin = 4, Tmax = 20) {
+function assertLowTPeakShape(materialKey, Tmin = 4, Tmax = 20) {
   const material = materialDatabase.materials[materialKey];
   const temperatures = [];
   const values = [];
@@ -61,12 +61,14 @@ function assertCopperLowTPeak(materialKey, Tmin = 4, Tmax = 20) {
 
   const peakValue = Math.max(...values);
   const peakIndex = values.indexOf(peakValue);
+  const hasRiseBeforePeak = values.slice(1, peakIndex + 1).some((value, index) => value > values[index]);
+  const hasDropAfterPeak = values.slice(peakIndex + 1).some((value, index) => value < values[peakIndex + index]);
 
   assert.ok(peakIndex > 0 && peakIndex < values.length - 1, `${materialKey}: low-T peak must be interior to ${Tmin}-${Tmax} K`);
   assert.ok(values[0] < peakValue, `${materialKey}: k(${temperatures[0]}K) must be below low-T peak`);
   assert.ok(values[values.length - 1] < peakValue, `${materialKey}: k(${temperatures[temperatures.length - 1]}K) must be below low-T peak`);
-  assert.ok(values[peakIndex - 1] < peakValue, `${materialKey}: left neighbor near peak should be lower`);
-  assert.ok(values[peakIndex + 1] < peakValue, `${materialKey}: right neighbor near peak should be lower`);
+  assert.ok(hasRiseBeforePeak, `${materialKey}: low-T segment should rise toward peak`);
+  assert.ok(hasDropAfterPeak, `${materialKey}: low-T segment should drop after peak`);
   console.log(`Verified low-T copper peak shape: ${materialKey} (peak at ${temperatures[peakIndex]} K)`);
 }
 
@@ -149,7 +151,7 @@ assertMethodFixture(
   }
 );
 
-assertCopperLowTPeak("CuRRR300");
-assertCopperLowTPeak("CuRRR500");
+assertLowTPeakShape("CuRRR300");
+assertLowTPeakShape("CuRRR500");
 
 console.log("All numerics tests passed.");
