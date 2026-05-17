@@ -11,7 +11,7 @@ Contraction · 1–300 K
 
 Open the hosted URL in any browser. No Python, no server, no install.
 
-``github`text
+```text
 https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html
 ```
 
@@ -39,8 +39,6 @@ http://localhost:8000/index.html
 
 Windows shortcuts: double-click `start_server.bat` or run `start_dashboard.ps1`.
 
-
-
 ## 📋 Access Matrix
 
 | Page | GitHub Pages | Double-click file:// | Local http:// |
@@ -48,18 +46,16 @@ Windows shortcuts: double-click `start_server.bat` or run `start_dashboard.ps1`.
 | `index.html` (landing) | ✅ | ✅ | ✅ |
 | `dashboard_modular.html` *(primary v0.4.9)* | ✅ | ❌ ES6 modules blocked | ✅ |
 | `material_properties_dashboard_v1_10.html` *(legacy v1.10)* | ✅ | ✅ self-contained | ✅ |
-| `files.html` (this navigator) | ✅ | ✅ | ✅ |
+| `files.html` (navigator) | ✅ | ✅ | ✅ |
 | `html_preview_hub.html` | ✅ | ✅ | ✅ |
-
-
 
 ## 🧭 Navigation
 
-```
+```text
 index.html          ← Start here — version selector and capability tier guide
   ├─ dashboard_modular.html     ← Primary v0.4.9 dashboard (GitHub Pages or localhost)
   ├─ material_properties_dashboard_v1_10.html  ← Legacy v1.10 (double-click OK)
-  └─ files.html     ← Full artifact navigator + this spot-check guide
+  └─ files.html     ← Full artifact navigator + spot-check guide
 ```
 
 ## 🟢 Start Here
@@ -93,8 +89,6 @@ Machine-readable companion indexes:
 Use `files.html` for human navigation. Use `file_index.yaml` or
 `file_index.json` for scripted intake, handover packaging, or external tooling.
 
-
-
 ## 📊 What the Dashboard Computes
 
 ```text
@@ -120,8 +114,6 @@ Gauss-Legendre 4-pt
 **Compare All mode** runs all four methods simultaneously and reports %
 deviation vs Romberg.
 
-
-
 ## ✅ Spot-Check Reference Values
 
 Use these to verify the dashboard is computing correctly after setup. Set 100
@@ -136,8 +128,6 @@ integration steps, use the Romberg method.
 > These values are the authoritative regression fixtures from
 > `tests/numerics.test.js`. Trapezoid will differ slightly (expect ~0.04% lower
 > on smooth curves); Romberg and Gauss-Legendre agree to < 0.001%.
-
-
 
 ## 🗂️ Materials (10)
 
@@ -157,8 +147,6 @@ integration steps, use the Romberg method.
 Source: NIST cryogenic properties database. All coefficients validated against
 NIST reference values.
 
-
-
 ## 🔢 Version History
 
 | Version | Track | Key change |
@@ -176,8 +164,6 @@ Full modular changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md)
 > **v0.4.x release gate**: `npm test` must pass → validation → version bump in
 > `VERSION` → `git push`.
 
-
-
 ## 🧪 Automated Tests
 
 ```bash
@@ -192,6 +178,18 @@ Runs:
   values
 - `tests/materials.validate.js` — schema validation for all materials in
   `data/materials.json`
+- `tests/file_index_integrity.test.js` — file index parity and fallback checks
+- `tests/static_entrypoints.test.js` — static entrypoint and local asset checks
+- `scripts/version-coherence-check.js` — active runtime version-coherence gate
+
+Additional direct commands:
+
+```bash
+npm run validate:materials
+npm run validate:static
+npm run validate:version
+npm run ssot:plan
+```
 
 ### Next Iteration Validation TODO (Engineering Depth)
 
@@ -202,13 +200,14 @@ expanded with explicit engineering validation layers:
   envelope)
 - Direct NIST-equation parity checks over expanded temperature slices
 - Method-to-method tolerance bands documented as pass/fail criteria
+- Deterministic generated-output diffing for SSOT HTML artifacts
 
 Target artifact updates for next iteration:
+
 - `tests/numerics.test.js` (expanded matrix)
 - `DASHBOARD_TESTING_GUIDE.md` (acceptance thresholds)
 - release-time validation report generated from test outputs
-
-
+- template-driven SSOT generation outputs
 
 ## 📁 Key Files
 
@@ -218,14 +217,17 @@ Target artifact updates for next iteration:
 | `js/materials.js` | Property evaluator and NIST equation forms |
 | `js/numerics.js` | All 4 numerical integration methods |
 | `js/app_modular.js` | v0.4.9 primary orchestrator |
+| `scripts/version-coherence-check.js` | active version-coherence gate |
+| `scripts/regenerate-ssot-views.js` | SSOT regeneration planning/preflight gate |
 | `docs/CHANGELOG.md` | v0.4.x engineering changelog |
+| `docs/HISTORICAL_SNAPSHOT_POLICY_v0.4.9.md` | archival-vs-active documentation policy |
+| `docs/SSOT_REGENERATION_PIPELINE_v0.4.9.md` | SSOT pipeline contract |
+| `docs/rtm/FEATURE_TEST_FILE_RTM_v0.4.9.md` | feature-test-file traceability matrix |
 | `material_properties_docs/DMAIC_VERSION_LOG.md` | v1.x VBA/HTML lineage log |
 | `DASHBOARD_TESTING_GUIDE.md` | Manual test procedures with expected output guide |
 | `docs/GITHUB_PAGES_PUBLISH_GUIDE.md` | Step-by-step GitHub Pages publish guide |
 
-
-
 ## 📞 Contact
 
-Organization: Studiecentrum voor Kernenergie (SCK CEN) Version: 0.4.7 | Last
-Updated: 2026-05-04
+Organization: Studiecentrum voor Kernenergie (SCK CEN) Version: 0.4.9 | Last
+Updated: 2026-05-17
