@@ -369,12 +369,13 @@ function evalPolylog(coeffs, T) {
   return Math.pow(10, s);
 }
 
-/* ── Evaluate rational: log10k = P(x)/Q(x) ── */
+/* ── Evaluate rational: log10k = P(√T,T,T^1.5,T²)/Q(√T,T,T^1.5,T²) ── */
+/* Matches js/materials.js rational() — uses sqrt(T)-based terms with 9 coefficients [a..i] */
 function evalRational(c, T) {
-  const x = Math.log10(T);
-  const num = c[0] + c[2]*x + c[4]*x*x + c[6]*x*x*x;
-  const den = 1 + c[1]*x + c[3]*x*x + c[5]*x*x*x + c[7]*x*x*x*x;
-  return Math.pow(10, num/den);
+  const r = Math.sqrt(T);
+  const num = c[0] + c[2]*r + c[4]*T + c[6]*Math.pow(T, 1.5) + c[8]*T*T;
+  const den = 1   + c[1]*r + c[3]*T + c[5]*Math.pow(T, 1.5) + c[7]*T*T;
+  return Math.pow(10, num / den);
 }
 
 function evalProperty(mat, prop, T) {
