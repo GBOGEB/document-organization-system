@@ -6,8 +6,11 @@
   "scripts": {
     "start": "python3 -m http.server 8000",
     "start:py": "python -m http.server 8000",
-    "test": "node tests/numerics.test.js && node tests/export.test.js && node tests/materials.validate.js && node tests/file_index_integrity.test.js",
-    "validate:materials": "node tests/materials.validate.js"
+    "test": "node tests/numerics.test.js && node tests/export.test.js && node tests/materials.validate.js && node tests/file_index_integrity.test.js && node tests/static_entrypoints.test.js && node scripts/version-coherence-check.js",
+    "validate:materials": "node tests/materials.validate.js",
+    "validate:version": "node scripts/version-coherence-check.js",
+    "validate:static": "node tests/static_entrypoints.test.js",
+    "ssot:plan": "node scripts/regenerate-ssot-views.js"
   },
   "devDependencies": {}
 }
