@@ -114,6 +114,7 @@ const COEFFICIENT_LENGTH_BY_TYPE = {
   rational: 9,
   "thermal-contraction": 5
 };
+const BOUNDARY_EPSILON_FACTOR = 1e-6;
 
 function assertParity(label, actual, expected, relTol = 1e-10, absTol = relTol) {
   totalTests++;
@@ -819,7 +820,7 @@ for (const matKey of materialKeys) {
       ? propDef.pieces.slice(1).map(piece => piece.range[0])
       : [];
     const step = (rMax - rMin) / 200;
-    const boundaryEps = Math.max(step * 1e-6, Number.EPSILON);
+    const boundaryEps = Math.max(step * BOUNDARY_EPSILON_FACTOR, Number.EPSILON);
     let prevVal = null;
     let prevT = null;
     let maxRatio = 0;
