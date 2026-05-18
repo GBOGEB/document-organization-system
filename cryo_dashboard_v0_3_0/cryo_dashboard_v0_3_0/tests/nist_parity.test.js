@@ -60,7 +60,11 @@ function nistRational(coeff, T) {
 
 /** NIST thermal contraction: y = a + bT + cT² + dT³ + eT⁴ */
 function nistThermalContraction(coeff, T, tlow, fval) {
-  if (tlow != null && fval != null && T < tlow) return fval;
+  if (tlow !== null && tlow !== undefined &&
+      fval !== null && fval !== undefined &&
+      T < tlow) {
+    return fval;
+  }
   const [a, b, c, d, e] = coeff;
   return a + b * T + c * T * T + d * T * T * T + e * T * T * T * T;
 }
@@ -440,7 +444,8 @@ for (const matKey of tcMaterials) {
   }
 
   // Low-T branch test (where applicable)
-  if (propDef.tlow != null && propDef.f != null) {
+  if (propDef.tlow !== null && propDef.tlow !== undefined &&
+      propDef.f !== null && propDef.f !== undefined) {
     const tBelowLow = propDef.tlow - 1;
     if (tBelowLow >= propDef.range[0]) {
       const tcBelow = propertyValue(mat, "tc", tBelowLow);
@@ -503,7 +508,7 @@ for (const matKey of materialKeys) {
       });
     }
 
-    if (prop === "tc" && propDef.tlow != null) {
+    if (prop === "tc" && propDef.tlow !== null && propDef.tlow !== undefined) {
       const polyMin = Math.max(rMin, propDef.tlow);
       const vPolyMin = propertyValue(mat, prop, polyMin);
       totalTests++;
@@ -750,7 +755,7 @@ if (failures.length > 0) {
     console.log(`    actual:   ${JSON.stringify(f.actual)}`);
     console.log(`    expected: ${JSON.stringify(f.expected)}`);
     if (f.relErr) console.log(`    relErr:   ${f.relErr.toExponential(3)}`);
-    if (f.absErr != null) console.log(`    absErr:   ${f.absErr.toExponential(3)}`);
+    if (f.absErr !== undefined) console.log(`    absErr:   ${f.absErr.toExponential(3)}`);
   }
   throw new Error(`NIST parity test suite failed with ${failedTests} failing assertions`);
 } else {
