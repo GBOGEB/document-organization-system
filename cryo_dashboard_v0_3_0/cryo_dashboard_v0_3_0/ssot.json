@@ -171,6 +171,26 @@
     "thermal_strain": {"formula": "ΔL = L_ref × [Y(T2) − Y(T1)] × 1e-5", "units": "m", "inputs": ["L_ref (m)", "T1 (K)", "T2 (K)"]},
     "series_thermal_resistance": {"formula": "R_total = Σᵢ (Lᵢ / (kᵢ_avg × Aᵢ))", "units": "K/W", "inputs": ["Per layer: L, k_avg, A"]}
   },
+  "data_lineage": {
+    "description": "Full traceability chain from NIST source data to rendered plots",
+    "chain": [
+      {"step": 1, "stage": "NIST Monograph 177 / Cryogenic Material Properties DB", "artifact": "Published polynomial/rational fit coefficients per material", "note": "Primary reference: NIST Monograph 177 (Marquardt, Le, Radebaugh) for OFHC Copper, AISI 316, Ti-6Al-4V, G-10 CR, Al 6061-T6"},
+      {"step": 2, "stage": "js/materials.js coefficient arrays", "artifact": "Hardcoded coefficient arrays per material per property", "note": "Coefficients transcribed verbatim from NIST tables; rational model uses sqrt(T)-based form with 9 coefficients [a..i]"},
+      {"step": 3, "stage": "js/materials.js evaluator functions", "artifact": "logpoly(), rational(), evalProperty()", "note": "Canonical evaluators: polylog → 10^(Σ aᵢ·(log₁₀T)ⁱ); rational → 10^(P(√T)/Q(√T)) with 9 coefficients"},
+      {"step": 4, "stage": "ssot.json material catalog", "artifact": "Metadata summary (types, ranges, categories)", "note": "Does NOT duplicate raw coefficients — references js/materials.js as coefficient authority"},
+      {"step": 5, "stage": "SSOT presentation views", "artifact": "index_slides.html, ssot_launcher.html", "note": "Embed full MDATA with coefficients for standalone rendering; evalRational() aligned to js/materials.js rational() model"},
+      {"step": 6, "stage": "Rendered Plotly charts", "artifact": "k(T), cp(T), Copper RRR comparison plots", "note": "Traces generated point-by-point from embedded coefficients using aligned evaluators"}
+    ],
+    "rational_model_specification": {
+      "canonical_source": "js/materials.js function rational(coeff, T)",
+      "form": "log₁₀(k) = (a + c·√T + e·T + g·T^(3/2) + i·T²) / (1 + b·√T + d·T + f·T^(3/2) + h·T²)",
+      "coefficient_count": 9,
+      "coefficient_labels": ["a", "b", "c", "d", "e", "f", "g", "h", "i"],
+      "applies_to": ["CuRRR50", "CuRRR100", "CuRRR150", "CuRRR300", "CuRRR500"],
+      "nist_reference": "NIST Monograph 177, Table 4.3 (OFHC Copper thermal conductivity)"
+    },
+    "validation_status": "SSOT evalRational() aligned to js/materials.js rational() as of v0.4.9-fix (2026-05-18)"
+  },
   "known_limitations": [
     "No iterative layered-wall interface solver (screening only)",
     "No uncertainty propagation / Monte Carlo in-browser",
