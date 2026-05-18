@@ -72,12 +72,17 @@ function formatScalar(value) {
   return String(value);
 }
 
+export function escapeRegexLiteral(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export function getReleaseMetadata(root = ROOT) {
   const version = ensureVersionPrefix(fs.readFileSync(path.join(root, "VERSION"), "utf8").trim());
   const bareVersion = version.slice(1);
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
   const changelogText = fs.readFileSync(path.join(root, "docs", "CHANGELOG.md"), "utf8");
-  const dateMatch = changelogText.match(/## v0\.4\.9[\s\S]*?\*\*Date:\*\*\s*([0-9-]+)/);
+  const versionPattern = new RegExp(`## ${escapeRegexLiteral(version)}[\\s\\S]*?\\*\\*Date:\\*\\*\\s*([0-9-]+)`);
+  const dateMatch = changelogText.match(versionPattern);
 
   return {
     root,

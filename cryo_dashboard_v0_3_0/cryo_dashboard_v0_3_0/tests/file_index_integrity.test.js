@@ -84,7 +84,7 @@ assert.ok(yamlCanonicalDocs.includes(metadata.deploymentChecklist));
 assert.ok(yamlCanonicalDocs.includes(metadata.ssotPipeline));
 assert.ok(yamlCanonicalDocs.includes(metadata.fileIndexSnapshot));
 
-const nonFallbackArtifacts = yamlMinimumArtifacts.filter(pathEntry => pathEntry !== yamlLegacyFallbackFile);
+const nonFallbackArtifacts = yamlMinimumArtifacts.filter(artifactPath => artifactPath !== yamlLegacyFallbackFile);
 assert.ok(nonFallbackArtifacts.length > 0, "Fallback-only artifact set is not allowed");
 
 const folderBuckets = collectFolderBuckets(yamlMinimumArtifacts);
