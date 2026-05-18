@@ -121,7 +121,7 @@ function assertParity(label, actual, expected, relTol = 1e-10, absTol = relTol) 
     const absErr = Math.abs(actual);
     if (absErr <= absTol) {
       passedTests++;
-      return;
+      return true;
     }
     failedTests++;
     failures.push({
@@ -131,11 +131,12 @@ function assertParity(label, actual, expected, relTol = 1e-10, absTol = relTol) 
       absErr,
       absTol
     });
-    return;
+    return false;
   }
   const relErr = Math.abs((actual - expected) / expected);
   if (relErr <= relTol) {
     passedTests++;
+    return true;
   } else {
     failedTests++;
     failures.push({
@@ -145,6 +146,7 @@ function assertParity(label, actual, expected, relTol = 1e-10, absTol = relTol) 
       relErr,
       relTol
     });
+    return false;
   }
 }
 
@@ -284,11 +286,21 @@ for (const [matKey, nistProps] of Object.entries(NIST_COEFFICIENTS)) {
     for (let i = 0; i < maxLen; i++) {
       const expectedCoeff = nistDef.coefficients[i];
       const actualCoeff = storedCoeff[i];
-      const absDelta = Math.abs((expectedCoeff ?? NaN) - (actualCoeff ?? NaN));
+      const expectedMissing = expectedCoeff === undefined;
+      const actualMissing = actualCoeff === undefined;
+
+      if (expectedMissing || actualMissing) {
+        if (expectedMissing !== actualMissing) {
+          mismatchIndices.push(i);
+        }
+        continue;
+      }
+
+      const absDelta = Math.abs(expectedCoeff - actualCoeff);
       if (Number.isFinite(absDelta) && absDelta > maxAbsDelta) {
         maxAbsDelta = absDelta;
       }
-      if (!Number.isFinite(absDelta) || absDelta !== 0) {
+      if (!Number.isFinite(absDelta) || absDelta > 0) {
         mismatchIndices.push(i);
       }
     }
@@ -346,15 +358,13 @@ for (const matKey of materialKeys) {
       const fromMaterials = propertyValue(mat, prop, T);
       const fromNist = nistEval(mat, prop, T);
       propChecks++;
-      const parityFailedBefore = failedTests;
-
-      assertParity(
+      const parityOk = assertParity(
         `${matKey}.${prop}(${T}K)`,
         fromMaterials,
         fromNist,
         1e-12  // Very tight tolerance — should be exact
       );
-      if (failedTests > parityFailedBefore) propFailures++;
+      if (!parityOk) propFailures++;
 
       // Also verify the value is physically reasonable
       propChecks++;
@@ -809,6 +819,7 @@ for (const matKey of materialKeys) {
       ? propDef.pieces.slice(1).map(piece => piece.range[0])
       : [];
     const step = (rMax - rMin) / 200;
+    const boundaryEps = Math.max(step * 1e-6, Number.EPSILON);
     let prevVal = null;
     let prevT = null;
     let maxRatio = 0;
@@ -818,7 +829,9 @@ for (const matKey of materialKeys) {
       const val = propertyValue(mat, prop, T);
       if (prevVal !== null && prevVal > 0 && val > 0) {
         const crossesPieceBoundary = prevT !== null &&
-          pieceBoundaries.some(boundary => prevT < boundary && T >= boundary);
+          pieceBoundaries.some(
+            boundary => prevT < boundary - boundaryEps && T > boundary - boundaryEps
+          );
         const ratio = val / prevVal;
         if (ratio > maxRatio) maxRatio = ratio;
         if (!crossesPieceBoundary && (ratio > 100 || ratio < 0.01)) {
