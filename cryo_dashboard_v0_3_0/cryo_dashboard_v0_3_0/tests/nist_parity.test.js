@@ -109,6 +109,11 @@ let totalTests = 0;
 let passedTests = 0;
 let failedTests = 0;
 const failures = [];
+const COEFFICIENT_LENGTH_BY_TYPE = {
+  polylog: 9,
+  rational: 9,
+  "thermal-contraction": 5
+};
 
 function assertParity(label, actual, expected, relTol = 1e-10) {
   totalTests++;
@@ -194,6 +199,20 @@ const NIST_COEFFICIENTS = {
       coefficients: [-2.64827, 8.80228, -24.8998, 41.1625, -39.8754, 23.1778, -7.95635, 1.48806, -0.11701],
       range: [12, 300]
     }
+  },
+  CuRRR100: {
+    k: {
+      type: "rational",
+      coefficients: [2.2154, -0.47461, -0.88068, 0.13871, 0.29505, -0.02043, -0.04831, 0.001281, 0.003207],
+      range: [4, 300]
+    }
+  },
+  Ti64: {
+    k: {
+      type: "polylog",
+      coefficients: [-5107.8774, 19240.422, -30789.064, 27134.756, -14226.379, 4438.2154, -763.07767, 55.796592, 0],
+      range: [20, 300]
+    }
   }
 };
 
@@ -204,6 +223,47 @@ console.log("══════════════════════�
 
 console.log("Section 1: NIST Coefficient Verification");
 console.log("─────────────────────────────────────────");
+
+function assertCoefficientSet(label, coeff, expectedLength) {
+  totalTests++;
+  const valid = Array.isArray(coeff) &&
+    coeff.length === expectedLength &&
+    coeff.every(c => Number.isFinite(c));
+  if (valid) {
+    passedTests++;
+  } else {
+    failedTests++;
+    failures.push({
+      label: `${label} coefficient shape/finite check`,
+      actual: coeff,
+      expected: `${expectedLength} finite coefficients`
+    });
+  }
+}
+
+console.log("  Full-suite coefficient sanity checks (all materials/properties)");
+for (const [matKey, mat] of Object.entries(db.materials)) {
+  for (const [propKey, propDef] of Object.entries(mat.properties)) {
+    if (propDef.type === "piecewise-logpoly") {
+      for (let i = 0; i < propDef.pieces.length; i++) {
+        assertCoefficientSet(
+          `${matKey}.${propKey}.piece${i + 1}`,
+          propDef.pieces[i].coefficients,
+          COEFFICIENT_LENGTH_BY_TYPE.polylog
+        );
+      }
+      continue;
+    }
+    if (!COEFFICIENT_LENGTH_BY_TYPE[propDef.type]) continue;
+    assertCoefficientSet(
+      `${matKey}.${propKey}`,
+      propDef.coefficients,
+      COEFFICIENT_LENGTH_BY_TYPE[propDef.type]
+    );
+  }
+}
+console.log("  ✓ Full-suite coefficient sanity checks completed");
+console.log("  NIST exact-match subset checks (transcribed fixtures)");
 
 // Verify that stored coefficients exactly match NIST-published values
 for (const [matKey, nistProps] of Object.entries(NIST_COEFFICIENTS)) {

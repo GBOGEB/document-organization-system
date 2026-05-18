@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-18  
 **Test File:** `tests/nist_parity.test.js`  
-**Status:** ✅ ALL 769 ASSERTION CHECKS PASSED
+**Status:** ✅ ALL 796 ASSERTION CHECKS PASSED
 
 ---
 
@@ -41,7 +41,7 @@ Comprehensive regression testing validates that all material property calculatio
 
 | Section | Group Checks | Assertion Checks | Status |
 |---------|--------------|------------------|--------|
-| 1. Coefficient verification | 8 | 8 | ✅ |
+| 1. Coefficient verification | 12 grouped checks | 35 | ✅ |
 | 2. Evaluator parity + per-point physical sanity | 24 property groups | 642 | ✅ |
 | 3. Copper RRR rational deep checks | 9 grouped checks | 19 | ✅ |
 | 4. Thermal contraction checks | 5 material groups | 13 | ✅ |
@@ -49,12 +49,14 @@ Comprehensive regression testing validates that all material property calculatio
 | 6. evalRational golden fixtures | 2 material groups | 10 | ✅ |
 | 7. Cross-material physical reasonableness | 4 | 4 | ✅ |
 | 8. Dense continuity sweep | 19 property groups | 19 | ✅ |
-| **Total** | **75 grouped checks** | **769 assertion checks** | ✅ |
+| **Total** | **79 grouped checks** | **796 assertion checks** | ✅ |
 
 > Note: the prior 436 subtotal only counted grouped checks and omitted per-temperature assertions in Section 2.
 
-### Section 1: NIST Coefficient Verification (8 assertions)
-Transcribed NIST-published coefficients compared byte-for-byte against `data/materials.json`.
+### Section 1: NIST Coefficient Verification (35 assertions)
+Includes both:
+- full-suite coefficient sanity checks across all 10 materials/properties (shape + finite values), and
+- transcribed NIST exact-match subset checks compared byte-for-byte against `data/materials.json`.
 
 | Material | Property | Status |
 |----------|----------|--------|
@@ -66,6 +68,8 @@ Transcribed NIST-published coefficients compared byte-for-byte against `data/mat
 | G10Normal | k coefficients | ✅ Exact match |
 | G10Normal | cp coefficients | ✅ Exact match |
 | G10Warp | k coefficients | ✅ Exact match |
+| CuRRR100 | k coefficients | ✅ Exact match |
+| Ti64 | k coefficients | ✅ Exact match |
 
 ### Section 2: Evaluator Parity (642 assertions)
 Independent NIST equation implementations compared against `propertyValue()` at 9–15 temperature points per material/property pair. Tolerance: 1×10⁻¹².
