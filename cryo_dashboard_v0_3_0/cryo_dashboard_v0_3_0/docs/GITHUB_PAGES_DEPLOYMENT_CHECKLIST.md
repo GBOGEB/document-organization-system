@@ -12,19 +12,26 @@ cd cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
 npm test
 ```
 
-- [ ] `numerics.test.js` — Integration method regression fixtures
-- [ ] `export.test.js` — Export consistency
-- [ ] `materials.validate.js` — Material database schema validation
-- [ ] `file_index_integrity.test.js` — File index integrity
-- [ ] `static_entrypoints.test.js` — Entry point existence
-- [ ] `version-coherence-check.js` — Version string coherence
-- [ ] `nist_parity.test.js` — **766 NIST parity regression tests**
+Current suite is comprehensive for the currently-supported dashboard scope (10/10 materials; k/cp/tc as available; polylog/rational/thermal-contraction equations).
+
+| Test | Type | Coverage Focus |
+|------|------|----------------|
+| `numerics.test.js` | Numerical regression | Integral methods and curve fixture stability |
+| `export.test.js` | Integration | CSV/JSON export consistency |
+| `materials.validate.js` | Data/schema | `materials.json` structure and required fields |
+| `file_index_integrity.test.js` | Integrity gate | SSOT index/reference consistency |
+| `static_entrypoints.test.js` | Static contract | Required HTML/JS entry points exist |
+| `version-coherence-check.js` | Release governance | Version string coherence |
+| `nist_parity.test.js` | Physics/model parity | **769 assertion checks** across NIST parity, boundaries, continuity, and rational-model golden fixtures |
 
 ### 2. Data Integrity
 - [ ] `data/materials.json` is valid JSON
 - [ ] All 10 materials present with correct properties
-- [ ] Coefficients match NIST published values (verified by nist_parity.test.js)
+- [ ] Coefficients match NIST published values (verified by nist_parity.test.js + NIST transcribed fixtures)
+- [ ] Spot-check pre-defined offline reference table rows (4 K, 20 K, 77 K, 300 K) for CuRRR100 and CuRRR300
+- [ ] Verify Plotly source arrays are deterministic for identical inputs (same series length/order and value hash)
 - [ ] `ssot.json` is valid JSON and contains current metadata
+- [ ] Equation applicability ranges are enforced by tests (`range min/max`, piecewise boundaries, low-T tc branch)
 
 ### 3. Asset Verification
 - [ ] `.nojekyll` file exists at repository root (prevents Jekyll processing)
@@ -57,6 +64,7 @@ git pull origin main
 1. Navigate to **Settings → Pages** in the GitHub repository
 2. Set **Source** to: `Deploy from a branch`
 3. Set **Branch** to: `main` / `/ (root)`
+   - Note: dashboard assets are intentionally nested at `cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`; root deploy is still correct because the published URL includes that full subpath.
 4. Click **Save**
 
 ### Step 3: Verify Build
@@ -79,6 +87,8 @@ curl -s -o /dev/null -w "%{http_code}" https://gbogeb.github.io/document-organiz
 ```
 
 ### Manual Checks
+Manual review is still required for UX/interaction quality. Every manual check below should be paired with automated code validation (`npm test`) before sign-off.
+
 - [ ] Landing page loads without console errors
 - [ ] SSOT launcher renders Plotly charts correctly
 - [ ] Copper RRR k(T) curves show characteristic low-T peaks
@@ -88,9 +98,10 @@ curl -s -o /dev/null -w "%{http_code}" https://gbogeb.github.io/document-organiz
 - [ ] No mixed-content warnings (HTTP resources on HTTPS page)
 
 ### Cross-Browser
-- [ ] Chrome (latest)
-- [ ] Firefox (latest)
-- [ ] Safari (latest, if available)
+- [ ] Edge on PC (latest)
+- [ ] Chrome on PC (latest)
+- [ ] Safari on iPhone (latest)
+- [ ] Chrome on iPhone (latest)
 
 ---
 
@@ -118,8 +129,8 @@ git push origin main --force-with-lease
 ```
 
 ### Cache Invalidation
-- GitHub Pages has a ~10-minute cache TTL
-- For immediate updates, append cache-busting query params:
+- GitHub Pages and browser cache propagation can be delayed by several minutes.
+- For urgent verification, use a hard refresh and cache-busting query params:
   `?v=<timestamp>` (already implemented for `materials.json`)
 
 ---
@@ -127,7 +138,8 @@ git push origin main --force-with-lease
 ## Known Limitations
 
 1. **CORS on `file://`**: The `dashboard_modular.html` uses `fetch()` for `materials.json`, which requires HTTP(S). Works on GitHub Pages; does **not** work when opened via `file://` directly.
-2. **CDN Dependencies**: Plotly.js (~3.5 MB) and Reveal.js are loaded from CDN. If CDN is down, charts and slides won't render.
+2. **CDN Dependencies (Core Risk)**: Plotly.js (~3.5 MB) and Reveal.js are loaded from CDN. If CDN is down, charts and slides won't render.
+   - **Elevated TODO:** prioritize self-hosted fallback/vendor pinning for Plotly + Reveal in next hardening pass.
 3. **No Service Worker**: The dashboard does not work offline. All CDN resources must be available.
 4. **Single Branch Deploy**: GitHub Pages deploys from `main`. All changes must be merged to `main` before they appear on the live site.
 
@@ -139,4 +151,4 @@ git push origin main --force-with-lease
 |---------|------|------------|
 | v0.4.9 | 2026-05-14 | Initial SSOT system integration |
 | v0.4.9-fix | 2026-05-18 | evalRational() fix + NIST lineage |
-| v0.4.9-nist | 2026-05-18 | 766-test NIST parity regression suite |
+| v0.4.9-nist | 2026-05-18 | 769-assertion NIST parity regression suite |

@@ -11,7 +11,7 @@
   "project": {
     "title": "Cryogenic Material Property Dashboard",
     "organization": "SCK CEN",
-    "purpose": "Engineering tool for evaluating cryogenic material-property behaviour (1\u2013300 K)",
+    "purpose": "Engineering tool for evaluating cryogenic material-property behaviour (1–300 K)",
     "version_lineage": [
       {
         "version": "v0.1.0",
@@ -82,7 +82,7 @@
     "launcher": "ssot_launcher.html",
     "presentation": "index_slides.html",
     "access_model": {
-      "github_pages": "Primary \u2014 no server needed",
+      "github_pages": "Primary — no server needed",
       "localhost": "python -m http.server 8000",
       "file_protocol": "Legacy v1.10 only"
     },
@@ -115,11 +115,11 @@
       "Define Tmin / Tmax / cursor T",
       "Compute k(T) or cp(T) or Y(T)",
       "Compute dk/dT (sensitivity)",
-      "Compute \u222bproperty(T)dT",
-      "Compute Qdot = (A/L) \u00d7 \u222bk(T)dT",
+      "Compute ∫property(T)dT",
+      "Compute Qdot = (A/L) × ∫k(T)dT",
       "Render panels: Engineering, Sensitivity, Comparison, Methods, Traceability"
     ],
-    "idempotency_rule": "Same inputs \u2192 same computed state \u2192 same plots \u2192 same exports"
+    "idempotency_rule": "Same inputs → same computed state → same plots → same exports"
   },
   "dashboard_panels": [
     {
@@ -150,7 +150,7 @@
     {
       "id": "delta-summary",
       "name": "Delta Summary",
-      "description": "\u0394k, \u222bk dT, Qdot, NIST range validation status"
+      "description": "Δk, ∫k dT, Qdot, NIST range validation status"
     },
     {
       "id": "method-comparison",
@@ -244,7 +244,7 @@
       },
       {
         "id": "G10Normal",
-        "name": "G-10 CR Fiberglass Epoxy \u2013 Normal",
+        "name": "G-10 CR Fiberglass Epoxy – Normal",
         "source": "NIST G-10 CR",
         "properties": [
           "k",
@@ -270,7 +270,7 @@
       },
       {
         "id": "G10Warp",
-        "name": "G-10 CR Fiberglass Epoxy \u2013 Warp",
+        "name": "G-10 CR Fiberglass Epoxy – Warp",
         "source": "NIST G-10 CR",
         "properties": [
           "k",
@@ -419,27 +419,27 @@
       "k": {
         "name": "Thermal Conductivity",
         "symbol": "k(T)",
-        "units": "W/(m\u00b7K)",
+        "units": "W/(m·K)",
         "description": "Thermal conductivity as a function of temperature"
       },
       "cp": {
         "name": "Specific Heat",
         "symbol": "cp(T)",
-        "units": "J/(kg\u00b7K)",
+        "units": "J/(kg·K)",
         "description": "Specific heat capacity as a function of temperature"
       },
       "tc": {
         "name": "Thermal Contraction",
         "symbol": "Y(T)",
-        "units": "\u00d71e-5 [(L(T)\u2212L293)/L293]",
+        "units": "×1e-5 [(L(T)−L293)/L293]",
         "description": "Fractional length change relative to 293 K"
       }
     },
     "equation_types": {
-      "polylog": "k(T) = 10^(\u03a3 a\u1d62\u00b7(log\u2081\u2080T)\u2071)",
-      "rational": "log\u2081\u2080k = (a + c\u221aT + eT + gT^(3/2) + iT\u00b2) / (1 + b\u221aT + dT + fT^(3/2) + hT\u00b2) \u2192 k = 10^(above) (9 coefficients: a..i)",
+      "polylog": "k(T) = 10^(Σ aᵢ·(log₁₀T)ⁱ)",
+      "rational": "log₁₀k = (a + c√T + eT + gT^(3/2) + iT²) / (1 + b√T + dT + fT^(3/2) + hT²) → k = 10^(above) (9 coefficients: a..i)",
       "piecewise-logpoly": "Piecewise polylog with separate coefficient sets per temperature range",
-      "thermal-contraction": "Y(T) = a\u2080 + a\u2081T + a\u2082T\u00b2 + a\u2083T\u00b3 + a\u2084T\u2074 (with optional low-T constant branch)"
+      "thermal-contraction": "Y(T) = a₀ + a₁T + a₂T² + a₃T³ + a₄T⁴ (with optional low-T constant branch)"
     }
   },
   "integration_methods": [
@@ -447,13 +447,13 @@
       "id": "trapezoid",
       "name": "Composite Trapezoid",
       "order": 2,
-      "description": "O(h\u00b2) composite trapezoidal rule"
+      "description": "O(h²) composite trapezoidal rule"
     },
     {
       "id": "simpson",
       "name": "Simpson's 1/3 Rule",
       "order": 4,
-      "description": "O(h\u2074) composite Simpson's rule (fixed steps)"
+      "description": "O(h⁴) composite Simpson's rule (fixed steps)"
     },
     {
       "id": "romberg",
@@ -470,17 +470,17 @@
   ],
   "engineering_formulas": {
     "conduction_heat_load": {
-      "formula": "Qdot = (A/L) \u00d7 \u222b[T_cold\u2192T_warm] k(T)dT",
+      "formula": "Qdot = (A/L) × ∫[T_cold→T_warm] k(T)dT",
       "units": "W",
       "inputs": [
-        "A (m\u00b2)",
+        "A (m²)",
         "L (m)",
         "T_cold (K)",
         "T_warm (K)"
       ]
     },
     "cooldown_energy": {
-      "formula": "E = m \u00d7 \u222b[T1\u2192T2] cp(T)dT",
+      "formula": "E = m × ∫[T1→T2] cp(T)dT",
       "units": "J",
       "inputs": [
         "m (kg)",
@@ -489,7 +489,7 @@
       ]
     },
     "thermal_strain": {
-      "formula": "\u0394L = L_ref \u00d7 [Y(T2) \u2212 Y(T1)] \u00d7 1e-5",
+      "formula": "ΔL = L_ref × [Y(T2) − Y(T1)] × 1e-5",
       "units": "m",
       "inputs": [
         "L_ref (m)",
@@ -498,7 +498,7 @@
       ]
     },
     "series_thermal_resistance": {
-      "formula": "R_total = \u03a3\u1d62 (L\u1d62 / (k\u1d62_avg \u00d7 A\u1d62))",
+      "formula": "R_total = Σᵢ (Lᵢ / (kᵢ_avg × Aᵢ))",
       "units": "K/W",
       "inputs": [
         "Per layer: L, k_avg, A"
@@ -524,13 +524,13 @@
         "step": 3,
         "stage": "js/materials.js evaluator functions",
         "artifact": "logpoly(), rational(), evalProperty()",
-        "note": "Canonical evaluators: polylog \u2192 10^(\u03a3 a\u1d62\u00b7(log\u2081\u2080T)\u2071); rational \u2192 10^(P(\u221aT)/Q(\u221aT)) with 9 coefficients"
+        "note": "Canonical evaluators: polylog → 10^(Σ aᵢ·(log₁₀T)ⁱ); rational → 10^(P(√T)/Q(√T)) with 9 coefficients"
       },
       {
         "step": 4,
         "stage": "ssot.json material catalog",
         "artifact": "Metadata summary (types, ranges, categories)",
-        "note": "Does NOT duplicate raw coefficients \u2014 references js/materials.js as coefficient authority"
+        "note": "Does NOT duplicate raw coefficients — references js/materials.js as coefficient authority"
       },
       {
         "step": 5,
@@ -547,7 +547,7 @@
     ],
     "rational_model_specification": {
       "canonical_source": "js/materials.js function rational(coeff, T)",
-      "form": "log\u2081\u2080(k) = (a + c\u00b7\u221aT + e\u00b7T + g\u00b7T^(3/2) + i\u00b7T\u00b2) / (1 + b\u00b7\u221aT + d\u00b7T + f\u00b7T^(3/2) + h\u00b7T\u00b2)",
+      "form": "log₁₀(k) = (a + c·√T + e·T + g·T^(3/2) + i·T²) / (1 + b·√T + d·T + f·T^(3/2) + h·T²)",
       "coefficient_count": 9,
       "coefficient_labels": [
         "a",
@@ -575,7 +575,7 @@
     "No iterative layered-wall interface solver (screening only)",
     "No uncertainty propagation / Monte Carlo in-browser",
     "Modular dashboard requires HTTP context (not file://)",
-    "Single-material default plotting \u2014 multi-material overlay limited to 4",
+    "Single-material default plotting — multi-material overlay limited to 4",
     "Smoothing is deterministic moving average, not formal smoothing spline"
   ],
   "validation": {
@@ -594,9 +594,9 @@
       "Material schema validation",
       "File index integrity",
       "Static entry point existence",
-      "NIST parity regression (766 tests): coefficient verification, evaluator parity, rational model validation, thermal contraction, edge cases, physical reasonableness, continuity"
+      "NIST parity regression (769 assertions): coefficient verification, evaluator parity, rational model validation, thermal contraction, edge cases, physical reasonableness, continuity"
     ],
-    "gaps": []
+    "gaps": ["Method tolerance bands", "Engineering acceptance thresholds"]
   },
   "github_pages": {
     "base_url": "https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/",

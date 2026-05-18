@@ -21,7 +21,6 @@
  *   CuRRR150, CuRRR300, CuRRR500, Ti64
  */
 
-import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -76,16 +75,14 @@ function nistEval(material, property, T) {
   }
 
   if (propDef.type === "piecewise-logpoly") {
-    let coeff = propDef.pieces[propDef.pieces.length - 1].coefficients;
     for (const piece of propDef.pieces) {
       if (T >= piece.range[0] && T <= piece.range[1]) {
-        coeff = piece.coefficients;
-        break;
+        return nistPolylog(piece.coefficients, T);
       }
     }
-    if (T < propDef.pieces[0].range[0]) {
-      coeff = propDef.pieces[0].coefficients;
-    }
+    const coeff = T < propDef.pieces[0].range[0]
+      ? propDef.pieces[0].coefficients
+      : propDef.pieces[propDef.pieces.length - 1].coefficients;
     return nistPolylog(coeff, T);
   }
 
@@ -116,6 +113,15 @@ function assertParity(label, actual, expected, relTol = 1e-10) {
       passedTests++;
       return;
     }
+    failedTests++;
+    failures.push({
+      label,
+      actual,
+      expected,
+      absErr: Math.abs(actual),
+      absTol: 1e-15
+    });
+    return;
   }
   const relErr = Math.abs((actual - expected) / expected);
   if (relErr <= relTol) {
@@ -459,6 +465,7 @@ console.log("\nSection 5: Edge Cases and Boundary Conditions");
 console.log("──────────────────────────────────────────────");
 
 // Test exact boundary temperatures
+let section5BoundaryFailures = 0;
 for (const matKey of materialKeys) {
   const mat = db.materials[matKey];
   for (const prop of ["k", "cp", "tc"]) {
@@ -473,6 +480,7 @@ for (const matKey of materialKeys) {
       passedTests++;
     } else {
       failedTests++;
+      section5BoundaryFailures++;
       failures.push({
         label: `${matKey}.${prop}(${rMin}K) lower bound`,
         actual: vMin,
@@ -487,11 +495,29 @@ for (const matKey of materialKeys) {
       passedTests++;
     } else {
       failedTests++;
+      section5BoundaryFailures++;
       failures.push({
         label: `${matKey}.${prop}(${rMax}K) upper bound`,
         actual: vMax,
         expected: "finite"
       });
+    }
+
+    if (prop === "tc" && propDef.tlow != null) {
+      const polyMin = Math.max(rMin, propDef.tlow);
+      const vPolyMin = propertyValue(mat, prop, polyMin);
+      totalTests++;
+      if (isFinite(vPolyMin) && vPolyMin !== null) {
+        passedTests++;
+      } else {
+        failedTests++;
+        section5BoundaryFailures++;
+        failures.push({
+          label: `${matKey}.${prop}(${polyMin}K) polynomial lower bound`,
+          actual: vPolyMin,
+          expected: "finite"
+        });
+      }
     }
   }
 }
@@ -550,7 +576,9 @@ for (const matKey of materialKeys) {
   }
 }
 
-console.log("  ✓ Boundary values validated for all materials");
+if (section5BoundaryFailures === 0) {
+  console.log("  ✓ Boundary values validated for all materials");
+}
 
 /* ─── Test Section 6: SSOT Launcher evalRational Parity ─────────────── */
 console.log("\nSection 6: SSOT evalRational() Parity Check");
@@ -560,18 +588,18 @@ console.log("──────────────────────�
 // These are golden-value regression fixtures
 const RATIONAL_GOLDEN_VALUES = {
   CuRRR100: {
-    4:   propertyValue(db.materials.CuRRR100, "k", 4),
-    10:  propertyValue(db.materials.CuRRR100, "k", 10),
-    20:  propertyValue(db.materials.CuRRR100, "k", 20),
-    77:  propertyValue(db.materials.CuRRR100, "k", 77),
-    300: propertyValue(db.materials.CuRRR100, "k", 300)
+    4: 642.2969607429585,
+    10: 1539.9155755669058,
+    20: 2422.5102645364886,
+    77: 547.1996980793605,
+    300: 396.3239590150125
   },
   CuRRR300: {
-    4:   propertyValue(db.materials.CuRRR300, "k", 4),
-    10:  propertyValue(db.materials.CuRRR300, "k", 10),
-    20:  propertyValue(db.materials.CuRRR300, "k", 20),
-    77:  propertyValue(db.materials.CuRRR300, "k", 77),
-    300: propertyValue(db.materials.CuRRR300, "k", 300)
+    4: 1888.3793110693216,
+    10: 4319.904672636731,
+    20: 5052.267426595825,
+    77: 572.1196598437356,
+    300: 397.8739000533807
   }
 };
 
@@ -664,6 +692,7 @@ console.log("\nSection 8: Dense Sampling Continuity Check");
 console.log("───────────────────────────────────────────");
 
 // Check that properties vary smoothly (no discontinuities > 100x step-to-step)
+let section8ContinuityFailures = 0;
 for (const matKey of materialKeys) {
   const mat = db.materials[matKey];
   for (const prop of ["k", "cp"]) {
@@ -693,6 +722,7 @@ for (const matKey of materialKeys) {
       passedTests++;
     } else {
       failedTests++;
+      section8ContinuityFailures++;
       failures.push({
         label: `${matKey}.${prop} continuity`,
         actual: `max ratio = ${maxRatio}`,
@@ -701,7 +731,9 @@ for (const matKey of materialKeys) {
     }
   }
 }
-console.log("  ✓ All k and cp curves pass continuity check (no >100x jumps)");
+if (section8ContinuityFailures === 0) {
+  console.log("  ✓ All k and cp curves pass continuity check (no >100x jumps)");
+}
 
 /* ─── Summary ───────────────────────────────────────────────────────── */
 console.log("\n═══════════════════════════════════════════════════════════");
@@ -718,8 +750,9 @@ if (failures.length > 0) {
     console.log(`    actual:   ${JSON.stringify(f.actual)}`);
     console.log(`    expected: ${JSON.stringify(f.expected)}`);
     if (f.relErr) console.log(`    relErr:   ${f.relErr.toExponential(3)}`);
+    if (f.absErr != null) console.log(`    absErr:   ${f.absErr.toExponential(3)}`);
   }
-  process.exit(1);
+  throw new Error(`NIST parity test suite failed with ${failedTests} failing assertions`);
 } else {
   console.log("\n✅ ALL NIST PARITY TESTS PASSED");
   console.log("   All 10 materials validated across k, cp, and tc properties");

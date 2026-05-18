@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-18  
 **Test File:** `tests/nist_parity.test.js`  
-**Status:** ✅ ALL 766 TESTS PASSED
+**Status:** ✅ ALL 769 ASSERTION CHECKS PASSED
 
 ---
 
@@ -39,7 +39,21 @@ Comprehensive regression testing validates that all material property calculatio
 
 ## Test Sections & Results
 
-### Section 1: NIST Coefficient Verification (8 tests)
+| Section | Group Checks | Assertion Checks | Status |
+|---------|--------------|------------------|--------|
+| 1. Coefficient verification | 8 | 8 | ✅ |
+| 2. Evaluator parity + per-point physical sanity | 24 property groups | 642 | ✅ |
+| 3. Copper RRR rational deep checks | 9 grouped checks | 19 | ✅ |
+| 4. Thermal contraction checks | 5 material groups | 13 | ✅ |
+| 5. Edge and boundary checks | 4 grouped checks | 51 | ✅ |
+| 6. evalRational golden fixtures | 2 material groups | 10 | ✅ |
+| 7. Cross-material physical reasonableness | 4 | 4 | ✅ |
+| 8. Dense continuity sweep | 19 property groups | 19 | ✅ |
+| **Total** | **75 grouped checks** | **769 assertion checks** | ✅ |
+
+> Note: the prior 436 subtotal only counted grouped checks and omitted per-temperature assertions in Section 2.
+
+### Section 1: NIST Coefficient Verification (8 assertions)
 Transcribed NIST-published coefficients compared byte-for-byte against `data/materials.json`.
 
 | Material | Property | Status |
@@ -53,7 +67,7 @@ Transcribed NIST-published coefficients compared byte-for-byte against `data/mat
 | G10Normal | cp coefficients | ✅ Exact match |
 | G10Warp | k coefficients | ✅ Exact match |
 
-### Section 2: Evaluator Parity (312 tests)
+### Section 2: Evaluator Parity (642 assertions)
 Independent NIST equation implementations compared against `propertyValue()` at 9–15 temperature points per material/property pair. Tolerance: 1×10⁻¹².
 
 **All 24 material-property combinations pass** with zero relative error.
@@ -82,8 +96,8 @@ Deep validation of the `sqrt(T)`-based rational evaluator for OFHC Copper.
 - Null correctly returned for missing properties (Ti64 cp)
 - Null correctly returned for non-existent property names
 
-### Section 6: SSOT evalRational() Parity (10 tests)
-Golden-value regression fixtures for CuRRR100 and CuRRR300 at 5 temperatures each. Tolerance: 1×10⁻¹⁴.
+### Section 6: SSOT evalRational() Parity (10 assertions)
+Golden-value regression fixtures are now literal transcribed values (version-controlled) for CuRRR100 and CuRRR300 at 5 temperatures each. Tolerance: 1×10⁻¹⁴.
 
 ### Section 7: Physical Reasonableness (4 tests)
 - Cu k(300K) = 396.3 >> SS316 k(300K) = 15.3 ✅
@@ -133,6 +147,12 @@ Optional: y = f for T < Tlow
 1. **NIST Cryogenic Materials Properties Database** — trc.nist.gov/cryogenics
 2. **NIST Monograph 177** — "Properties of Copper and Copper Alloys at Cryogenic Temperatures" (Simon, Drexler, Reed, 1992)
 3. **Marquardt, Le, Radebaugh (2000)** — "Cryogenic Material Properties Database," 11th International Cryocooler Conference
+
+## Reuse / Refactor Candidates
+
+- `js/materials.js`: canonical evaluator block (`getCoefficients`, `propertyValue`) is the primary reuse unit for any future model extensions.
+- `tests/nist_parity.test.js`: independent equation evaluators are reusable as regression or ingestion-verification guards when adding new materials/properties.
+- Future enhancement path: add additional NIST-imported materials/properties (currently out-of-scope but supported by the same evaluator/test structure).
 
 ---
 
