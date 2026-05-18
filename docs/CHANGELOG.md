@@ -1,3 +1,39 @@
+## v0.4.9-nist
+**Date:** 2026-05-18
+
+### Added
+- **NIST Parity Regression Test Suite** (`tests/nist_parity.test.js`): 823 assertions validating all 10 materials × all properties against independently-implemented NIST equations.
+  - Coefficient verification against NIST-published values
+  - Evaluator parity at 9–15 temperature points per material/property
+  - Copper RRR rational model deep validation (peak detection, cross-RRR ordering, room-temp convergence)
+  - Thermal contraction validation (low-T branch, reference point)
+  - Edge cases: boundary conditions, null properties, piecewise boundaries
+  - Physical reasonableness checks and continuity validation
+- **NIST Parity Test Report** (`docs/NIST_PARITY_TEST_REPORT_v0.4.9.md`)
+- **GitHub Pages Deployment Checklist** (`docs/GITHUB_PAGES_DEPLOYMENT_CHECKLIST.md`)
+- Added `test:nist` script to `package.json`
+- NIST parity tests integrated into main `npm test` pipeline
+
+### Metrics
+
+| Metric | Value | KPI Target |
+|--------|-------|------------|
+| Total assertion checks | 823/823 pass | 100% pass |
+| Materials covered | 10/10 | 100% of current catalog |
+| Property models covered | polylog, piecewise-logpoly, rational, thermal-contraction | All production equation types |
+| Property availability coverage | k: 10/10, cp: 9/10, tc: 5/10 | Match available source data |
+| Main pipeline coverage | numerics + export + materials + file index + static + version + NIST parity | Full gate pass |
+
+### DMAIC Trace (Quality Control)
+
+| DMAIC Stage | Trace Evidence |
+|-------------|----------------|
+| Define | Risk: model/equation drift between NIST coefficients and runtime evaluators |
+| Measure | Added 823-assertion regression suite + per-section report metrics |
+| Analyze | Rational-model and boundary behavior probed with targeted fixtures and continuity sweeps |
+| Improve | Added literal golden fixtures, expanded deployment checklist validation depth |
+| Control | `npm test` gate enforces ongoing parity/integrity checks on each change |
+
 ## v0.4.9-fix
 **Date:** 2026-05-18
 
