@@ -1,5 +1,5 @@
 {
-  "version": "v0.4.7",
+  "version": "v0.4.9",
   "updated": "2026-05-05",
   "project": "cryogenic-material-dashboard",
   "repository": "GBOGEB/document-organization-system",
@@ -30,7 +30,11 @@
     "FINAL_HANDOVER.md",
     "SESSION_SUMMARY.md",
     "docs/CHANGELOG.md",
-    "docs/SESSION_DROPIN_HANDOVER_v0.4.7.md",
+    "docs/CRYO_DASHBOARD_SESSION_HANDOVER_v0.4.9.md",
+    "docs/NIST_PARITY_TEST_REPORT_v0.4.9.md",
+    "docs/GITHUB_PAGES_DEPLOYMENT_CHECKLIST.md",
+    "docs/SSOT_REGENERATION_PIPELINE_v0.4.9.md",
+    "FILE_INDEX_v0.4.9.md",
     "VERSION"
   ],
   "canonical_docs": [
@@ -38,9 +42,11 @@
     "FINAL_HANDOVER.md",
     "SESSION_SUMMARY.md",
     "docs/CHANGELOG.md",
-    "docs/SESSION_DROPIN_HANDOVER_v0.4.7.md",
-    "FILE_INDEX_v0.4.7.md",
-    "SETUP_GUIDE.md",
+    "docs/CRYO_DASHBOARD_SESSION_HANDOVER_v0.4.9.md",
+    "docs/NIST_PARITY_TEST_REPORT_v0.4.9.md",
+    "docs/GITHUB_PAGES_DEPLOYMENT_CHECKLIST.md",
+    "docs/SSOT_REGENERATION_PIPELINE_v0.4.9.md",
+    "FILE_INDEX_v0.4.9.md",
     "DASHBOARD_TESTING_GUIDE.md",
     "GIT_TRACKING_MANIFEST.md"
   ],
@@ -52,6 +58,9 @@
     "index.html",
     "files.html",
     "dashboard_modular.html",
+    "html_preview_hub.html",
+    "ssot_launcher.html",
+    "index_slides.html",
     "material_properties_dashboard_v1_10.html",
     "data/materials.json"
   ]
