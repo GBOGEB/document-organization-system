@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD060 -->
 
-# 🧊 Cryogenic Material Property Dashboard — v0.4.8
+# 🧊 Cryogenic Material Property Dashboard — v0.4.9
 
 **SCK CEN Engineering Tool** — 10 NIST materials · k(T) + cp(T) + Thermal
 Contraction · 1–300 K
@@ -46,7 +46,7 @@ Windows shortcuts: double-click `start_server.bat` or run `start_dashboard.ps1`.
 | Page | GitHub Pages | Double-click file:// | Local http:// |
 |---|---|---|---|
 | `index.html` (landing) | ✅ | ✅ | ✅ |
-| `dashboard_modular.html` *(primary v0.4.8)* | ✅ | ❌ ES6 modules blocked | ✅ |
+| `dashboard_modular.html` *(primary v0.4.9)* | ✅ | ❌ ES6 modules blocked | ✅ |
 | `material_properties_dashboard_v1_10.html` *(legacy v1.10)* | ✅ | ✅ self-contained | ✅ |
 | `files.html` (this navigator) | ✅ | ✅ | ✅ |
 | `html_preview_hub.html` | ✅ | ✅ | ✅ |
@@ -57,7 +57,7 @@ Windows shortcuts: double-click `start_server.bat` or run `start_dashboard.ps1`.
 
 ```
 index.html          ← Start here — version selector and capability tier guide
-  ├─ dashboard_modular.html     ← Primary v0.4.8 dashboard (GitHub Pages or localhost)
+  ├─ dashboard_modular.html     ← Primary v0.4.9 dashboard (GitHub Pages or localhost)
   ├─ material_properties_dashboard_v1_10.html  ← Legacy v1.10 (double-click OK)
   └─ files.html     ← Full artifact navigator + this spot-check guide
 ```
@@ -68,7 +68,7 @@ If you only open three things, use this order:
 
 1. `index.html` — first entry point and runtime chooser.
 2. `files.html` — canonical navigator for docs, previews, and artifact classes.
-3. `dashboard_modular.html` — primary v0.4.8 runtime once you are ready to
+3. `dashboard_modular.html` — primary v0.4.9 runtime once you are ready to
    calculate/export.
 
 Minimum artifact set for handover or clean reuse:
@@ -83,6 +83,7 @@ Minimum artifact set for handover or clean reuse:
 - `FINAL_HANDOVER.md`
 - `docs/CHANGELOG.md`
 - `docs/SESSION_DROPIN_HANDOVER_v0.4.8.md`
+- `docs/CRYO_DASHBOARD_SESSION_HANDOVER_v0.4.9.md`
 - `VERSION`
 
 Machine-readable companion indexes:
@@ -108,7 +109,7 @@ SPECIFIC HEAT cp(T)  [J/(kg·K)]
   ∫cp(T)dT [J/kg]    — integral over T1→T2
   Energy   [J]       — m [kg] × ∫cp dT  (cooldown/warmup energy)
 
-THERMAL CONTRACTION Y(T)  [×10⁻⁵]  (v0.4.8, 5 materials)
+THERMAL CONTRACTION Y(T)  [×10⁻⁵]  (v0.4.9, 5 materials)
   Y = (L(T) − L₂₉₃) / L₂₉₃
   Strain   [m/m]
   ΔL       [m]       — between T1 and T2
@@ -170,6 +171,7 @@ NIST reference values.
 | v0.4.5 | Modular JS | Delta Summary panel; delta/integral export alignment |
 | v0.4.6 | Modular JS | Thermal contraction Y(T); KPI strip; dual-axis plot; v1.10 deprecated |
 | v0.4.8 | Modular JS | B1 comparison raw/normalized/split view; max-4 overlays; disabled no-data compare entries |
+| v0.4.9 | Modular JS | SSOT system integration; NIST parity regression (766 tests); evalRational() fix; CDN pinning |
 
 Full modular changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md)
 
@@ -192,21 +194,24 @@ Runs:
   values
 - `tests/materials.validate.js` — schema validation for all materials in
   `data/materials.json`
+- `tests/nist_parity.test.js` — 766 NIST parity regression tests validating
+  all 10 materials against independent NIST equation implementations
+- `tests/file_index_integrity.test.js` — file index integrity checks
+- `tests/static_entrypoints.test.js` — static entry point existence validation
 
-### Next Iteration Validation TODO (Engineering Depth)
+### NIST Parity Validation (Completed in v0.4.9)
 
-Current tests provide strong regression coverage, but the release gate should be
-expanded with explicit engineering validation layers:
+The v0.4.9 release closes all previously identified validation gaps:
 
-- Typical-value acceptance windows by material/property/range (quick sanity
-  envelope)
-- Direct NIST-equation parity checks over expanded temperature slices
-- Method-to-method tolerance bands documented as pass/fail criteria
+- ✅ Direct NIST-equation parity checks over expanded temperature slices (766 tests)
+- ✅ Coefficient verification against NIST Monograph 177
+- ✅ Evaluator parity across all 10 materials and k/cp/tc properties
+- ✅ Copper RRR rational model deep validation (peak detection, convergence)
+- ✅ Thermal contraction low-T branch and 293 K reference validation
+- ✅ Physical reasonableness and continuity checks
+- ✅ `evalRational()` golden-value regression (1e-14 tolerance)
 
-Target artifact updates for next iteration:
-- `tests/numerics.test.js` (expanded matrix)
-- `DASHBOARD_TESTING_GUIDE.md` (acceptance thresholds)
-- release-time validation report generated from test outputs
+See [`docs/NIST_PARITY_TEST_REPORT_v0.4.9.md`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/docs/NIST_PARITY_TEST_REPORT_v0.4.9.md) for the full report.
 
 
 
@@ -217,7 +222,7 @@ Target artifact updates for next iteration:
 | `data/materials.json` | Canonical NIST coefficient database |
 | `js/materials.js` | Property evaluator and NIST equation forms |
 | `js/numerics.js` | All 4 numerical integration methods |
-| `js/app_modular.js` | v0.4.8 primary orchestrator |
+| `js/app_modular.js` | v0.4.9 primary orchestrator |
 | `docs/CHANGELOG.md` | v0.4.x engineering changelog |
 | `material_properties_docs/DMAIC_VERSION_LOG.md` | v1.x VBA/HTML lineage log |
 | `DASHBOARD_TESTING_GUIDE.md` | Manual test procedures with expected output guide |
@@ -227,5 +232,5 @@ Target artifact updates for next iteration:
 
 ## 📞 Contact
 
-Organization: Studiecentrum voor Kernenergie (SCK CEN) Version: 0.4.7 | Last
-Updated: 2026-05-04
+Organization: Studiecentrum voor Kernenergie (SCK CEN) Version: 0.4.9 | Last
+Updated: 2026-05-18
