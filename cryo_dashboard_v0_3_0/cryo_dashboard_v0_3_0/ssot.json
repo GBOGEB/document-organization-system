@@ -594,7 +594,7 @@
       "Material schema validation",
       "File index integrity",
       "Static entry point existence",
-      "NIST parity regression (818 assertions): coefficient verification, evaluator parity, rational model validation, thermal contraction, edge cases, physical reasonableness, continuity"
+      "NIST parity regression (823 assertions): coefficient verification, evaluator parity, rational model validation, thermal contraction, edge cases, physical reasonableness, continuity"
     ],
     "gaps": ["Method tolerance bands", "Engineering acceptance thresholds"]
   },

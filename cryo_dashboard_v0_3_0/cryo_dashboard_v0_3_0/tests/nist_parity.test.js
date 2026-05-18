@@ -115,6 +115,7 @@ const COEFFICIENT_LENGTH_BY_TYPE = {
   "thermal-contraction": 5
 };
 const BOUNDARY_EPSILON_FACTOR = 1e-6;
+const LOW_T_EPSILON_K = 1e-6;
 
 function assertParity(label, actual, expected, relTol = 1e-10, absTol = relTol) {
   totalTests++;
@@ -409,6 +410,7 @@ console.log("\nSection 3: Copper RRR Rational Model Deep Validation");
 console.log("────────────────────────────────────────────────────");
 
 const copperRRRs = ["CuRRR50", "CuRRR100", "CuRRR150", "CuRRR300", "CuRRR500"];
+const peakData = {};
 
 // Test that k(T) shows the characteristic low-T peak for OFHC copper
 for (const matKey of copperRRRs) {
@@ -425,6 +427,7 @@ for (const matKey of copperRRRs) {
   const maxK = Math.max(...kvals);
   const maxIdx = kvals.indexOf(maxK);
   const peakT = temps[maxIdx];
+  peakData[matKey] = { peakT, maxK };
 
   // Verify peak exists and is in reasonable range (typically 5-30 K for OFHC Cu)
   totalTests++;
@@ -467,32 +470,21 @@ for (const matKey of copperRRRs) {
 
 // Cross-RRR ordering: higher RRR → higher peak k
 console.log("\n  Cross-RRR peak ordering:");
-const peakValues = {};
-for (const matKey of copperRRRs) {
-  const mat = db.materials[matKey];
-  let maxK = 0;
-  for (let T = 4; T <= 100; T += 0.5) {
-    const k = propertyValue(mat, "k", T);
-    if (k > maxK) maxK = k;
-  }
-  peakValues[matKey] = maxK;
-}
-
 for (let i = 1; i < copperRRRs.length; i++) {
   const prev = copperRRRs[i - 1];
   const curr = copperRRRs[i];
   totalTests++;
-  if (peakValues[curr] > peakValues[prev]) {
+  if (peakData[curr].maxK > peakData[prev].maxK) {
     passedTests++;
-    console.log(`  ✓ ${curr} peak (${peakValues[curr].toFixed(0)}) > ${prev} peak (${peakValues[prev].toFixed(0)})`);
+    console.log(`  ✓ ${curr} peak (${peakData[curr].maxK.toFixed(0)}) > ${prev} peak (${peakData[prev].maxK.toFixed(0)})`);
   } else {
     failedTests++;
     failures.push({
       label: `RRR ordering: ${curr} > ${prev}`,
-      actual: `${peakValues[curr]} vs ${peakValues[prev]}`,
+      actual: `${peakData[curr].maxK} vs ${peakData[prev].maxK}`,
       expected: "higher RRR → higher peak k"
     });
-    console.log(`  ✗ RRR ordering: ${curr} (${peakValues[curr].toFixed(0)}) ≤ ${prev} (${peakValues[prev].toFixed(0)})`);
+    console.log(`  ✗ RRR ordering: ${curr} (${peakData[curr].maxK.toFixed(0)}) ≤ ${prev} (${peakData[prev].maxK.toFixed(0)})`);
   }
 }
 
@@ -506,6 +498,20 @@ for (const matKey of tcMaterials) {
   const mat = db.materials[matKey];
   const propDef = mat.properties.tc;
   if (!propDef) continue;
+  const hasTlow = propDef.tlow !== null && propDef.tlow !== undefined;
+  const hasF = propDef.f !== null && propDef.f !== undefined;
+
+  totalTests++;
+  if (hasTlow === hasF) {
+    passedTests++;
+  } else {
+    failedTests++;
+    failures.push({
+      label: `${matKey}.tc low-T configuration pairing`,
+      actual: { tlow: propDef.tlow, f: propDef.f },
+      expected: "tlow and f should be both set or both unset"
+    });
+  }
 
   // At T=293 K, contraction should be ~0 (reference temperature)
   const tc293 = propertyValue(mat, "tc", 293);
@@ -538,23 +544,20 @@ for (const matKey of tcMaterials) {
   }
 
   // Low-T branch test (where applicable)
-  if (propDef.tlow !== null && propDef.tlow !== undefined &&
-      propDef.f !== null && propDef.f !== undefined) {
-    const tBelowLow = propDef.tlow - 1;
-    if (tBelowLow >= propDef.range[0]) {
-      const tcBelow = propertyValue(mat, "tc", tBelowLow);
-      totalTests++;
-      if (tcBelow === propDef.f) {
-        passedTests++;
-        console.log(`  ✓ ${matKey}.tc(${tBelowLow}K) = ${propDef.f} (low-T branch active)`);
-      } else {
-        failedTests++;
-        failures.push({
-          label: `${matKey}.tc low-T branch`,
-          actual: tcBelow,
-          expected: propDef.f
-        });
-      }
+  if (hasTlow && hasF) {
+    const tBelowLow = Math.max(propDef.tlow - LOW_T_EPSILON_K, Number.EPSILON);
+    const tcBelow = propertyValue(mat, "tc", tBelowLow);
+    totalTests++;
+    if (tcBelow === propDef.f) {
+      passedTests++;
+      console.log(`  ✓ ${matKey}.tc(${tBelowLow}K) = ${propDef.f} (low-T branch active)`);
+    } else {
+      failedTests++;
+      failures.push({
+        label: `${matKey}.tc low-T branch`,
+        actual: tcBelow,
+        expected: propDef.f
+      });
     }
   }
 }

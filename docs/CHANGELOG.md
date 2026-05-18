@@ -2,7 +2,7 @@
 **Date:** 2026-05-18
 
 ### Added
-- **NIST Parity Regression Test Suite** (`tests/nist_parity.test.js`): 769 assertions validating all 10 materials × all properties against independently-implemented NIST equations.
+- **NIST Parity Regression Test Suite** (`tests/nist_parity.test.js`): 823 assertions validating all 10 materials × all properties against independently-implemented NIST equations.
   - Coefficient verification against NIST-published values
   - Evaluator parity at 9–15 temperature points per material/property
   - Copper RRR rational model deep validation (peak detection, cross-RRR ordering, room-temp convergence)
@@ -18,7 +18,7 @@
 
 | Metric | Value | KPI Target |
 |--------|-------|------------|
-| Total assertion checks | 769/769 pass | 100% pass |
+| Total assertion checks | 823/823 pass | 100% pass |
 | Materials covered | 10/10 | 100% of current catalog |
 | Property models covered | polylog, piecewise-logpoly, rational, thermal-contraction | All production equation types |
 | Property availability coverage | k: 10/10, cp: 9/10, tc: 5/10 | Match available source data |
@@ -29,7 +29,7 @@
 | DMAIC Stage | Trace Evidence |
 |-------------|----------------|
 | Define | Risk: model/equation drift between NIST coefficients and runtime evaluators |
-| Measure | Added 769-assertion regression suite + per-section report metrics |
+| Measure | Added 823-assertion regression suite + per-section report metrics |
 | Analyze | Rational-model and boundary behavior probed with targeted fixtures and continuity sweeps |
 | Improve | Added literal golden fixtures, expanded deployment checklist validation depth |
 | Control | `npm test` gate enforces ongoing parity/integrity checks on each change |

@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-18  
 **Test File:** `tests/nist_parity.test.js`  
-**Status:** ✅ ALL 818 ASSERTION CHECKS PASSED
+**Status:** ✅ ALL 823 ASSERTION CHECKS PASSED
 
 ---
 
@@ -44,12 +44,12 @@ Comprehensive regression testing validates that all material property calculatio
 | 1. Coefficient verification | 12 grouped checks | 35 | ✅ |
 | 2. Evaluator parity + per-point physical sanity | 24 property groups | 642 | ✅ |
 | 3. Copper RRR rational deep checks | 9 grouped checks | 19 | ✅ |
-| 4. Thermal contraction checks | 5 material groups | 13 | ✅ |
+| 4. Thermal contraction checks | 5 material groups | 18 | ✅ |
 | 5. Edge and boundary checks | 4 grouped checks | 73 | ✅ |
 | 6. evalRational golden fixtures | 2 material groups | 10 | ✅ |
 | 7. Cross-material physical reasonableness | 4 | 4 | ✅ |
 | 8. Dense continuity sweep | 19 property groups | 19 | ✅ |
-| **Total** | **79 grouped checks** | **818 assertion checks** | ✅ |
+| **Total** | **79 grouped checks** | **823 assertion checks** | ✅ |
 
 > Note: the prior 436 subtotal only counted grouped checks and omitted per-temperature assertions in Section 2.
 
@@ -89,7 +89,7 @@ Deep validation of the `sqrt(T)`-based rational evaluator for OFHC Copper.
 
 **Cross-RRR ordering verified:** Higher RRR → higher low-T peak, as expected physically.
 
-### Section 4: Thermal Contraction Validation (13 tests)
+### Section 4: Thermal Contraction Validation (18 tests)
 - All 5 materials show negative contraction at low temperatures
 - All materials near zero at 293 K reference temperature
 - Low-T branch correctly activates for AISI316, Al6061T6, Ti64

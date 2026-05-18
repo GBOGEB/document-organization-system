@@ -22,7 +22,7 @@ Current suite is comprehensive for the currently-supported dashboard scope (10/1
 | `file_index_integrity.test.js` | Integrity gate | SSOT index/reference consistency |
 | `static_entrypoints.test.js` | Static contract | Required HTML/JS entry points exist |
 | `version-coherence-check.js` | Release governance | Version string coherence |
-| `nist_parity.test.js` | Physics/model parity | **769 assertion checks** across NIST parity, boundaries, continuity, and rational-model golden fixtures |
+| `nist_parity.test.js` | Physics/model parity | **823 assertion checks** across NIST parity, boundaries, continuity, and rational-model golden fixtures |
 
 ### 2. Data Integrity
 - [ ] `data/materials.json` is valid JSON
@@ -151,4 +151,4 @@ git push origin main --force-with-lease
 |---------|------|------------|
 | v0.4.9 | 2026-05-14 | Initial SSOT system integration |
 | v0.4.9-fix | 2026-05-18 | evalRational() fix + NIST lineage |
-| v0.4.9-nist | 2026-05-18 | 769-assertion NIST parity regression suite |
+| v0.4.9-nist | 2026-05-18 | 823-assertion NIST parity regression suite |
