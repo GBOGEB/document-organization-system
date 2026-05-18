@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-18  
 **Test File:** `tests/nist_parity.test.js`  
-**Status:** ✅ ALL 796 ASSERTION CHECKS PASSED
+**Status:** ✅ ALL 818 ASSERTION CHECKS PASSED
 
 ---
 
@@ -45,11 +45,11 @@ Comprehensive regression testing validates that all material property calculatio
 | 2. Evaluator parity + per-point physical sanity | 24 property groups | 642 | ✅ |
 | 3. Copper RRR rational deep checks | 9 grouped checks | 19 | ✅ |
 | 4. Thermal contraction checks | 5 material groups | 13 | ✅ |
-| 5. Edge and boundary checks | 4 grouped checks | 51 | ✅ |
+| 5. Edge and boundary checks | 4 grouped checks | 73 | ✅ |
 | 6. evalRational golden fixtures | 2 material groups | 10 | ✅ |
 | 7. Cross-material physical reasonableness | 4 | 4 | ✅ |
 | 8. Dense continuity sweep | 19 property groups | 19 | ✅ |
-| **Total** | **79 grouped checks** | **796 assertion checks** | ✅ |
+| **Total** | **79 grouped checks** | **818 assertion checks** | ✅ |
 
 > Note: the prior 436 subtotal only counted grouped checks and omitted per-temperature assertions in Section 2.
 
@@ -94,8 +94,9 @@ Deep validation of the `sqrt(T)`-based rational evaluator for OFHC Copper.
 - All materials near zero at 293 K reference temperature
 - Low-T branch correctly activates for AISI316, Al6061T6, Ti64
 
-### Section 5: Edge Cases (51 tests)
+### Section 5: Edge Cases (73 tests)
 - All boundary temperatures (range min/max) produce finite values
+- Endpoint checks at 1 K and 300 K validate finite behavior (including controlled extrapolation outside nominal data range where applicable)
 - Piecewise boundary at T=50 K for AISI316 cp confirmed
 - Null correctly returned for missing properties (Ti64 cp)
 - Null correctly returned for non-existent property names

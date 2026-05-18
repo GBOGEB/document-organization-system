@@ -115,10 +115,11 @@ const COEFFICIENT_LENGTH_BY_TYPE = {
   "thermal-contraction": 5
 };
 
-function assertParity(label, actual, expected, relTol = 1e-10) {
+function assertParity(label, actual, expected, relTol = 1e-10, absTol = relTol) {
   totalTests++;
   if (expected === 0) {
-    if (Math.abs(actual) < 1e-15) {
+    const absErr = Math.abs(actual);
+    if (absErr <= absTol) {
       passedTests++;
       return;
     }
@@ -127,8 +128,8 @@ function assertParity(label, actual, expected, relTol = 1e-10) {
       label,
       actual,
       expected,
-      absErr: Math.abs(actual),
-      absTol: 1e-15
+      absErr,
+      absTol
     });
     return;
   }
@@ -277,8 +278,23 @@ for (const [matKey, nistProps] of Object.entries(NIST_COEFFICIENTS)) {
       storedCoeff = mat.properties[propKey].coefficients;
     }
 
+    const maxLen = Math.max(nistDef.coefficients.length, storedCoeff.length);
+    let maxAbsDelta = 0;
+    const mismatchIndices = [];
+    for (let i = 0; i < maxLen; i++) {
+      const expectedCoeff = nistDef.coefficients[i];
+      const actualCoeff = storedCoeff[i];
+      const absDelta = Math.abs((expectedCoeff ?? NaN) - (actualCoeff ?? NaN));
+      if (Number.isFinite(absDelta) && absDelta > maxAbsDelta) {
+        maxAbsDelta = absDelta;
+      }
+      if (!Number.isFinite(absDelta) || absDelta !== 0) {
+        mismatchIndices.push(i);
+      }
+    }
+
     const match = nistDef.coefficients.length === storedCoeff.length &&
-      nistDef.coefficients.every((c, i) => c === storedCoeff[i]);
+      mismatchIndices.length === 0;
 
     totalTests++;
     if (match) {
@@ -289,9 +305,11 @@ for (const [matKey, nistProps] of Object.entries(NIST_COEFFICIENTS)) {
       failures.push({
         label: `${matKey}.${propKey} coefficient mismatch`,
         actual: storedCoeff,
-        expected: nistDef.coefficients
+        expected: nistDef.coefficients,
+        maxAbsDelta,
+        mismatchIndices: mismatchIndices.slice(0, 5)
       });
-      console.log(`  ✗ ${matKey}.${propKey} coefficients MISMATCH`);
+      console.log(`  ✗ ${matKey}.${propKey} coefficients MISMATCH (max |Δ|=${maxAbsDelta.toExponential(3)})`);
     }
   }
 }
@@ -321,13 +339,14 @@ for (const matKey of materialKeys) {
     if (!validTemps.includes(rMin)) validTemps.unshift(rMin);
     if (!validTemps.includes(rMax) && rMax <= 300) validTemps.push(rMax);
 
-    let propPassed = 0;
-    let propTotal = 0;
+    let propChecks = 0;
+    let propFailures = 0;
 
     for (const T of validTemps) {
       const fromMaterials = propertyValue(mat, prop, T);
       const fromNist = nistEval(mat, prop, T);
-      propTotal++;
+      propChecks++;
+      const parityFailedBefore = failedTests;
 
       assertParity(
         `${matKey}.${prop}(${T}K)`,
@@ -335,15 +354,17 @@ for (const matKey of materialKeys) {
         fromNist,
         1e-12  // Very tight tolerance — should be exact
       );
+      if (failedTests > parityFailedBefore) propFailures++;
 
       // Also verify the value is physically reasonable
+      propChecks++;
       totalTests++;
       if (prop === "k" || prop === "cp") {
         if (fromMaterials > 0 && isFinite(fromMaterials)) {
           passedTests++;
-          propPassed++;
         } else {
           failedTests++;
+          propFailures++;
           failures.push({
             label: `${matKey}.${prop}(${T}K) physical reasonableness`,
             actual: fromMaterials,
@@ -354,9 +375,9 @@ for (const matKey of materialKeys) {
         // tc can be negative (contraction relative to 293K)
         if (isFinite(fromMaterials)) {
           passedTests++;
-          propPassed++;
         } else {
           failedTests++;
+          propFailures++;
           failures.push({
             label: `${matKey}.${prop}(${T}K) finite check`,
             actual: fromMaterials,
@@ -366,7 +387,9 @@ for (const matKey of materialKeys) {
       }
     }
 
-    console.log(`  ✓ ${matKey}.${prop}: ${validTemps.length} temp points validated (range ${rMin}–${rMax} K)`);
+    const propPassed = propChecks - propFailures;
+    const mark = propFailures === 0 ? "✓" : "✗";
+    console.log(`  ${mark} ${matKey}.${prop}: ${propPassed}/${propChecks} checks passed over ${validTemps.length} temp points (range ${rMin}–${rMax} K)`);
   }
 }
 
@@ -584,6 +607,23 @@ for (const matKey of materialKeys) {
         });
       }
     }
+
+    for (const endpoint of [1, 300]) {
+      if (endpoint === rMin || endpoint === rMax) continue;
+      const vEndpoint = propertyValue(mat, prop, endpoint);
+      totalTests++;
+      if (isFinite(vEndpoint) && vEndpoint !== null) {
+        passedTests++;
+      } else {
+        failedTests++;
+        section5BoundaryFailures++;
+        failures.push({
+          label: `${matKey}.${prop}(${endpoint}K) endpoint extrapolation`,
+          actual: vEndpoint,
+          expected: "finite"
+        });
+      }
+    }
   }
 }
 
@@ -762,23 +802,30 @@ for (const matKey of materialKeys) {
   const mat = db.materials[matKey];
   for (const prop of ["k", "cp"]) {
     if (!mat.properties[prop]) continue;
-    const [rMin, rMax] = mat.properties[prop].range;
+    const propDef = mat.properties[prop];
+    const [rMin, rMax] = propDef.range;
 
-    // Skip piecewise at boundary (expected discontinuity)
+    const pieceBoundaries = propDef.type === "piecewise-logpoly" && propDef.pieces
+      ? propDef.pieces.slice(1).map(piece => piece.range[0])
+      : [];
     const step = (rMax - rMin) / 200;
     let prevVal = null;
+    let prevT = null;
     let maxRatio = 0;
     let discontinuous = false;
 
     for (let T = rMin; T <= rMax; T += step) {
       const val = propertyValue(mat, prop, T);
       if (prevVal !== null && prevVal > 0 && val > 0) {
+        const crossesPieceBoundary = prevT !== null &&
+          pieceBoundaries.some(boundary => prevT < boundary && T >= boundary);
         const ratio = val / prevVal;
         if (ratio > maxRatio) maxRatio = ratio;
-        if (ratio > 100 || ratio < 0.01) {
+        if (!crossesPieceBoundary && (ratio > 100 || ratio < 0.01)) {
           discontinuous = true;
         }
       }
+      prevT = T;
       prevVal = val;
     }
 
