@@ -1,3 +1,19 @@
+## v0.4.9-nist
+**Date:** 2026-05-18
+
+### Added
+- **NIST Parity Regression Test Suite** (`tests/nist_parity.test.js`): 766 tests validating all 10 materials × all properties against independently-implemented NIST equations.
+  - Coefficient verification against NIST-published values
+  - Evaluator parity at 9–15 temperature points per material/property
+  - Copper RRR rational model deep validation (peak detection, cross-RRR ordering, room-temp convergence)
+  - Thermal contraction validation (low-T branch, reference point)
+  - Edge cases: boundary conditions, null properties, piecewise boundaries
+  - Physical reasonableness checks and continuity validation
+- **NIST Parity Test Report** (`docs/NIST_PARITY_TEST_REPORT_v0.4.9.md`)
+- **GitHub Pages Deployment Checklist** (`docs/GITHUB_PAGES_DEPLOYMENT_CHECKLIST.md`)
+- Added `test:nist` script to `package.json`
+- NIST parity tests integrated into main `npm test` pipeline
+
 ## v0.4.9-fix
 **Date:** 2026-05-18
 
