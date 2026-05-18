@@ -55,7 +55,7 @@ Comprehensive regression testing validates that all material property calculatio
 
 ### Section 1: NIST Coefficient Verification (35 assertions)
 Includes both:
-- full-suite coefficient sanity checks across all 10 materials/properties (shape + finite values), and
+- full-suite coefficient sanity checks across all materials/properties in the database (shape + finite values), and
 - transcribed NIST exact-match subset checks compared byte-for-byte against `data/materials.json`.
 
 | Material | Property | Status |
