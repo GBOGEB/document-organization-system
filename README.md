@@ -178,6 +178,11 @@ Full modular changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md)
 > **v0.4.x release gate**: `npm test` must pass → validation → version bump in
 > `VERSION` → `git push`.
 
+## 🧩 Program Coordination
+
+- Umbrella multi-repo PR package:
+  [`docs/UMBRELLA_MULTI_REPO_PR_PACKAGE.md`](docs/UMBRELLA_MULTI_REPO_PR_PACKAGE.md)
+
 
 
 ## 🧪 Automated Tests
