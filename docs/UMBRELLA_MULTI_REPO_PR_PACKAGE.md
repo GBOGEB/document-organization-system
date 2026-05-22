@@ -3,9 +3,9 @@
 This package turns the umbrella initiative into a PR-ready coordination brief for the canonical repository.
 
 Session path anchor for this package:
-- `<REPO_ROOT>` = `/tmp/workspace/GBOGEB/document-organization-system`
+- `<REPO_ROOT>` = `<absolute-path-to-repo>`
 
-When this package is reused in another clone, replace `<REPO_ROOT>` with that session's absolute repository path.
+Before using this package, replace `<REPO_ROOT>` with the active session's absolute repository path.
 
 ## PHASE 1. Initiative boundary
 
@@ -136,6 +136,8 @@ c. **Consume first**
 d. **Handover text**
 
 ```text
+Before use, replace <REPO_ROOT> with the actual absolute path of the active repository clone.
+
 You are operating in VS Code with an OpenAI/CODEX-only workflow. Copilot chat and agent capabilities are disabled. Use a light theme. Treat <REPO_ROOT> as the canonical runtime/reference repo for the dashboard, GitHub Pages views, SSOT metadata, and validation baseline.
 
 Consume these files first:
@@ -169,6 +171,8 @@ c. **Control model**
 d. **Handover text**
 
 ```text
+Before use, replace <REPO_ROOT> with the actual absolute path of the active repository clone.
+
 You are operating in VS Code with a dark theme. Use codeLLM in CLI flow and use chatLLM for planning, chat, and agent preparation. Treat <REPO_ROOT> as the canonical reference node and use its SSOT and file indexes as machine-ingest inputs.
 
 Consume these files first:
