@@ -3,7 +3,7 @@
 This package turns the umbrella initiative into a PR-ready coordination brief for the canonical repository.
 
 Session path anchor for this package:
-- `<REPO_ROOT>` = `<absolute-path-to-repo>`
+- `<REPO_ROOT>` = `/absolute/path/to/document-organization-system`
 
 Before using this package, replace `<REPO_ROOT>` with the active session's absolute repository path.
 
@@ -294,7 +294,7 @@ d. Integration stakeholders — users needing unified status and progress across
 
 | Phase | Owner | Repo cluster | Deliverable | Review path | Validation path | Stakeholder signoff |
 |---|---|---|---|---|---|---|
-| 1 | Current repo maintainers | Canonical repo | Reference architecture lock | Technical + governance review | `<REPO_ROOT>/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/package.json` `npm test` | Runtime stakeholders |
+| 1 | Current repo maintainers | Canonical repo | Reference architecture lock | Technical + governance review | Run `npm test` from `<REPO_ROOT>/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0` | Runtime stakeholders |
 | 2 | GBA leads | GBA | SSOT/file-index/handover/Pages assimilation | Technical + validation review | Cluster-local adaptation checks against canonical manifests | Governance stakeholders |
 | 3 | GBC leads | GBC | Orchestration/handover/publishing/view assimilation | Technical + UX/view review | Cluster-local adaptation checks against canonical manifests | Agent stakeholders |
 | 4 | Integration Hub owners | Hub | Cross-repo bridge, status, and traceability contract | Governance + integration review | Manifest ingest validation against canonical SSOT/file-index model | Integration stakeholders |
