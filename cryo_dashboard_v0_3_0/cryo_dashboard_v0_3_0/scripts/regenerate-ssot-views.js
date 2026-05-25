@@ -84,11 +84,15 @@ export function getReleaseMetadata(root = ROOT) {
   const versionPattern = new RegExp(`## ${escapeRegexLiteral(version)}[\\s\\S]*?\\*\\*Date:\\*\\*\\s*([0-9-]+)`);
   const dateMatch = changelogText.match(versionPattern);
 
+  if (!dateMatch) {
+    throw new Error(`Release date not found in docs/CHANGELOG.md for ${version}. Add a changelog entry with format: ## ${version}\\n**Date:** YYYY-MM-DD`);
+  }
+
   return {
     root,
     version,
     bareVersion,
-    updated: dateMatch?.[1] ?? new Date().toISOString().slice(0, 10),
+    updated: dateMatch[1],
     packageVersion: packageJson.version,
     currentSessionHandover: `docs/CRYO_DASHBOARD_SESSION_HANDOVER_${version}.md`,
     nistReport: `docs/NIST_PARITY_TEST_REPORT_${version}.md`,
@@ -241,10 +245,10 @@ export function buildReleaseArtifacts(metadata = getReleaseMetadata()) {
   };
 }
 
-function compareFile(expectedText, filePath) {
+function compareFile(expectedText, filePath, root) {
   const actualText = fs.readFileSync(filePath, "utf8");
   if (actualText !== expectedText) {
-    throw new Error(`Generated artifact is stale: ${path.relative(ROOT, filePath)}`);
+    throw new Error(`Generated artifact is stale: ${path.relative(root, filePath)}`);
   }
 }
 
@@ -268,7 +272,7 @@ function ensureReferencedFilesExist(metadata, fileIndexData, { allowGeneratedTar
     if (allowGeneratedTargets && generatedTargets.has(relativePath)) {
       continue;
     }
-    const absolutePath = path.join(ROOT, relativePath);
+    const absolutePath = path.join(metadata.root, relativePath);
     if (!fs.existsSync(absolutePath)) {
       throw new Error(`Referenced artifact does not exist: ${relativePath}`);
     }
@@ -276,9 +280,10 @@ function ensureReferencedFilesExist(metadata, fileIndexData, { allowGeneratedTar
 }
 
 function writeArtifacts(artifacts) {
-  fs.writeFileSync(path.join(ROOT, "file_index.json"), artifacts.fileIndexJson);
-  fs.writeFileSync(path.join(ROOT, "file_index.yaml"), artifacts.fileIndexYaml);
-  fs.writeFileSync(path.join(ROOT, artifacts.metadata.fileIndexSnapshot), artifacts.fileIndexMarkdown);
+  const { metadata } = artifacts;
+  fs.writeFileSync(path.join(metadata.root, "file_index.json"), artifacts.fileIndexJson);
+  fs.writeFileSync(path.join(metadata.root, "file_index.yaml"), artifacts.fileIndexYaml);
+  fs.writeFileSync(path.join(metadata.root, metadata.fileIndexSnapshot), artifacts.fileIndexMarkdown);
 }
 
 function printPlan(artifacts) {
@@ -294,9 +299,10 @@ function printPlan(artifacts) {
 }
 
 function checkArtifacts(artifacts) {
-  compareFile(artifacts.fileIndexJson, path.join(ROOT, "file_index.json"));
-  compareFile(artifacts.fileIndexYaml, path.join(ROOT, "file_index.yaml"));
-  compareFile(artifacts.fileIndexMarkdown, path.join(ROOT, artifacts.metadata.fileIndexSnapshot));
+  const { metadata } = artifacts;
+  compareFile(artifacts.fileIndexJson, path.join(metadata.root, "file_index.json"), metadata.root);
+  compareFile(artifacts.fileIndexYaml, path.join(metadata.root, "file_index.yaml"), metadata.root);
+  compareFile(artifacts.fileIndexMarkdown, path.join(metadata.root, metadata.fileIndexSnapshot), metadata.root);
   ensureReferencedFilesExist(artifacts.metadata, artifacts.fileIndexData);
 }
 
