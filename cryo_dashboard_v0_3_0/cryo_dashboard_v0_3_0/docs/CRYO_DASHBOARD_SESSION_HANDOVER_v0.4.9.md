@@ -19,8 +19,8 @@ For backend-binding lineage (`PR-G`, `PR-G2`, `PR-G3`) the correct repository is
 - `GBOGEB/CODEX`
 
 Canonical PR/commit reference:
-- PR #62: `https://github.com/GBOGEB/CODEX/pull/62`
-- Commit: `https://github.com/GBOGEB/CODEX/commit/9e42ee3675dc2bd1931493f2b23f0670b4c20637`
+- [PR #62](https://github.com/GBOGEB/CODEX/pull/62)
+- [Commit 9e42ee3](https://github.com/GBOGEB/CODEX/commit/9e42ee3675dc2bd1931493f2b23f0670b4c20637)
 
 `GBOGEB/ABACUS` does not host this backend-binding PR lineage.
 
