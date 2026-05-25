@@ -111,7 +111,7 @@ export function buildFileIndexData(metadata = getReleaseMetadata()) {
       "README.md",
       "dashboard_modular.html"
     ],
-    machine_readable_note: "Use files.html for human navigation and this file or file_index.yaml for scripted intake.",
+    machine_readable_note: "Use files.html for human navigation and file_index.yaml or file_index.json for scripted intake.",
     primary_runtime: {
       file: "dashboard_modular.html",
       access: "github-pages-or-localhost"
