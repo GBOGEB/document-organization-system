@@ -1,19 +1,39 @@
 import fs from "node:fs";
+import assert from "node:assert/strict";
+import { getReleaseMetadata } from "./regenerate-ssot-views.js";
 
-const expected = "0.4.9";
+function escapeRegexLiteral(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
-const activeFiles = [
-  "README.md",
-  "VERSION",
-  "package.json",
+const metadata = getReleaseMetadata();
+const expectedVersion = metadata.version;
+const expectedBareVersion = metadata.bareVersion;
+
+const fileExpectations = [
+  {
+    file: "README.md",
+    checks: [expectedVersion]
+  },
+  {
+    file: "VERSION",
+    checks: [expectedVersion]
+  },
+  {
+    file: "package.json",
+    checks: [`\"version\": \"${expectedBareVersion}\"`]
+  }
 ];
 
-for (const file of activeFiles) {
+for (const { file, checks } of fileExpectations) {
   const text = fs.readFileSync(file, "utf8");
-
-  if (!text.includes(expected)) {
-    throw new Error(`Version coherence failure in ${file}. Expected active version ${expected}`);
+  for (const expectedSnippet of checks) {
+    assert.match(
+      text,
+      new RegExp(escapeRegexLiteral(expectedSnippet)),
+      `Version coherence failure in ${file}. Expected ${expectedSnippet}`
+    );
   }
 }
 
-console.log(`Version coherence check passed for v${expected}.`);
+console.log(`Version coherence check passed for ${expectedVersion}.`);
