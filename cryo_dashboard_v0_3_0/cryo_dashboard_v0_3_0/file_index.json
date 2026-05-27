@@ -46,7 +46,8 @@
   ],
   "companion_indexes": [
     "file_index.yaml",
-    "file_index.json"
+    "file_index.json",
+    "bridge_manifest.json"
   ],
   "runtime_files": [
     "index.html",
@@ -54,5 +55,13 @@
     "dashboard_modular.html",
     "material_properties_dashboard_v1_10.html",
     "data/materials.json"
-  ]
+  ],
+  "bridge_artifacts": {
+    "contract_doc": "docs/CODEX_ABACUS_BRIDGE_CONTRACT.md",
+    "manifest": "bridge_manifest.json",
+    "consumers": [
+      "CODEX",
+      "ABACUS"
+    ]
+  }
 }

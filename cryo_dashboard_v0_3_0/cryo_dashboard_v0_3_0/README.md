@@ -89,9 +89,16 @@ Machine-readable companion indexes:
 
 - `file_index.yaml`
 - `file_index.json`
+- `bridge_manifest.json`
 
-Use `files.html` for human navigation. Use `file_index.yaml` or
-`file_index.json` for scripted intake, handover packaging, or external tooling.
+Bridge coordination artifacts:
+
+- `docs/CODEX_ABACUS_BRIDGE_CONTRACT.md`
+- `bridge_manifest.json`
+
+Use `files.html` for human navigation. Use `file_index.yaml`,
+`file_index.json`, or `bridge_manifest.json` for scripted intake, handover
+packaging, or external tooling.
 
 
 
