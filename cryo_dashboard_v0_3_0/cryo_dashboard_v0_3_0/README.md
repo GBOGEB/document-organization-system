@@ -234,5 +234,5 @@ Target artifact updates for next iteration:
 
 ## 📞 Contact
 
-Organization: Studiecentrum voor Kernenergie (SCK CEN) Version: 0.4.7 | Last
-Updated: 2026-05-04
+Organization: Studiecentrum voor Kernenergie (SCK CEN) Version: 0.4.9 | Last
+Updated: 2026-05-27
