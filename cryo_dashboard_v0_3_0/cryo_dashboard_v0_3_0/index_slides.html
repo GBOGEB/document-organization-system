@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Cryogenic Material Dashboard v0.4.9 — SSOT Presentation</title>
+<!-- CDN pinned: Reveal.js 4.6.1 (locked 2026-05-18 for v0.4.9 stability) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.css"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/black.min.css" id="theme"/>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.js"></script>
@@ -11,7 +12,8 @@
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/math/math.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.min.css"/>
-<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<!-- CDN pinned: Plotly.js 2.35.2 (locked 2026-05-18 for v0.4.9 stability) -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <style>
 :root{--cryo-blue:#60a5fa;--cryo-green:#4ade80;--cryo-amber:#fbbf24;--cryo-red:#f87171;--cryo-purple:#a78bfa;--cryo-cyan:#22d3ee;--cryo-bg:#0f1117;--cryo-panel:#1a1f2e;--cryo-card:#242938;--cryo-text:#e0e0e0;--cryo-muted:#94a3b8;--cryo-border:#2a3550}
 .reveal{font-family:'Segoe UI',system-ui,sans-serif}
@@ -369,12 +371,13 @@ function evalPolylog(coeffs, T) {
   return Math.pow(10, s);
 }
 
-/* ── Evaluate rational: log10k = P(x)/Q(x) ── */
+/* ── Evaluate rational: log10k = P(√T,T,T^1.5,T²)/Q(√T,T,T^1.5,T²) ── */
+/* Matches js/materials.js rational() — uses sqrt(T)-based terms with 9 coefficients [a..i] */
 function evalRational(c, T) {
-  const x = Math.log10(T);
-  const num = c[0] + c[2]*x + c[4]*x*x + c[6]*x*x*x;
-  const den = 1 + c[1]*x + c[3]*x*x + c[5]*x*x*x + c[7]*x*x*x*x;
-  return Math.pow(10, num/den);
+  const r = Math.sqrt(T);
+  const num = c[0] + c[2]*r + c[4]*T + c[6]*Math.pow(T, 1.5) + c[8]*T*T;
+  const den = 1   + c[1]*r + c[3]*T + c[5]*Math.pow(T, 1.5) + c[7]*T*T;
+  return Math.pow(10, num / den);
 }
 
 function evalProperty(mat, prop, T) {
