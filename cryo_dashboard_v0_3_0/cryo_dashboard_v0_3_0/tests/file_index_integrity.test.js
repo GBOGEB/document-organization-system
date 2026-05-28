@@ -25,6 +25,18 @@ function parseYamlNestedScalar(yamlText, parentKey, childKey) {
   return match[1].trim();
 }
 
+function parseYamlNestedList(yamlText, parentKey, childKey) {
+  const escapedParentKey = escapeRegexLiteral(parentKey);
+  const escapedChildKey = escapeRegexLiteral(childKey);
+  const pattern = new RegExp(`^${escapedParentKey}:\\n(?:  .+\\n)*?  ${escapedChildKey}:\\n((?:    - .+\\n)+)`, "m");
+  const match = yamlText.match(pattern);
+  assert.ok(match, `Missing YAML nested list: ${parentKey}.${childKey}`);
+  return match[1]
+    .trimEnd()
+    .split("\n")
+    .map(line => line.replace(/^    -\s*/, ""));
+}
+
 function collectFolderBuckets(paths) {
   const buckets = new Set();
   for (const relativePath of paths) {
@@ -44,12 +56,24 @@ const jsonIndex = JSON.parse(fs.readFileSync("./file_index.json", "utf8"));
 console.log("Running file index integrity checks...");
 
 const yamlMinimumArtifacts = parseYamlList(yamlText, "minimum_artifacts");
+const yamlCompanionIndexes = parseYamlList(yamlText, "companion_indexes");
 const yamlRuntimeFiles = parseYamlList(yamlText, "runtime_files");
+const yamlVersion = yamlText.match(/^version:\s*(.+)$/m)?.[1]?.trim();
 const yamlLegacyFallbackFile = parseYamlNestedScalar(yamlText, "legacy_fallback", "file");
+const yamlBridgeContractDoc = parseYamlNestedScalar(yamlText, "bridge_artifacts", "contract_doc");
+const yamlBridgeManifest = parseYamlNestedScalar(yamlText, "bridge_artifacts", "manifest");
+const yamlBridgeConsumers = parseYamlNestedList(yamlText, "bridge_artifacts", "consumers");
+const releaseVersion = fs.readFileSync("./VERSION", "utf8").trim();
 
 assert.deepEqual(yamlMinimumArtifacts, jsonIndex.minimum_artifacts);
+assert.deepEqual(yamlCompanionIndexes, jsonIndex.companion_indexes);
 assert.deepEqual(yamlRuntimeFiles, jsonIndex.runtime_files);
+assert.equal(yamlVersion, jsonIndex.version);
+assert.equal(jsonIndex.version, releaseVersion);
 assert.equal(yamlLegacyFallbackFile, jsonIndex.legacy_fallback.file);
+assert.equal(yamlBridgeContractDoc, jsonIndex.bridge_artifacts.contract_doc);
+assert.equal(yamlBridgeManifest, jsonIndex.bridge_artifacts.manifest);
+assert.deepEqual(yamlBridgeConsumers, jsonIndex.bridge_artifacts.consumers);
 
 const primaryRuntimeFile = jsonIndex.primary_runtime.file;
 assert.notEqual(primaryRuntimeFile, yamlLegacyFallbackFile);

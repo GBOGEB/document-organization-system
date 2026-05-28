@@ -1,0 +1,98 @@
+{
+  "contract_version": "1.0.0",
+  "producer": {
+    "repository": "GBOGEB/document-organization-system",
+    "subtree": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0",
+    "role": "canonical-dashboard-runtime-and-artifact-source",
+    "primary_runtime": {
+      "html": "dashboard_modular.html",
+      "orchestrator": "js/app_modular.js"
+    },
+    "artifact_index_files": [
+      "file_index.yaml",
+      "file_index.json"
+    ],
+    "bridge_contract_doc": "docs/CODEX_ABACUS_BRIDGE_CONTRACT.md"
+  },
+  "release": {
+    "version": "v0.4.9",
+    "release_timestamp_utc": null,
+    "source_of_truth": "VERSION"
+  },
+  "artifact_paths": {
+    "minimum_artifacts": [
+      "index.html",
+      "files.html",
+      "dashboard_modular.html",
+      "data/materials.json",
+      "js/app_modular.js",
+      "js/materials.js",
+      "README.md",
+      "FINAL_HANDOVER.md",
+      "SESSION_SUMMARY.md",
+      "docs/CHANGELOG.md",
+      "docs/SESSION_DROPIN_HANDOVER_v0.4.7.md",
+      "VERSION"
+    ],
+    "companion_indexes": [
+      "file_index.yaml",
+      "file_index.json",
+      "bridge_manifest.json"
+    ],
+    "bridge_manifest": "bridge_manifest.json"
+  },
+  "materials_dataset": {
+    "path": "data/materials.json",
+    "version": "v0.4.6",
+    "material_count": 10,
+    "source_family": "NIST"
+  },
+  "validation": {
+    "command": "npm test",
+    "working_directory": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0",
+    "status": "required-before-handoff"
+  },
+  "consumers": {
+    "CODEX": {
+      "role": "integration-control-and-pr-lineage",
+      "ingest_from": [
+        "file_index.json",
+        "bridge_manifest.json"
+      ],
+      "must_receive": [
+        "release.version",
+        "artifact_paths.minimum_artifacts",
+        "materials_dataset",
+        "validation",
+        "release.release_timestamp_utc"
+      ],
+      "must_not": [
+        "duplicate-dashboard-runtime-state",
+        "become-source-of-truth-for-materials",
+        "override-release-metadata"
+      ]
+    },
+    "ABACUS": {
+      "role": "downstream-analytics-consumer",
+      "consume_only": [
+        "published-artifacts",
+        "validation-evidence",
+        "release-metadata"
+      ],
+      "may_publish_back": [
+        "analytics-summaries",
+        "release-acknowledgements"
+      ],
+      "must_not": [
+        "mutate-runtime-files",
+        "become-second-source-of-truth",
+        "consume-unpublished-dashboard-structure"
+      ]
+    }
+  },
+  "next_steps": [
+    "refresh bridge_manifest.json after source-artifact changes",
+    "run npm test before bridge handoff",
+    "handoff published payload to CODEX before ABACUS consumption"
+  ]
+}
