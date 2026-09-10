@@ -1,0 +1,20 @@
+schema: gbogeb-federation-activity/1.0.0
+as_of: '2026-09-10T06:47:00+02:00'
+repo: GBOGEB/document-organization-system
+classification: FEDERATION_CANDIDATE
+federation_role: DOCUMENT_ORGANISATION_AND_OUTWARD_ARTIFACT_INDEX
+last_pr: 28
+recent_activity:
+  - {pr: 28, role: mip_rollout, state: MERGED}
+mip_state: {modernize: ACTIVE, innovate: LINK_TO_DOCX_RTM_AFTER_CONTRACT, perpetuate: WITHHELD}
+three_p_capability: {P1_source_atom: partial, P2_integration_graph: partial, P3_evidence_control: partial}
+runtime_proof: {state: WITHHELD, required: executable_pre_run_status_receipt}
+source_authority: {state: ORGANISATION_ONLY, may_override_qps_child: false}
+produces_receipts: [artifact_index_receipt, document_organisation_receipt]
+consumes_receipts: [docx_rtm_outward_manifest]
+current_blocker: executable pre-run/status proof and stable DOCX_RTM contract
+next_victory: generate deterministic artifact index from a fresh exact head and bind its output hashes
+federation_dependencies:
+  upstream: [GBOGEB/DOCX_RTM_Automation]
+  downstream: []
+controls: {authority_effect: NONE, engineering_credit: false, compliance_credit: false}
