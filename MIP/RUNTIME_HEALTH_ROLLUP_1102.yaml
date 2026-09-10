@@ -1,0 +1,9 @@
+schema_version: "0.1"
+rollup_id: ABACUS-1102-RUNTIME-HEALTH
+seed: {repo: GBOGEB/ABACUS, pr: 1102, merge_sha: 8841dc701a1896233273413c81d7c88d268b9498}
+active_window: 24h
+role: FEDERATION_CANDIDATE_OUTWARD_ARTIFACT_WORKER
+runtime_health_relevance: [RUNNERS, ARTIFACT_INDEX, DEBUG_TELEMETRY]
+may_produce: [artifact_index_receipt, output_hashes, runner_health]
+may_not_produce: [QPS_ENGINEERING_AUTHORITY, COMPLIANCE_PROMOTION]
+next_victory: deterministic pre-run/status plus artifact-index build with exact-head output hashes
