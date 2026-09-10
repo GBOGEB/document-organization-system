@@ -1,0 +1,15 @@
+{
+  "schema": "gbogeb-level1-ssot/v1",
+  "repo": "GBOGEB/document-organization-system",
+  "role": "OUTWARD_ARTIFACT_PROPERTY_WORKER",
+  "default_branch": "main",
+  "existing_runtime_refs": ["data/materials.json", "js/app_modular.js", "tests/numerics.test.js", "file_index.yaml", "index.html"],
+  "inputs": ["material-property SSOT", "calculation requests", "outward artifact/index requests"],
+  "outputs": ["validated material-property results", "dashboard artifacts", "indexes", "exact-SHA/output receipts"],
+  "authority": {
+    "may": ["execute local property calculations", "validate regression fixtures", "emit deterministic outward artifacts"],
+    "must_not": ["promote reference calculation to bidder evidence", "promote QPS compliance", "override child authority"]
+  },
+  "federation_targets": ["GBOGEB/pipeline-automation-hub", "GBOGEB/CODEX", "GBOGEB/ABACUS", "GBOGEB/cryoplant-project"],
+  "status": "PC1_CONTROL_PLANE"
+}
