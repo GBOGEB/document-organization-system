@@ -1,0 +1,14 @@
+schema: gbogeb-mesh-dock/1.0
+repo: GBOGEB/document-organization-system
+node_id: repo.document_org
+ring: R1_ACTIVE_EXECUTION
+role: OUTWARD_ARTIFACT_PROPERTY_WORKER
+local_ssot: {primary: level1/ssot.json}
+global_directory: {repo: GBOGEB/CODEX, census: federation/mesh/GLOBAL_HIVE_CENSUS_v1.yaml, action_taxonomy: federation/mesh/GLOBAL_ACTION_TAXONOMY_v1.yaml}
+authority:
+  may: [execute_property_calculations, validate_regression_fixtures, emit_deterministic_outward_artifacts]
+  must_not: [promote_reference_calculation_to_bidder_evidence, promote_QPS_compliance, override_child_authority]
+inputs: [material_property_SSOT, calculation_requests, outward_artifact_index_requests]
+outputs: [validated_property_results, dashboard_artifacts, indexes, exact_SHA_output_receipts]
+action_classes: [FE, QH, PB, RR, HK, BG]
+first_use_case: build deterministic outward artifacts/indexes and verify property regressions without claiming bidder evidence
