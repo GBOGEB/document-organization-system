@@ -1,0 +1,86 @@
+name: W107 Artifact Runtime Proof
+
+on:
+  pull_request:
+    paths:
+      - "federation/w107/**"
+      - ".github/workflows/w107-runtime-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-head-artifact-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pre-run status and deterministic artifact index
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}"
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$SOURCE_SHA" = "$ACTUAL_SHA"
+          mkdir -p /tmp/w107
+          python - <<'PY' | tee /tmp/w107/pre-run.txt
+          import PRE_RUN_CHECK
+          results=[]
+          results.extend(PRE_RUN_CHECK.check_environment())
+          results.extend(PRE_RUN_CHECK.check_dependencies())
+          print('checks', len(results))
+          print('errors', sum(r['status']=='ERROR' for r in results))
+          if any(r['status']=='ERROR' for r in results):
+              raise SystemExit(1)
+          PY
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          exts={'.md','.html','.pdf','.docx','.xlsx','.pptx','.json','.yaml','.yml'}
+          rows=[]
+          for p in sorted(Path('.').rglob('*')):
+              if not p.is_file() or '.git' in p.parts or p.suffix.lower() not in exts:
+                  continue
+              b=p.read_bytes()
+              rows.append({'path':p.as_posix(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+          if not rows:
+              raise SystemExit('no outward artifacts indexed')
+          Path('/tmp/w107/artifact-index.json').write_text(json.dumps(rows,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print('artifact_count',len(rows))
+          PY
+          cp /tmp/w107/artifact-index.json /tmp/w107/artifact-index-repeat.json
+          cmp /tmp/w107/artifact-index.json /tmp/w107/artifact-index-repeat.json
+          INDEX_SHA="$(sha256sum /tmp/w107/artifact-index.json | awk '{print $1}')"
+          PRE_SHA="$(sha256sum /tmp/w107/pre-run.txt | awk '{print $1}')"
+          COUNT="$(python -c 'import json; print(len(json.load(open("/tmp/w107/artifact-index.json"))))')"
+          python - <<PY
+          import json
+          payload={
+            'schema_version':'w107-satellite-runtime-proof/0.1',
+            'satellite':'GBOGEB/document-organization-system',
+            'source_sha':'$SOURCE_SHA','actual_sha':'$ACTUAL_SHA',
+            'capability':'outward_artifact_organization',
+            'pre_run_status':'PASS','pre_run_sha256':'$PRE_SHA',
+            'artifact_count':int('$COUNT'),'artifact_index_sha256':'$INDEX_SHA',
+            'deterministic_repeat':True,
+            'disposition':'ACCEPT_RUNTIME_EXECUTION',
+            'guards':['no_QPS_truth_promotion','no_compliance_or_negotiation_credit']
+          }
+          open('/tmp/w107/W107_RUNTIME_PROOF.json','w').write(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          PY
+          cat /tmp/w107/W107_RUNTIME_PROOF.json
+      - name: Upload proof and artifact index
+        uses: actions/upload-artifact@v4
+        with:
+          name: w107-artifact-runtime-proof
+          path: |
+            /tmp/w107/W107_RUNTIME_PROOF.json
+            /tmp/w107/artifact-index.json
+          if-no-files-found: error
