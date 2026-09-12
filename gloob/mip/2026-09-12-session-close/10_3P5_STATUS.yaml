@@ -41,5 +41,5 @@ delete_safe_gate:
   authority_ownership_recorded: PASS
   next_victory_condition: PASS
   standalone_resume_prompt: PASS
-  integrity_manifest: PASS_AFTER_MANIFEST_COMMIT
-overall: DELETE_SAFE_AFTER_MIP_PR_CAPTURE
+  integrity_manifest: PASS_IF_MANIFEST_TEST_GREEN
+overall: DELETE_SAFE_IF_MIP_PR_HEAD_GREEN
