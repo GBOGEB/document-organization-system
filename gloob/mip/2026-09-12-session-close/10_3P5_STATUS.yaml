@@ -1,0 +1,45 @@
+schema: gloob.mip.3p5_status.v0.1
+session: gloob-book-v0.1-close
+phases:
+  3P1_PRESERVE:
+    status: ACHIEVED
+    evidence:
+      - 00_SESSION_EXECUTIVE.md
+      - 01_CURRENT_STATE.yaml
+      - 07_EXACT_SHA_LINEAGE.yaml
+  3P2_PARSE_NORMALISE:
+    status: ACHIEVED
+    evidence:
+      - 08_GLOSSARY_TAXONOMY_DELTA.yaml
+      - canonical immutable ID + slug distinction preserved
+  3P3_PROPAGATE:
+    status: ACHIEVED_FOR_SESSION
+    evidence:
+      - 02_AUTHORITY_CROSSWALK.yaml
+      - handover stored in publication-semantic authority repo
+    boundary:
+      - no authority transfer performed
+      - no engineering/cost/runtime source content duplicated
+      - optional cross-repo convenience pointers remain BACKLOG, not required for delete-safe closure
+  3P4_PROVE:
+    status: ACHIEVED
+    evidence:
+      - exact-head contract run 34686083249 success
+      - fresh-main contract run 34688334758 success
+      - Pages run 34688334252 success
+  3P5_PRUNE_OPPORTUNITY_SWEEP:
+    status: ACHIEVED
+    evidence:
+      - 05_BACKLOG_AND_BD.yaml
+      - 06_OPPORTUNITY_SWEEP.yaml
+      - unclassified_chat_only_items: 0
+delete_safe_gate:
+  chat_exclusive_decisions: 0
+  unclassified_todos: 0
+  unclassified_opportunities: 0
+  exact_shas_recorded: PASS
+  authority_ownership_recorded: PASS
+  next_victory_condition: PASS
+  standalone_resume_prompt: PASS
+  integrity_manifest: PASS_AFTER_MANIFEST_COMMIT
+overall: DELETE_SAFE_AFTER_MIP_PR_CAPTURE
