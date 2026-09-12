@@ -1,0 +1,95 @@
+{
+  "schema": "gloob-book-registry/0.2",
+  "registry": {
+    "id": "REGISTRY-GLOOB",
+    "slug": "gloob",
+    "title": "Gloob Book Registry",
+    "address": "gloob://",
+    "canonical_repo": "GBOGEB/document-organization-system",
+    "baseline_sha": "0cb96270b0e827333b254fb286f1d5c4a8d59a51",
+    "authority_mode": "federated"
+  },
+  "shared_atom_catalog": "graph/shared-atoms.json",
+  "books": [
+    {
+      "id": "BOOK-QPLANT",
+      "slug": "qplant",
+      "title": "QPLANT Knowledge Book",
+      "address": "gloob://qplant",
+      "legacy_manifest": "book.manifest.yaml",
+      "chapters": [
+        {
+          "id": "CH-ENERGY",
+          "slug": "energy",
+          "title": "Energy and efficiency",
+          "entries": [
+            {
+              "id": "ENTRY-LKT-INVCOP",
+              "slug": "lkt-invcop",
+              "title": "LKT invCOP offered point",
+              "address": "gloob://qplant/energy/lkt-invcop",
+              "graph": "graph/qplant-energy.json",
+              "uses_shared_atoms": ["ATOM-GLOOB-FEDERATED-AUTHORITY"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BOOK-GLOOB",
+      "slug": "gloob-architecture",
+      "title": "Gloob Architecture and Control Book",
+      "address": "gloob://gloob-architecture",
+      "chapters": [
+        {
+          "id": "CH-GLOOB-ARCHITECTURE",
+          "slug": "architecture",
+          "title": "Architecture",
+          "entries": [
+            {
+              "id": "ENTRY-GLOOB-BOOK-CONTRACT",
+              "slug": "book-contract",
+              "title": "Book contract v0.1",
+              "address": "gloob://gloob-architecture/architecture/book-contract",
+              "graph": "graph/gloob-book-contract.json",
+              "uses_shared_atoms": [
+                "ATOM-GLOOB-BOOK-NOT-REPO",
+                "ATOM-GLOOB-FEDERATED-AUTHORITY"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CH-GLOOB-CONTROL",
+          "slug": "control",
+          "title": "Control and handover",
+          "entries": [
+            {
+              "id": "ENTRY-GLOOB-SESSION-CONTROL",
+              "slug": "session-control",
+              "title": "3P5 + MIP controlled handover",
+              "address": "gloob://gloob-architecture/control/session-control",
+              "graph": "graph/gloob-session-control.json",
+              "uses_shared_atoms": ["ATOM-GLOOB-FEDERATED-AUTHORITY"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cross_book_references": [
+    {
+      "from_entry": "ENTRY-LKT-INVCOP",
+      "type": "CONFORMS_TO",
+      "to_entry": "ENTRY-GLOOB-BOOK-CONTRACT",
+      "via_atom": "ATOM-GLOOB-FEDERATED-AUTHORITY"
+    }
+  ],
+  "invariants": {
+    "immutable_ids": true,
+    "slug_is_alias_not_identity": true,
+    "source_authority_preserved": true,
+    "shared_atoms_are_referenced_not_copied": true,
+    "exact_digest_required_for_editions": true
+  }
+}
