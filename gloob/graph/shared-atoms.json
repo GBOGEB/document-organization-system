@@ -1,0 +1,29 @@
+{
+  "schema": "gloob-shared-atom-catalog/0.2",
+  "atoms": [
+    {
+      "id": "ATOM-GLOOB-BOOK-NOT-REPO",
+      "slug": "book-not-repository",
+      "heading": "Book is not a repository",
+      "kind": "architecture-invariant",
+      "value": "A Gloob Book is a stable logical semantic publication identity. Repositories remain independent authority stores and producers.",
+      "authority": {
+        "repo": "GBOGEB/document-organization-system",
+        "path": "gloob/BOOK_CONTRACT_v0.1.md",
+        "baseline_commit": "913f577ae63ef53da71633fad2bbbeb1c646c58a"
+      }
+    },
+    {
+      "id": "ATOM-GLOOB-FEDERATED-AUTHORITY",
+      "slug": "federated-authority",
+      "heading": "Federated authority boundary",
+      "kind": "architecture-invariant",
+      "value": "Publication, engineering, cost and runtime evidence retain their owning authorities; Gloob composes references without copying authority-bearing source content.",
+      "authority": {
+        "repo": "GBOGEB/document-organization-system",
+        "path": "gloob/mip/2026-09-12-session-close/02_AUTHORITY_CROSSWALK.yaml",
+        "baseline_commit": "0cb96270b0e827333b254fb286f1d5c4a8d59a51"
+      }
+    }
+  ]
+}
