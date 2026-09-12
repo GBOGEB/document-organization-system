@@ -1,0 +1,38 @@
+schema: gloob.mip.current_state.v0.1
+date: 2026-09-12
+session: gloob-book-v0.1-close
+repository:
+  name: GBOGEB/document-organization-system
+  branch: main
+  exact_sha: 913f577ae63ef53da71633fad2bbbeb1c646c58a
+book_contract:
+  version: v0.1
+  state: CONTROL
+  dod: ACHIEVED
+  dov: ACHIEVED
+  core:
+    book: BOOK-QPLANT
+    chapter: CH-ENERGY
+    entry: ENTRY-LKT-INVCOP
+    uri: gloob://qplant/energy/lkt-invcop
+    slug: lkt-invcop
+  projections:
+    compact: 1
+    standard: 3
+    deep: 5
+  renderers: [html, markdown, pdf]
+runtime_proof:
+  pr_head:
+    sha: 95c7f72d2a85277cb56c65166ad684aa7feb599c
+    run_id: 34686083249
+    conclusion: success
+  main:
+    sha: 913f577ae63ef53da71633fad2bbbeb1c646c58a
+    contract_run_id: 34688334758
+    contract_conclusion: success
+    pages_run_id: 34688334252
+    pages_conclusion: success
+next:
+  target: BOOK_REGISTRY_V0_2
+  state: NEXT
+  reopen_v0_1: false

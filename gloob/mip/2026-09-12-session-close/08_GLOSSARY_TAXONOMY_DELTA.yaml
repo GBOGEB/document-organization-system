@@ -1,0 +1,16 @@
+schema: gloob.mip.taxonomy_delta.v0.1
+canonical_entities:
+  [GLOB, LIBRARY, BOOK, EDITION, CHAPTER, ENTRY, ATOM, SOURCE, REPO, AUTHORITY, EVIDENCE, OPERATOR, PIPELINE, RUN, RECEIPT, NODE, EDGE, GRAPH, VIEW, DEPTH, FILTER, RENDERER, ARTIFACT, SLUG, ALIAS]
+canonical_edges:
+  [CONTAINS, HAS_ATOM, SOURCED_FROM, AUTHORITY_FOR, TRANSFORMED_BY, EMITS_RECEIPT, PROJECTS_AS, ALIASES]
+reserved_extension_edges:
+  [DERIVED_FROM, REFERENCES, DEPENDS_ON, EMITTED_BY, VALIDATED_BY, SUPERSEDES, PUBLISHED_AS, OWNED_BY]
+identity_rule: Immutable IDs are semantic/provenance join keys; slugs are human navigation aliases.
+slug_rule: Explicit canonical anchors are emitted in Markdown/HTML when renderer auto-slugs may differ.
+depths:
+  0: title
+  1: executive_statement
+  2: normal_narrative
+  3: engineering_detail
+  4: tables_calculations_evidence
+  5: source_sha_receipts_raw

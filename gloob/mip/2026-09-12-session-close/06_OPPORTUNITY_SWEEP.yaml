@@ -1,0 +1,12 @@
+schema: gloob.mip.opportunity_sweep.v0.1
+status: COMPLETE_FOR_SESSION
+opportunities:
+  - {id: OPP-REGISTRY, class: architecture, disposition: NEXT, value: enables many Books over one federated graph}
+  - {id: OPP-WHEREUSED, class: semantics, disposition: NEXT, value: reverse trace from Atom to every consuming Book/Entry}
+  - {id: OPP-EDITION, class: provenance, disposition: NEXT, value: reproducible frozen publication states and semantic diff}
+  - {id: OPP-INCREMENTAL, class: runtime, disposition: NEXT, value: rebuild only projections affected by changed atoms}
+  - {id: OPP-GATEWAY, class: ux, disposition: BACKLOG, value: one front door across Books/Entries/graph/provenance/runtime}
+  - {id: OPP-GLOB-ACTIONS, class: agent_interface, disposition: BACKLOG, value: expose monikers/actions as Gloob capability}
+  - {id: OPP-PCA, class: observability, disposition: BACKLOG, value: weight nodes/edges/graphs by real content/runtime telemetry}
+  - {id: OPP-CROSSBOOK, class: federation, disposition: NEXT, value: reuse atoms without source duplication}
+unclassified_chat_only_items: 0

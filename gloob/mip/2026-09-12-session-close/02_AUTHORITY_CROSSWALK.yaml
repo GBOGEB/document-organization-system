@@ -1,0 +1,22 @@
+schema: gloob.mip.authority_crosswalk.v0.1
+authorities:
+  publication_semantics:
+    repo: GBOGEB/document-organization-system
+    role: canonical Book/Entry/Atom publication and rendering primitives
+  global_semantic_runtime:
+    repo: GBOGEB/CODEX
+    role: global semantic/runtime vocabulary and execution receipts
+    example_exact_sha: 631bc364a68b10acfa7d166ed661b708fdbe8c16
+  engineering:
+    repo: GBOGEB/cryoplant-project
+    role: QPLANT engineering source authority
+    example_exact_sha: a9cb3241fef2a7b5a071fcc9a833ae10769c51a9
+  cost:
+    repo: GBOGEB/ABACUS
+    role: cost-model and cost evidence authority
+rules:
+  - Publication objects may reference engineering/cost/runtime sources but do not absorb their authority.
+  - Runtime receipt authority proves observed execution only.
+  - Engineering acceptance remains with engineering evidence and acceptance governance.
+  - Authority class and evidence maturity are separate dimensions.
+  - Cross-repo propagation should use pointers/crosswalks rather than copied canonical content.
