@@ -1,0 +1,60 @@
+schema: gloob-book-manifest/0.1
+book:
+  id: BOOK-QPLANT
+  slug: qplant
+  title: QPLANT Knowledge Book
+  address: gloob://qplant
+  authority_mode: federated
+  canonical_manifest_repo: GBOGEB/document-organization-system
+edition:
+  id: EDITION-QPLANT-2026-09-12
+  slug: 2026-09-12
+  status: prototype-controlled
+chapters:
+  - id: CH-ENERGY
+    slug: energy
+    title: Energy and efficiency
+    entries:
+      - ENTRY-LKT-INVCOP
+entries:
+  - id: ENTRY-LKT-INVCOP
+    slug: lkt-invcop
+    title: LKT invCOP offered point
+    address: gloob://qplant/energy/lkt-invcop
+    aliases:
+      - qplant-energy-lkt-invcop
+    graph: graph/qplant-energy.json
+sources:
+  - id: SRC-QPLANT-W135-INVCOP
+    repo: GBOGEB/cryoplant-project
+    path: triage/w135/QPS_W135_ITERATION_METRICS_v0.1.yaml
+    commit: a9cb3241fef2a7b5a071fcc9a833ae10769c51a9
+    blob: 6da34ea74880356826826dfc82c11508e10d19fa
+    authority: CANONICAL_ENGINEERING_PROJECTION
+    evidence_class: DERIVED_SOURCE_BOUND
+  - id: SRC-CODEX-W113-REX
+    repo: GBOGEB/CODEX
+    path: federation/rex/returns/CODEX_W113_PR621_REX_RETURN.yaml
+    commit: 631bc364a68b10acfa7d166ed661b708fdbe8c16
+    authority: RUNTIME_RECEIPT
+    evidence_class: OBSERVED_EXECUTION
+operators:
+  - id: OP-GLOOB-DEPTH-PROJECT
+    consumes: semantic_graph
+    emits: projected_graph
+    deterministic: true
+  - id: OP-GLOOB-RENDER
+    consumes: projected_graph
+    emits: [html, markdown, pdf, receipt]
+    deterministic: true
+profiles:
+  compact: 1
+  standard: 3
+  deep: 5
+renderers:
+  html: enabled
+  markdown: enabled
+  pdf: enabled
+receipts:
+  sha256_required: true
+  exact_source_commit_required: true
