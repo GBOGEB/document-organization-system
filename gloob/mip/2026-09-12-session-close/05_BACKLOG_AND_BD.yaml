@@ -1,0 +1,15 @@
+schema: gloob.mip.backlog.v0.1
+items:
+  - {id: REG-001, disposition: NEXT, item: Book Registry v0.2, priority: P0}
+  - {id: REG-002, disposition: NEXT, item: multi-Book and multi-Entry discovery/index, priority: P0}
+  - {id: REG-003, disposition: NEXT, item: shared Atom references and reverse WHERE_USED, priority: P0}
+  - {id: REG-004, disposition: NEXT, item: Edition freeze and semantic diff, priority: P1}
+  - {id: REG-005, disposition: NEXT, item: affected-entry incremental rebuild graph, priority: P1}
+  - {id: UX-001, disposition: BACKLOG, item: Book dropdown and Book/Entry routing in gateway, priority: P1}
+  - {id: UX-002, disposition: BACKLOG, item: synchronized graph/book/timeline/runtime tabs, priority: P2}
+  - {id: UX-003, disposition: BACKLOG, item: selective provenance expansion, priority: P2}
+  - {id: TAX-001, disposition: BACKLOG, item: integrate GLOB ask/action taxonomy with Book gateway, priority: P2}
+  - {id: PUB-001, disposition: CAPTURED_ELSEWHERE, item: HTML/Markdown/PDF rendering from one graph, authority: Book v0.1 CONTROL}
+  - {id: PUB-002, disposition: CAPTURED_ELSEWHERE, item: canonical Markdown anchors, authority: PR 40 merged + runtime proof}
+  - {id: ARCH-001, disposition: DEFER, item: monolithic Book builder, reason: conflicts with federated operator architecture}
+  - {id: DATA-001, disposition: REJECT, item: duplicate engineering/cost source content into publication repo, reason: violates authority boundaries and SSOT}
