@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -41,6 +42,49 @@ class GloobBookTests(unittest.TestCase):
             self.assertIn("### LKT invCOP offered point", md)
             self.assertIn("GBOGEB/cryoplant-project@a9cb3241", md)
             self.assertIn("GBOGEB/CODEX@631bc364", md)
+
+    def test_canonical_atom_change_propagates_all_profiles_without_lineage_drift(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            baseline_dir = root / "baseline"
+            changed_dir = root / "changed"
+            changed_graph_path = root / "qplant-energy.changed.json"
+
+            baseline = {
+                profile: rb.render_all(self.graph_path, baseline_dir / profile, profile)
+                for profile in rb.PROFILES
+            }
+
+            changed_graph = json.loads(self.graph_path.read_text())
+            target = next(a for a in changed_graph["atoms"] if a["id"] == "ATOM-LKT-INVCOP")
+            target["value"] = 311
+            changed_graph_path.write_text(json.dumps(changed_graph, indent=2) + "\n")
+            changed_loaded, changed_sha = rb.load_graph(changed_graph_path)
+
+            changed = {
+                profile: rb.render_all(changed_graph_path, changed_dir / profile, profile)
+                for profile in rb.PROFILES
+            }
+
+            self.assertNotEqual(self.graph_sha, changed_sha)
+            self.assertEqual(self.graph["entry"]["id"], changed_loaded["entry"]["id"])
+            self.assertEqual(self.graph["entry"]["slug"], changed_loaded["entry"]["slug"])
+            self.assertEqual(
+                [(s["repo"], s["commit"], s["path"]) for s in self.graph["sources"]],
+                [(s["repo"], s["commit"], s["path"]) for s in changed_loaded["sources"]],
+            )
+
+            for profile in rb.PROFILES:
+                self.assertNotEqual(baseline[profile]["input"]["sha256"], changed[profile]["input"]["sha256"])
+                for ext in ("html", "md", "pdf"):
+                    self.assertNotEqual(
+                        baseline[profile]["outputs"][ext]["sha256"],
+                        changed[profile]["outputs"][ext]["sha256"],
+                        f"{profile} {ext} did not change after canonical atom mutation",
+                    )
+                self.assertEqual(baseline[profile]["entry_id"], changed[profile]["entry_id"])
+                self.assertEqual(baseline[profile]["entry_slug"], changed[profile]["entry_slug"])
+                self.assertEqual(baseline[profile]["source_commits"], changed[profile]["source_commits"])
 
 
 if __name__ == "__main__":
