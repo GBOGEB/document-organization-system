@@ -1,0 +1,31 @@
+schema: gloob.mip.dod_dov.v0.1
+book_v0_1:
+  dod:
+    status: ACHIEVED
+    evidence:
+      - Book Manifest v0.1
+      - canonical ID/address scheme
+      - Entry/Atom graph schema
+      - source and authority edges
+      - operator and receipt semantics
+      - compact/standard/deep projections
+      - HTML/Markdown/PDF renderer
+      - interactive Book gateway
+      - canonical Markdown anchors
+  dov:
+    status: ACHIEVED
+    evidence:
+      - {run_id: 34686083249, scope: exact PR 40 head, result: success}
+      - {run_id: 34688334758, scope: fresh main merge SHA, result: success}
+      - {run_id: 34688334252, scope: Pages publication, result: success}
+    invariant_proof:
+      mutation: ATOM-LKT-INVCOP 310 -> 311 in temporary graph
+      required:
+        - input graph SHA changes
+        - HTML/Markdown/PDF SHA changes for every profile
+        - Entry immutable ID remains stable
+        - Entry slug remains stable
+        - exact source lineage remains stable
+global:
+  programme_dov: WITHHELD_OR_EXTERNAL_TO_THIS_LOCAL_GATE
+  note: Local Book v0.1 CONTROL does not imply global QPS TRIAGE programme DoV.
