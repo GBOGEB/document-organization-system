@@ -1,0 +1,37 @@
+{
+  "schema": "gloob-semantic-graph/0.2",
+  "book": {"id": "BOOK-GLOOB", "slug": "gloob-architecture", "title": "Gloob Architecture and Control Book"},
+  "chapter": {"id": "CH-GLOOB-CONTROL", "slug": "control", "title": "Control and handover"},
+  "entry": {
+    "id": "ENTRY-GLOOB-SESSION-CONTROL",
+    "slug": "session-control",
+    "title": "3P5 + MIP controlled handover",
+    "address": "gloob://gloob-architecture/control/session-control"
+  },
+  "shared_atom_refs": ["ATOM-GLOOB-FEDERATED-AUTHORITY"],
+  "sources": [
+    {
+      "id": "SRC-GLOOB-MIP-CLOSE",
+      "repo": "GBOGEB/document-organization-system",
+      "path": "gloob/mip/2026-09-12-session-close/10_3P5_STATUS.yaml",
+      "commit": "0cb96270b0e827333b254fb286f1d5c4a8d59a51",
+      "authority": "CONTROL_RECEIPT"
+    }
+  ],
+  "atoms": [
+    {
+      "id": "ATOM-GLOOB-DELETE-SAFE",
+      "slug": "delete-safe",
+      "heading": "Delete-safe session closure",
+      "min_depth": 1,
+      "kind": "status",
+      "value": "CONTROL",
+      "note": "Session intent, lineage, backlog, opportunity sweep and resume instruction are externalized and runtime-verified."
+    }
+  ],
+  "edges": [
+    {"from": "BOOK-GLOOB", "type": "CONTAINS", "to": "CH-GLOOB-CONTROL"},
+    {"from": "CH-GLOOB-CONTROL", "type": "CONTAINS", "to": "ENTRY-GLOOB-SESSION-CONTROL"},
+    {"from": "ENTRY-GLOOB-SESSION-CONTROL", "type": "USES_ATOM", "to": "ATOM-GLOOB-FEDERATED-AUTHORITY"}
+  ]
+}
