@@ -60,15 +60,16 @@ def render_markdown(graph: dict, profile: str) -> str:
         "",
         f"## {graph['chapter']['title']}",
         "",
+        f'<a id="{e["slug"]}"></a>',
         f"### {e['title']}",
         "",
         f"`{e['address']}` · profile `{profile}` · depth `{graph['projection']['depth']}`",
         "",
     ]
     for atom in graph["atoms"]:
-        lines += [f"#### {atom['heading']}", "", atom_text(atom), ""]
+        lines += [f'<a id="{atom["slug"]}"></a>', f"#### {atom['heading']}", "", atom_text(atom), ""]
     if graph["projection"]["depth"] >= 5:
-        lines += ["#### Source bindings", ""]
+        lines += ['<a id="source-bindings"></a>', "#### Source bindings", ""]
         for src in graph["sources"]:
             lines.append(f"- `{src['id']}` — `{src['repo']}@{src['commit']}:{src['path']}` ({src['authority']})")
         lines.append("")
@@ -92,7 +93,7 @@ def render_html(graph: dict, profile: str) -> str:
             f"<td><code>{html.escape(s['commit'])}</code></td><td>{html.escape(s['authority'])}</td></tr>"
             for s in graph["sources"]
         )
-        source_html = f"<h2>Source bindings</h2><table><tr><th>ID</th><th>Repo</th><th>Commit</th><th>Authority</th></tr>{rows}</table>"
+        source_html = f"<h2 id=\"source-bindings\">Source bindings</h2><table><tr><th>ID</th><th>Repo</th><th>Commit</th><th>Authority</th></tr>{rows}</table>"
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(e['title'])}</title>
