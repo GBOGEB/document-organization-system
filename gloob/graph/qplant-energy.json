@@ -9,6 +9,7 @@
     "address": "gloob://qplant/energy/lkt-invcop",
     "aliases": ["qplant-energy-lkt-invcop"]
   },
+  "shared_atom_refs": ["ATOM-GLOOB-FEDERATED-AUTHORITY"],
   "sources": [
     {
       "id": "SRC-QPLANT-W135-INVCOP",
@@ -135,6 +136,7 @@
     {"from": "CH-ENERGY", "type": "CONTAINS", "to": "ENTRY-LKT-INVCOP"},
     {"from": "ENTRY-LKT-INVCOP", "type": "SOURCED_FROM", "to": "SRC-QPLANT-W135-INVCOP"},
     {"from": "ENTRY-LKT-INVCOP", "type": "SOURCED_FROM", "to": "SRC-CODEX-W113-REX"},
+    {"from": "ENTRY-LKT-INVCOP", "type": "USES_ATOM", "to": "ATOM-GLOOB-FEDERATED-AUTHORITY"},
     {"from": "SRC-QPLANT-W135-INVCOP", "type": "AUTHORITY_FOR", "to": "ATOM-LKT-INVCOP"},
     {"from": "SRC-CODEX-W113-REX", "type": "AUTHORITY_FOR", "to": "OP-GLOOB-RENDER"},
     {"from": "ENTRY-LKT-INVCOP", "type": "TRANSFORMED_BY", "to": "OP-GLOOB-DEPTH-PROJECT"},
