@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gloob Book</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui,-apple-system,Segoe UI,sans-serif; }
+    body { margin: 0; line-height: 1.55; }
+    .shell { max-width: 1100px; margin: 0 auto; padding: 28px 22px 60px; }
+    header { position: sticky; top: 0; backdrop-filter: blur(14px); padding: 14px 0; z-index: 2; border-bottom: 1px solid color-mix(in srgb,currentColor 18%,transparent); }
+    .top { display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    select,button { font: inherit; padding: 7px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb,currentColor 28%,transparent); background: transparent; color: inherit; }
+    code { overflow-wrap:anywhere; }
+    .crumbs { opacity:.72; margin:.3rem 0 1rem; }
+    .atom { border:1px solid color-mix(in srgb,currentColor 20%,transparent); border-radius:12px; padding:16px 18px; margin:12px 0; scroll-margin-top:110px; }
+    .atom h3 { margin:.1rem 0 .45rem; display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+    .atom small { opacity:.62; }
+    .meta { opacity:.72; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th,td { text-align:left; vertical-align:top; border:1px solid color-mix(in srgb,currentColor 20%,transparent); padding:8px; }
+    .hidden { display:none; }
+    .pill { display:inline-block; border:1px solid color-mix(in srgb,currentColor 22%,transparent); border-radius:999px; padding:2px 8px; font-size:.85rem; opacity:.78; }
+    nav a { margin-right:10px; }
+    @media print { header,.controls,nav { display:none; } .shell { max-width:none; padding:0; } .atom { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="top">
+      <div><strong>Gloob Book</strong> <span class="pill" id="profilePill">standard</span></div>
+      <div class="controls">
+        <label>Depth
+          <select id="profile">
+            <option value="compact">compact</option>
+            <option value="standard" selected>standard</option>
+            <option value="deep">deep</option>
+          </select>
+        </label>
+        <button id="sourcesBtn" type="button">Sources</button>
+        <button id="copyBtn" type="button">Copy entry link</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" aria-live="polite">
+    <p>Loading semantic graph...</p>
+  </main>
+</div>
+
+<script>
+const PROFILE_DEPTH = {compact:1, standard:3, deep:5};
+let graph = null;
+let showSources = false;
+
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const atomText = atom => {
+  const base = atom.unit ? `${atom.value} ${atom.unit}` : String(atom.value ?? '');
+  return atom.note ? `${base} — ${atom.note}` : base;
+};
+
+function canonicalEntryUrl() {
+  const u = new URL(location.href);
+  u.hash = graph?.entry?.slug || '';
+  return u.toString();
+}
+
+function render() {
+  if (!graph) return;
+  const profile = document.getElementById('profile').value;
+  const depth = PROFILE_DEPTH[profile];
+  document.getElementById('profilePill').textContent = `${profile} · d${depth}`;
+
+  const atoms = graph.atoms.filter(a => Number(a.min_depth) <= depth);
+  const nav = atoms.map(a => `<a href="#${esc(a.slug)}">${esc(a.slug)}</a>`).join('');
+  const cards = atoms.map(a => `
+    <section class="atom" id="${esc(a.slug)}" data-id="${esc(a.id)}">
+      <h3>${esc(a.heading)} <a href="#${esc(a.slug)}" aria-label="Link to ${esc(a.heading)}">#</a></h3>
+      <p>${esc(atomText(a))}</p>
+      <small>${esc(a.id)} · slug <code>${esc(a.slug)}</code> · minimum depth ${esc(a.min_depth)}</small>
+    </section>`).join('');
+
+  const sources = graph.sources.map(s => `
+    <tr><td><code>${esc(s.id)}</code></td><td>${esc(s.repo)}</td><td><code>${esc(s.commit)}</code></td><td><code>${esc(s.path)}</code></td><td>${esc(s.authority)}</td></tr>`).join('');
+
+  document.getElementById('app').innerHTML = `
+    <h1>${esc(graph.book.title)}</h1>
+    <div class="crumbs"><code>gloob://${esc(graph.book.slug)}/${esc(graph.chapter.slug)}/${esc(graph.entry.slug)}</code></div>
+    <h2>${esc(graph.chapter.title)}</h2>
+    <section class="atom" id="${esc(graph.entry.slug)}">
+      <h2>${esc(graph.entry.title)} <a href="#${esc(graph.entry.slug)}">#</a></h2>
+      <p class="meta">Immutable ID <code>${esc(graph.entry.id)}</code> · slug <code>${esc(graph.entry.slug)}</code> · profile <b>${esc(profile)}</b> · depth ${depth}</p>
+      <nav>${nav}</nav>
+    </section>
+    ${cards}
+    <section id="sources" class="${showSources ? '' : 'hidden'}">
+      <h2>Source bindings</h2>
+      <p class="meta">Sources retain their own authority. The Book federates them; it does not silently promote receipt evidence into engineering acceptance.</p>
+      <table>
+        <thead><tr><th>ID</th><th>Repo</th><th>Commit</th><th>Path</th><th>Authority</th></tr></thead>
+        <tbody>${sources}</tbody>
+      </table>
+    </section>`;
+
+  if (location.hash) {
+    requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({block:'start'}));
+  }
+}
+
+async function init() {
+  try {
+    const response = await fetch('./graph/qplant-energy.json', {cache:'no-store'});
+    if (!response.ok) throw new Error(`graph fetch failed: ${response.status}`);
+    graph = await response.json();
+    render();
+  } catch (err) {
+    document.getElementById('app').innerHTML = `<h1>Gloob Book</h1><p>Unable to load graph.</p><pre>${esc(err)}</pre>`;
+  }
+}
+
+document.getElementById('profile').addEventListener('change', render);
+document.getElementById('sourcesBtn').addEventListener('click', () => { showSources = !showSources; render(); });
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (!graph) return;
+  const text = canonicalEntryUrl();
+  try { await navigator.clipboard.writeText(text); document.getElementById('copyBtn').textContent = 'Copied'; }
+  catch { document.getElementById('copyBtn').textContent = text; }
+});
+
+init();
+</script>
+</body>
+</html>
