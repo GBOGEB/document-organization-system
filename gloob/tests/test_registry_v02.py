@@ -15,7 +15,8 @@ class GloobRegistryV02Tests(unittest.TestCase):
         index=registry.build_index(self.registry_path)
         self.assertEqual(set(index["books"]),{"BOOK-QPLANT","BOOK-GLOOB"})
         self.assertEqual(set(index["entries"]),{
-            "ENTRY-LKT-INVCOP","ENTRY-LKT-POWER-BREAKDOWN","ENTRY-LKT-EVIDENCE-BOUNDARY",
+            "ENTRY-LKT-INVCOP","ENTRY-LKT-PERFORMANCE-POINT","ENTRY-LKT-POWER-BREAKDOWN",
+            "ENTRY-LKT-EVIDENCE-BOUNDARY","ENTRY-LKT-RUNTIME-RECEIPT",
             "ENTRY-GLOOB-BOOK-CONTRACT","ENTRY-GLOOB-SESSION-CONTROL"})
         self.assertEqual(index["addresses"]["gloob://qplant/energy/lkt-invcop"],"ENTRY-LKT-INVCOP")
 
@@ -25,8 +26,7 @@ class GloobRegistryV02Tests(unittest.TestCase):
         self.assertEqual(registry.where_used("ATOM-GLOOB-BOOK-NOT-REPO",self.registry_path),["ENTRY-GLOOB-BOOK-CONTRACT"])
 
     def test_operator_catalog_is_canonical_and_where_used(self):
-        index=registry.build_index(self.registry_path)
-        expected=set(index["entries"])
+        index=registry.build_index(self.registry_path); expected=set(index["entries"])
         self.assertEqual(set(index["operator_usage"]["OP-GLOOB-DEPTH-PROJECT"]),expected)
         self.assertEqual(set(index["operator_usage"]["OP-GLOOB-RENDER"]),expected)
 
@@ -38,7 +38,7 @@ class GloobRegistryV02Tests(unittest.TestCase):
         a=registry.freeze_edition(self.registry_path); b=registry.freeze_edition(self.registry_path)
         self.assertEqual(a,b); self.assertTrue(a["id"].startswith("EDITION-GLOOB-")); self.assertEqual(len(a["sha256"]),64)
         self.assertIn("registry.yaml",a["files"]); self.assertIn("graph/shared-atoms.json",a["files"]); self.assertIn("operators.json",a["files"])
-        self.assertEqual(len(a["entry_graph_digests"]),5); self.assertEqual(set(a["operator_digests"]),{"OP-GLOOB-DEPTH-PROJECT","OP-GLOOB-RENDER"})
+        self.assertEqual(len(a["entry_graph_digests"]),7); self.assertEqual(set(a["operator_digests"]),{"OP-GLOOB-DEPTH-PROJECT","OP-GLOOB-RENDER"})
 
     def test_shared_atom_change_fans_out_to_all_consuming_entries(self):
         baseline=registry.freeze_edition(self.registry_path); changed=registry.simulate_atom_change(baseline,"ATOM-GLOOB-FEDERATED-AUTHORITY"); diff=registry.semantic_diff(baseline,changed)
@@ -51,6 +51,10 @@ class GloobRegistryV02Tests(unittest.TestCase):
         self.assertEqual(registry.semantic_diff(baseline,changed)["affected_entries"],["ENTRY-LKT-INVCOP"])
         changed=registry.simulate_atom_change(baseline,"ATOM-LKT-DIRECT-SUBTOTAL")
         self.assertEqual(registry.semantic_diff(baseline,changed)["affected_entries"],["ENTRY-LKT-POWER-BREAKDOWN"])
+        changed=registry.simulate_atom_change(baseline,"ATOM-LKT-QEQ")
+        self.assertEqual(registry.semantic_diff(baseline,changed)["affected_entries"],["ENTRY-LKT-PERFORMANCE-POINT"])
+        changed=registry.simulate_atom_change(baseline,"ATOM-CODEX-RECEIPT")
+        self.assertEqual(registry.semantic_diff(baseline,changed)["affected_entries"],["ENTRY-LKT-RUNTIME-RECEIPT"])
 
     def test_unknown_shared_atom_is_rejected(self):
         data=registry.load_registry(self.registry_path); broken=copy.deepcopy(data)
