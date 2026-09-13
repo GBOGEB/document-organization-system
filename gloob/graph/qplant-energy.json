@@ -28,11 +28,9 @@
       "heading": "Offered-point status",
       "min_depth": 1,
       "kind": "statement",
-      "value": "LKT offered-point invCOP semantics are source-bound and arithmetically reproduced; formal SAT metering acceptance remains withheld. Power-breakdown and evidence-boundary details are decomposed into dedicated child Entries."
+      "value": "LKT offered-point invCOP semantics are source-bound and arithmetically reproduced; formal SAT metering acceptance remains withheld. Performance-point, power-breakdown and evidence-boundary details are decomposed into dedicated child Entries."
     },
-    {"id":"ATOM-LKT-INVCOP","slug":"invcop","heading":"invCOP","min_depth":1,"kind":"metric","value":310,"unit":"W/W","note":"Bidder invCOP at the restored offered point."},
-    {"id":"ATOM-LKT-QEQ","slug":"equivalent-load","heading":"Equivalent refrigeration load","min_depth":2,"kind":"metric","value":3.35,"unit":"kW @ 4.5 K equivalent"},
-    {"id":"ATOM-LKT-POWER","slug":"total-power","heading":"Total electrical power","min_depth":2,"kind":"metric","value":1038,"unit":"kW"}
+    {"id":"ATOM-LKT-INVCOP","slug":"invcop","heading":"invCOP","min_depth":1,"kind":"metric","value":310,"unit":"W/W","note":"Bidder invCOP at the restored offered point."}
   ],
   "edges": [
     {"from":"BOOK-QPLANT","type":"CONTAINS","to":"CH-ENERGY"},
@@ -40,6 +38,7 @@
     {"from":"ENTRY-LKT-INVCOP","type":"SOURCED_FROM","to":"SRC-QPLANT-W135-INVCOP"},
     {"from":"ENTRY-LKT-INVCOP","type":"USES_ATOM","to":"ATOM-GLOOB-FEDERATED-AUTHORITY"},
     {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-INVCOP"},
+    {"from":"ENTRY-LKT-INVCOP","type":"DECOMPOSES_TO","to":"ENTRY-LKT-PERFORMANCE-POINT"},
     {"from":"ENTRY-LKT-INVCOP","type":"DECOMPOSES_TO","to":"ENTRY-LKT-POWER-BREAKDOWN"},
     {"from":"ENTRY-LKT-INVCOP","type":"DECOMPOSES_TO","to":"ENTRY-LKT-EVIDENCE-BOUNDARY"},
     {"from":"ENTRY-LKT-INVCOP","type":"TRANSFORMED_BY","to":"OP-GLOOB-DEPTH-PROJECT"},

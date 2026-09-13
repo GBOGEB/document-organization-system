@@ -1,0 +1,35 @@
+{
+  "schema": "gloob-semantic-graph/0.2",
+  "book": {"id": "BOOK-QPLANT", "slug": "qplant", "title": "QPLANT Knowledge Book"},
+  "chapter": {"id": "CH-ENERGY", "slug": "energy", "title": "Energy and efficiency"},
+  "entry": {
+    "id": "ENTRY-LKT-PERFORMANCE-POINT",
+    "slug": "lkt-performance-point",
+    "title": "LKT offered-point refrigeration and power point",
+    "address": "gloob://qplant/energy/lkt-performance-point"
+  },
+  "operator_refs": ["OP-GLOOB-DEPTH-PROJECT", "OP-GLOOB-RENDER"],
+  "sources": [
+    {
+      "id": "SRC-QPLANT-W135-INVCOP",
+      "repo": "GBOGEB/cryoplant-project",
+      "path": "triage/w135/QPS_W135_ITERATION_METRICS_v0.1.yaml",
+      "commit": "a9cb3241fef2a7b5a071fcc9a833ae10769c51a9",
+      "blob": "6da34ea74880356826826dfc82c11508e10d19fa",
+      "authority": "CANONICAL_ENGINEERING_PROJECTION"
+    }
+  ],
+  "atoms": [
+    {"id":"ATOM-LKT-QEQ","slug":"equivalent-load","heading":"Equivalent refrigeration load","min_depth":2,"kind":"metric","value":3.35,"unit":"kW @ 4.5 K equivalent"},
+    {"id":"ATOM-LKT-POWER","slug":"total-power","heading":"Total electrical power","min_depth":2,"kind":"metric","value":1038,"unit":"kW"}
+  ],
+  "edges": [
+    {"from":"BOOK-QPLANT","type":"CONTAINS","to":"CH-ENERGY"},
+    {"from":"CH-ENERGY","type":"CONTAINS","to":"ENTRY-LKT-PERFORMANCE-POINT"},
+    {"from":"ENTRY-LKT-PERFORMANCE-POINT","type":"SOURCED_FROM","to":"SRC-QPLANT-W135-INVCOP"},
+    {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-QEQ"},
+    {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-POWER"},
+    {"from":"ENTRY-LKT-PERFORMANCE-POINT","type":"TRANSFORMED_BY","to":"OP-GLOOB-DEPTH-PROJECT"},
+    {"from":"OP-GLOOB-DEPTH-PROJECT","type":"TRANSFORMED_BY","to":"OP-GLOOB-RENDER"}
+  ]
+}

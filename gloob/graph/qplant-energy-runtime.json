@@ -1,0 +1,32 @@
+{
+  "schema": "gloob-semantic-graph/0.2",
+  "book": {"id": "BOOK-QPLANT", "slug": "qplant", "title": "QPLANT Knowledge Book"},
+  "chapter": {"id": "CH-ENERGY", "slug": "energy", "title": "Energy and efficiency"},
+  "entry": {
+    "id": "ENTRY-LKT-RUNTIME-RECEIPT",
+    "slug": "lkt-runtime-receipt",
+    "title": "LKT runtime-receipt authority boundary",
+    "address": "gloob://qplant/energy/lkt-runtime-receipt"
+  },
+  "operator_refs": ["OP-GLOOB-DEPTH-PROJECT", "OP-GLOOB-RENDER"],
+  "sources": [
+    {
+      "id": "SRC-CODEX-W113-REX",
+      "repo": "GBOGEB/CODEX",
+      "path": "federation/rex/returns/CODEX_W113_PR621_REX_RETURN.yaml",
+      "commit": "631bc364a68b10acfa7d166ed661b708fdbe8c16",
+      "authority": "RUNTIME_RECEIPT"
+    }
+  ],
+  "atoms": [
+    {"id":"ATOM-CODEX-RECEIPT","slug":"runtime-receipt-pattern","heading":"Runtime receipt authority","min_depth":4,"kind":"source","value":"GBOGEB/CODEX@631bc364a68b10acfa7d166ed661b708fdbe8c16:federation/rex/returns/CODEX_W113_PR621_REX_RETURN.yaml","note":"Mesh runtime-receipt authority pattern only; it does not confer engineering acceptance."}
+  ],
+  "edges": [
+    {"from":"BOOK-QPLANT","type":"CONTAINS","to":"CH-ENERGY"},
+    {"from":"CH-ENERGY","type":"CONTAINS","to":"ENTRY-LKT-RUNTIME-RECEIPT"},
+    {"from":"ENTRY-LKT-RUNTIME-RECEIPT","type":"SOURCED_FROM","to":"SRC-CODEX-W113-REX"},
+    {"from":"SRC-CODEX-W113-REX","type":"AUTHORITY_FOR","to":"ATOM-CODEX-RECEIPT"},
+    {"from":"ENTRY-LKT-RUNTIME-RECEIPT","type":"TRANSFORMED_BY","to":"OP-GLOOB-DEPTH-PROJECT"},
+    {"from":"OP-GLOOB-DEPTH-PROJECT","type":"TRANSFORMED_BY","to":"OP-GLOOB-RENDER"}
+  ]
+}
