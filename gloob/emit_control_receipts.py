@@ -3,7 +3,7 @@ import json, os, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
-import telemetry, pca_priority, glob_runtime
+import telemetry, pca_priority, glob_runtime, causal_routing
 
 OUT=ROOT/"control"/"generated"; OUT.mkdir(parents=True,exist_ok=True)
 META={
@@ -18,6 +18,7 @@ def write(name,payload):
     (OUT/name).write_text(json.dumps({"receipt":META,"payload":payload},indent=2,sort_keys=True)+"\n",encoding="utf-8")
 
 write("measured-telemetry.json",telemetry.snapshot())
+write("causal-fingerprint.json",causal_routing.causal_snapshot())
 write("pca-priority.json",pca_priority.report())
 write("rebuild-shared-authority.json",glob_runtime.plan_rebuild(["ATOM-GLOOB-FEDERATED-AUTHORITY"]))
 write("worker-plan.json",glob_runtime.plan_workers(2,["ATOM-GLOOB-FEDERATED-AUTHORITY"]))
