@@ -52,7 +52,7 @@ def surveil(history,policy):
     q=policy["qualification"]
     control=recursive_control.analyze(history,min_snapshots=int(q["minimum_epoch_snapshots"]),pc1_tolerance=float(q["pc1_max_step"]),residual_ceiling=float(q["pc2_plus_residual_ceiling"]))
     if control.get("state")!="CLASSIFIED":
-        return {"schema":"gloob-control-surveillance/0.1","state":"INSUFFICIENT_HISTORY","control":control,"entities":[],"discoveries":[]}
+        return {"schema":"gloob-control-surveillance/0.2","state":"INSUFFICIENT_HISTORY","control":control,"entities":[],"discoveries":[]}
     snaps=reports(history); entities=[]; discoveries=[]
     for x in control.get("entities",[]):
         if x.get("control_established_in_epoch"):
@@ -64,24 +64,24 @@ def surveil(history,policy):
         epoch_start=len(snaps)-int(x.get("telemetry_epoch_snapshots",0))
         changed_epoch=epoch_start>0
         item=dict(x)
-        item.update({"surveillance_state":surveillance,"changed_epoch":changed_epoch,"reopen_work":surveillance=="ESCALATE"})
+        item.update({
+            "surveillance_state":surveillance,
+            "changed_epoch":changed_epoch,
+            "statistical_escalation":surveillance=="ESCALATE",
+            "reopen_work":False,
+            "routing_gate":"CAUSAL_ATTRIBUTION_REQUIRED" if surveillance=="ESCALATE" else "NO_WORK"
+        })
         entities.append(item)
         if changed_epoch and surveillance in {"REQUALIFY","ESCALATE"}:
             discoveries.extend(discovery_for_entity(snaps,x,policy))
     entities.sort(key=lambda x:({"ESCALATE":0,"REQUALIFY":1,"STABLE_CONTROL":2}[x["surveillance_state"]],-x["residual_pc2_plus"],x["entity_id"]))
-    return {"schema":"gloob-control-surveillance/0.1","state":"SURVEILLING","policy_id":policy["policy_id"],"snapshot_count":control["snapshot_count"],"counts":{k:sum(e["surveillance_state"]==k for e in entities) for k in ("STABLE_CONTROL","REQUALIFY","ESCALATE")},"entities":entities,"discoveries":discoveries}
+    return {"schema":"gloob-control-surveillance/0.2","state":"SURVEILLING","policy_id":policy["policy_id"],"snapshot_count":control["snapshot_count"],"counts":{k:sum(e["surveillance_state"]==k for e in entities) for k in ("STABLE_CONTROL","REQUALIFY","ESCALATE")},"entities":entities,"discoveries":discoveries}
 
 
 def escalation_plan(surveillance,capacity=2):
     if capacity<1: raise ValueError("capacity must be >= 1")
-    candidates=[e for e in surveillance.get("entities",[]) if e.get("reopen_work")]
-    candidates.sort(key=lambda e:(-e["residual_pc2_plus"],-e["priority"],e["entity_id"]))
-    loads=[0.0]*capacity; assignments=[]
-    for e in candidates:
-        i=min(range(capacity),key=lambda j:(loads[j],j)); load=max(float(e["residual_pc2_plus"]),0.001)
-        assignments.append({"entity_id":e["entity_id"],"entity_type":e["entity_type"],"worker":f"worker-{i+1}","reason":"FAILED_NEW_TELEMETRY_EPOCH_QUALIFICATION","residual":e["residual_pc2_plus"]})
-        loads[i]+=load
-    return {"schema":"gloob-control-escalation-plan/0.1","mode":"PLAN_ONLY","assignments":assignments,"worker_load":{f"worker-{i+1}":round(v,6) for i,v in enumerate(loads)}}
+    pending=[e["entity_id"] for e in surveillance.get("entities",[]) if e.get("surveillance_state")=="ESCALATE"]
+    return {"schema":"gloob-control-escalation-plan/0.2","mode":"CAUSAL_ATTRIBUTION_REQUIRED","capacity":capacity,"assignments":[],"pending_causal_attribution":sorted(pending)}
 
 
 def main():
