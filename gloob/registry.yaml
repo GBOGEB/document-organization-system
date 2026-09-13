@@ -33,6 +33,14 @@
               "uses_shared_atoms": ["ATOM-GLOOB-FEDERATED-AUTHORITY"]
             },
             {
+              "id": "ENTRY-LKT-PERFORMANCE-POINT",
+              "slug": "lkt-performance-point",
+              "title": "LKT offered-point refrigeration and power point",
+              "address": "gloob://qplant/energy/lkt-performance-point",
+              "graph": "graph/qplant-energy-performance.json",
+              "uses_shared_atoms": []
+            },
+            {
               "id": "ENTRY-LKT-POWER-BREAKDOWN",
               "slug": "lkt-power-breakdown",
               "title": "LKT offered-point power breakdown",
@@ -43,9 +51,17 @@
             {
               "id": "ENTRY-LKT-EVIDENCE-BOUNDARY",
               "slug": "lkt-evidence-boundary",
-              "title": "LKT offered-point evidence boundary",
+              "title": "LKT offered-point engineering evidence boundary",
               "address": "gloob://qplant/energy/lkt-evidence-boundary",
               "graph": "graph/qplant-energy-evidence.json",
+              "uses_shared_atoms": []
+            },
+            {
+              "id": "ENTRY-LKT-RUNTIME-RECEIPT",
+              "slug": "lkt-runtime-receipt",
+              "title": "LKT runtime-receipt authority boundary",
+              "address": "gloob://qplant/energy/lkt-runtime-receipt",
+              "graph": "graph/qplant-energy-runtime.json",
               "uses_shared_atoms": []
             }
           ]
