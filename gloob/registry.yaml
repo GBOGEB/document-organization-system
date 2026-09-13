@@ -10,6 +10,7 @@
     "authority_mode": "federated"
   },
   "shared_atom_catalog": "graph/shared-atoms.json",
+  "operator_catalog": "operators.json",
   "books": [
     {
       "id": "BOOK-QPLANT",
@@ -30,6 +31,22 @@
               "address": "gloob://qplant/energy/lkt-invcop",
               "graph": "graph/qplant-energy.json",
               "uses_shared_atoms": ["ATOM-GLOOB-FEDERATED-AUTHORITY"]
+            },
+            {
+              "id": "ENTRY-LKT-POWER-BREAKDOWN",
+              "slug": "lkt-power-breakdown",
+              "title": "LKT offered-point power breakdown",
+              "address": "gloob://qplant/energy/lkt-power-breakdown",
+              "graph": "graph/qplant-energy-power.json",
+              "uses_shared_atoms": []
+            },
+            {
+              "id": "ENTRY-LKT-EVIDENCE-BOUNDARY",
+              "slug": "lkt-evidence-boundary",
+              "title": "LKT offered-point evidence boundary",
+              "address": "gloob://qplant/energy/lkt-evidence-boundary",
+              "graph": "graph/qplant-energy-evidence.json",
+              "uses_shared_atoms": []
             }
           ]
         }
@@ -52,10 +69,7 @@
               "title": "Book contract v0.1",
               "address": "gloob://gloob-architecture/architecture/book-contract",
               "graph": "graph/gloob-book-contract.json",
-              "uses_shared_atoms": [
-                "ATOM-GLOOB-BOOK-NOT-REPO",
-                "ATOM-GLOOB-FEDERATED-AUTHORITY"
-              ]
+              "uses_shared_atoms": ["ATOM-GLOOB-BOOK-NOT-REPO", "ATOM-GLOOB-FEDERATED-AUTHORITY"]
             }
           ]
         },

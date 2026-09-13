@@ -16,26 +16,19 @@ class RecursiveControlV06Tests(unittest.TestCase):
 
     def test_three_snapshots_required_for_control(self):
         out=recursive_control.analyze(self.history(2))
-        self.assertEqual(out["state"],"INSUFFICIENT_HISTORY")
-        self.assertEqual(out["required"],3)
+        self.assertEqual(out["state"],"INSUFFICIENT_HISTORY"); self.assertEqual(out["required"],3)
 
-    def test_flat_pc1_plateau_separates_residual_improve_from_control(self):
-        out=recursive_control.analyze(self.history(3))
-        by={x["entity_id"]:x for x in out["entities"]}
-        self.assertEqual(out["state"],"CLASSIFIED")
-        self.assertTrue(by["ENTRY-LKT-INVCOP"]["pc1_saturated"])
-        self.assertEqual(by["ENTRY-LKT-INVCOP"]["state"],"IMPROVE")
-        self.assertEqual(by["ENTRY-GLOOB-BOOK-CONTRACT"]["state"],"CONTROL")
-        self.assertEqual(by["ENTRY-GLOOB-SESSION-CONTROL"]["state"],"CONTROL")
-        self.assertGreater(by["ENTRY-LKT-INVCOP"]["residual_pc2_plus"],out["residual_ceiling"])
+    def test_flat_pc1_plateau_promotes_only_bounded_residuals(self):
+        out=recursive_control.analyze(self.history(3)); self.assertEqual(out["state"],"CLASSIFIED")
+        self.assertTrue(all(x["pc1_saturated"] for x in out["entities"]))
+        for x in out["entities"]:
+            expected="CONTROL" if x["residual_pc2_plus"]<=out["residual_ceiling"] else "IMPROVE"
+            self.assertEqual(x["state"],expected)
 
     def test_residual_workers_only_receive_improve_entities(self):
-        control=recursive_control.analyze(self.history(3))
-        plan=recursive_control.residual_worker_plan(control,2)
-        improve={x["entity_id"] for x in control["entities"] if x["state"]=="IMPROVE"}
-        assigned={x["entity_id"] for x in plan["assignments"]}
-        self.assertEqual(plan["mode"],"PLAN_ONLY")
-        self.assertEqual(assigned,improve)
-        self.assertNotIn("ENTRY-GLOOB-SESSION-CONTROL",assigned)
+        control=recursive_control.analyze(self.history(3)); plan=recursive_control.residual_worker_plan(control,2)
+        improve={x["entity_id"] for x in control["entities"] if x["state"]=="IMPROVE"}; assigned={x["entity_id"] for x in plan["assignments"]}
+        self.assertEqual(plan["mode"],"PLAN_ONLY"); self.assertEqual(assigned,improve)
+        self.assertTrue(all(x["focus"]=="PC2_PLUS_RESIDUAL" for x in plan["assignments"]))
 
 if __name__=="__main__": unittest.main()

@@ -1,0 +1,19 @@
+{
+  "schema": "gloob-operator-catalog/0.1",
+  "operators": [
+    {
+      "id": "OP-GLOOB-DEPTH-PROJECT",
+      "slug": "depth-project",
+      "title": "Semantic depth projector",
+      "deterministic": true,
+      "scope": "publication"
+    },
+    {
+      "id": "OP-GLOOB-RENDER",
+      "slug": "render",
+      "title": "Multi-view renderer",
+      "deterministic": true,
+      "scope": "publication"
+    }
+  ]
+}

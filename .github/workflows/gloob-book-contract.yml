@@ -36,6 +36,8 @@ jobs:
         run: python gloob/federate_receipts.py --limit 8
       - name: Analyze recursive control
         run: python gloob/recursive_control.py gloob/control/generated/federated-history.json --capacity 2
+      - name: Reverse-load residual components
+        run: python gloob/residual_burndown.py
       - name: Verify artifacts exist
         run: |
           test -f gloob/examples/qplant-energy-lkt-invcop-compact.html
@@ -49,9 +51,11 @@ jobs:
           test -f gloob/control/generated/federated-history.json
           test -f gloob/control/generated/recursive-control.json
           test -f gloob/control/generated/residual-worker-plan.json
+          test -f gloob/control/generated/residual-burndown.json
           python -c 'import json,os; r=json.load(open("gloob/control/generated/measured-telemetry.json"))["receipt"]; print("source",r["source_commit"],"expected",os.environ["CONTROL_SOURCE_SHA"]); assert r["source_commit"] == os.environ["CONTROL_SOURCE_SHA"]'
           python -c 'import json; h=json.load(open("gloob/control/generated/federated-history.json")); print("history",h["snapshot_count"],h["distinct_source_commits"],h["download_errors"]); assert h["snapshot_count"] >= 3 and len(set(h["distinct_source_commits"])) >= 3'
           python -c 'import json; c=json.load(open("gloob/control/generated/recursive-control.json")); print("recursive",c["state"],c["snapshot_count"]); assert c["state"] == "CLASSIFIED"'
+          python -c 'import json; b=json.load(open("gloob/control/generated/residual-burndown.json")); assert b["schema"] == "gloob-residual-burndown/0.1"'
       - name: Upload control receipts
         if: always()
         uses: actions/upload-artifact@v4

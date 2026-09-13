@@ -1,5 +1,5 @@
 {
-  "schema": "gloob-semantic-graph/0.1",
+  "schema": "gloob-semantic-graph/0.2",
   "book": {"id": "BOOK-QPLANT", "slug": "qplant", "title": "QPLANT Knowledge Book"},
   "chapter": {"id": "CH-ENERGY", "slug": "energy", "title": "Energy and efficiency"},
   "entry": {
@@ -10,6 +10,7 @@
     "aliases": ["qplant-energy-lkt-invcop"]
   },
   "shared_atom_refs": ["ATOM-GLOOB-FEDERATED-AUTHORITY"],
+  "operator_refs": ["OP-GLOOB-DEPTH-PROJECT", "OP-GLOOB-RENDER"],
   "sources": [
     {
       "id": "SRC-QPLANT-W135-INVCOP",
@@ -18,18 +19,7 @@
       "commit": "a9cb3241fef2a7b5a071fcc9a833ae10769c51a9",
       "blob": "6da34ea74880356826826dfc82c11508e10d19fa",
       "authority": "CANONICAL_ENGINEERING_PROJECTION"
-    },
-    {
-      "id": "SRC-CODEX-W113-REX",
-      "repo": "GBOGEB/CODEX",
-      "path": "federation/rex/returns/CODEX_W113_PR621_REX_RETURN.yaml",
-      "commit": "631bc364a68b10acfa7d166ed661b708fdbe8c16",
-      "authority": "RUNTIME_RECEIPT"
     }
-  ],
-  "operators": [
-    {"id": "OP-GLOOB-DEPTH-PROJECT", "slug": "depth-project", "deterministic": true},
-    {"id": "OP-GLOOB-RENDER", "slug": "render", "deterministic": true}
   ],
   "atoms": [
     {
@@ -38,108 +28,21 @@
       "heading": "Offered-point status",
       "min_depth": 1,
       "kind": "statement",
-      "value": "LKT offered-point invCOP semantics are source-bound and arithmetically reproduced; formal SAT metering acceptance remains withheld."
+      "value": "LKT offered-point invCOP semantics are source-bound and arithmetically reproduced; formal SAT metering acceptance remains withheld. Power-breakdown and evidence-boundary details are decomposed into dedicated child Entries."
     },
-    {
-      "id": "ATOM-LKT-INVCOP",
-      "slug": "invcop",
-      "heading": "invCOP",
-      "min_depth": 1,
-      "kind": "metric",
-      "value": 310,
-      "unit": "W/W",
-      "note": "Bidder invCOP at the restored offered point."
-    },
-    {
-      "id": "ATOM-LKT-QEQ",
-      "slug": "equivalent-load",
-      "heading": "Equivalent refrigeration load",
-      "min_depth": 2,
-      "kind": "metric",
-      "value": 3.35,
-      "unit": "kW @ 4.5 K equivalent"
-    },
-    {
-      "id": "ATOM-LKT-POWER",
-      "slug": "total-power",
-      "heading": "Total electrical power",
-      "min_depth": 2,
-      "kind": "metric",
-      "value": 1038,
-      "unit": "kW"
-    },
-    {
-      "id": "ATOM-LKT-DIRECT-SUBTOTAL",
-      "slug": "direct-load-subtotal",
-      "heading": "Direct load subtotal",
-      "min_depth": 3,
-      "kind": "metric",
-      "value": 908,
-      "unit": "kW",
-      "note": "Composition: 814 + 83 + 5 + 3 + 3 kW."
-    },
-    {
-      "id": "ATOM-LKT-CWS",
-      "slug": "cws-support",
-      "heading": "Cooling-water support",
-      "min_depth": 3,
-      "kind": "metric",
-      "value": 80.8,
-      "unit": "kW"
-    },
-    {
-      "id": "ATOM-LKT-EXPECTED",
-      "slug": "expected-pre-uncertainty",
-      "heading": "Expected pre-uncertainty power",
-      "min_depth": 3,
-      "kind": "metric",
-      "value": 988.8,
-      "unit": "kW"
-    },
-    {
-      "id": "ATOM-LKT-UNCERTAINTY",
-      "slug": "power-uncertainty",
-      "heading": "Power uncertainty interpretation",
-      "min_depth": 4,
-      "kind": "statement",
-      "value": "The five percent term is classified as power-consumption uncertainty, not as a multiplier on Qeq."
-    },
-    {
-      "id": "ATOM-LKT-SAT",
-      "slug": "sat-metering-boundary",
-      "heading": "SAT metering boundary",
-      "min_depth": 4,
-      "kind": "status",
-      "value": "WITHHELD",
-      "note": "Procedure and executed SAT return are still required."
-    },
-    {
-      "id": "ATOM-LKT-SOURCE",
-      "slug": "engineering-source",
-      "heading": "Engineering source binding",
-      "min_depth": 5,
-      "kind": "source",
-      "value": "GBOGEB/cryoplant-project@a9cb3241fef2a7b5a071fcc9a833ae10769c51a9:triage/w135/QPS_W135_ITERATION_METRICS_v0.1.yaml"
-    },
-    {
-      "id": "ATOM-CODEX-RECEIPT",
-      "slug": "runtime-receipt-pattern",
-      "heading": "Runtime receipt authority",
-      "min_depth": 5,
-      "kind": "source",
-      "value": "GBOGEB/CODEX@631bc364a68b10acfa7d166ed661b708fdbe8c16:federation/rex/returns/CODEX_W113_PR621_REX_RETURN.yaml",
-      "note": "Used as the mesh runtime-receipt authority pattern; it does not confer engineering acceptance."
-    }
+    {"id":"ATOM-LKT-INVCOP","slug":"invcop","heading":"invCOP","min_depth":1,"kind":"metric","value":310,"unit":"W/W","note":"Bidder invCOP at the restored offered point."},
+    {"id":"ATOM-LKT-QEQ","slug":"equivalent-load","heading":"Equivalent refrigeration load","min_depth":2,"kind":"metric","value":3.35,"unit":"kW @ 4.5 K equivalent"},
+    {"id":"ATOM-LKT-POWER","slug":"total-power","heading":"Total electrical power","min_depth":2,"kind":"metric","value":1038,"unit":"kW"}
   ],
   "edges": [
-    {"from": "BOOK-QPLANT", "type": "CONTAINS", "to": "CH-ENERGY"},
-    {"from": "CH-ENERGY", "type": "CONTAINS", "to": "ENTRY-LKT-INVCOP"},
-    {"from": "ENTRY-LKT-INVCOP", "type": "SOURCED_FROM", "to": "SRC-QPLANT-W135-INVCOP"},
-    {"from": "ENTRY-LKT-INVCOP", "type": "SOURCED_FROM", "to": "SRC-CODEX-W113-REX"},
-    {"from": "ENTRY-LKT-INVCOP", "type": "USES_ATOM", "to": "ATOM-GLOOB-FEDERATED-AUTHORITY"},
-    {"from": "SRC-QPLANT-W135-INVCOP", "type": "AUTHORITY_FOR", "to": "ATOM-LKT-INVCOP"},
-    {"from": "SRC-CODEX-W113-REX", "type": "AUTHORITY_FOR", "to": "OP-GLOOB-RENDER"},
-    {"from": "ENTRY-LKT-INVCOP", "type": "TRANSFORMED_BY", "to": "OP-GLOOB-DEPTH-PROJECT"},
-    {"from": "OP-GLOOB-DEPTH-PROJECT", "type": "TRANSFORMED_BY", "to": "OP-GLOOB-RENDER"}
+    {"from":"BOOK-QPLANT","type":"CONTAINS","to":"CH-ENERGY"},
+    {"from":"CH-ENERGY","type":"CONTAINS","to":"ENTRY-LKT-INVCOP"},
+    {"from":"ENTRY-LKT-INVCOP","type":"SOURCED_FROM","to":"SRC-QPLANT-W135-INVCOP"},
+    {"from":"ENTRY-LKT-INVCOP","type":"USES_ATOM","to":"ATOM-GLOOB-FEDERATED-AUTHORITY"},
+    {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-INVCOP"},
+    {"from":"ENTRY-LKT-INVCOP","type":"DECOMPOSES_TO","to":"ENTRY-LKT-POWER-BREAKDOWN"},
+    {"from":"ENTRY-LKT-INVCOP","type":"DECOMPOSES_TO","to":"ENTRY-LKT-EVIDENCE-BOUNDARY"},
+    {"from":"ENTRY-LKT-INVCOP","type":"TRANSFORMED_BY","to":"OP-GLOOB-DEPTH-PROJECT"},
+    {"from":"OP-GLOOB-DEPTH-PROJECT","type":"TRANSFORMED_BY","to":"OP-GLOOB-RENDER"}
   ]
 }
