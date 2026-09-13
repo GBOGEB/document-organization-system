@@ -2,39 +2,21 @@
   "schema": "gloob-semantic-graph/0.2",
   "book": {"id": "BOOK-GLOOB", "slug": "gloob-architecture", "title": "Gloob Architecture and Control Book"},
   "chapter": {"id": "CH-GLOOB-ARCHITECTURE", "slug": "architecture", "title": "Architecture"},
-  "entry": {
-    "id": "ENTRY-GLOOB-BOOK-CONTRACT",
-    "slug": "book-contract",
-    "title": "Book contract v0.1",
-    "address": "gloob://gloob-architecture/architecture/book-contract"
-  },
-  "shared_atom_refs": [
-    "ATOM-GLOOB-BOOK-NOT-REPO",
-    "ATOM-GLOOB-FEDERATED-AUTHORITY"
-  ],
+  "entry": {"id":"ENTRY-GLOOB-BOOK-CONTRACT","slug":"book-contract","title":"Book contract v0.1","address":"gloob://gloob-architecture/architecture/book-contract"},
+  "shared_atom_refs": ["ATOM-GLOOB-BOOK-NOT-REPO", "ATOM-GLOOB-FEDERATED-AUTHORITY"],
+  "operator_refs": ["OP-GLOOB-DEPTH-PROJECT", "OP-GLOOB-RENDER"],
   "sources": [
-    {
-      "id": "SRC-GLOOB-BOOK-CONTRACT",
-      "repo": "GBOGEB/document-organization-system",
-      "path": "gloob/BOOK_CONTRACT_v0.1.md",
-      "commit": "913f577ae63ef53da71633fad2bbbeb1c646c58a",
-      "authority": "CANONICAL_PUBLICATION_CONTRACT"
-    }
+    {"id":"SRC-GLOOB-BOOK-CONTRACT","repo":"GBOGEB/document-organization-system","path":"gloob/BOOK_CONTRACT_v0.1.md","commit":"913f577ae63ef53da71633fad2bbbeb1c646c58a","authority":"CANONICAL_PUBLICATION_CONTRACT"}
   ],
   "atoms": [
-    {
-      "id": "ATOM-GLOOB-MANY-ONE-MANY",
-      "slug": "many-one-many",
-      "heading": "Many sources to one graph to many views",
-      "min_depth": 1,
-      "kind": "architecture-invariant",
-      "value": "Many sources and operators compose one canonical graph, which can project as multiple Books, depths and rendered views without duplicating source authority."
-    }
+    {"id":"ATOM-GLOOB-MANY-ONE-MANY","slug":"many-one-many","heading":"Many sources to one graph to many views","min_depth":1,"kind":"architecture-invariant","value":"Many sources and operators compose one canonical graph, which can project as multiple Books, depths and rendered views without duplicating source authority."}
   ],
   "edges": [
-    {"from": "BOOK-GLOOB", "type": "CONTAINS", "to": "CH-GLOOB-ARCHITECTURE"},
-    {"from": "CH-GLOOB-ARCHITECTURE", "type": "CONTAINS", "to": "ENTRY-GLOOB-BOOK-CONTRACT"},
-    {"from": "ENTRY-GLOOB-BOOK-CONTRACT", "type": "USES_ATOM", "to": "ATOM-GLOOB-BOOK-NOT-REPO"},
-    {"from": "ENTRY-GLOOB-BOOK-CONTRACT", "type": "USES_ATOM", "to": "ATOM-GLOOB-FEDERATED-AUTHORITY"}
+    {"from":"BOOK-GLOOB","type":"CONTAINS","to":"CH-GLOOB-ARCHITECTURE"},
+    {"from":"CH-GLOOB-ARCHITECTURE","type":"CONTAINS","to":"ENTRY-GLOOB-BOOK-CONTRACT"},
+    {"from":"ENTRY-GLOOB-BOOK-CONTRACT","type":"USES_ATOM","to":"ATOM-GLOOB-BOOK-NOT-REPO"},
+    {"from":"ENTRY-GLOOB-BOOK-CONTRACT","type":"USES_ATOM","to":"ATOM-GLOOB-FEDERATED-AUTHORITY"},
+    {"from":"ENTRY-GLOOB-BOOK-CONTRACT","type":"TRANSFORMED_BY","to":"OP-GLOOB-DEPTH-PROJECT"},
+    {"from":"OP-GLOOB-DEPTH-PROJECT","type":"TRANSFORMED_BY","to":"OP-GLOOB-RENDER"}
   ]
 }
