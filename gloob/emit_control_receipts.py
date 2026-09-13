@@ -6,7 +6,13 @@ if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 import telemetry, pca_priority, glob_runtime
 
 OUT=ROOT/"control"/"generated"; OUT.mkdir(parents=True,exist_ok=True)
-META={"commit":os.getenv("GITHUB_SHA","LOCAL"),"run_id":os.getenv("GITHUB_RUN_ID","LOCAL"),"source":"measured repository telemetry"}
+META={
+    "source_commit":os.getenv("CONTROL_SOURCE_SHA",os.getenv("GITHUB_SHA","LOCAL")),
+    "runner_commit":os.getenv("GITHUB_SHA","LOCAL"),
+    "run_id":os.getenv("GITHUB_RUN_ID","LOCAL"),
+    "event":os.getenv("GITHUB_EVENT_NAME","LOCAL"),
+    "source":"measured repository telemetry"
+}
 
 def write(name,payload):
     (OUT/name).write_text(json.dumps({"receipt":META,"payload":payload},indent=2,sort_keys=True)+"\n",encoding="utf-8")
