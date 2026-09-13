@@ -49,4 +49,14 @@ class ControlSurveillanceV09Tests(unittest.TestCase):
         self.assertEqual(plan["assignments"],[])
         self.assertIn("ENTRY-LKT-INVCOP",plan["pending_causal_attribution"])
 
+    def test_prior_stable_control_is_carried_across_sliding_window_when_telemetry_is_unchanged(self):
+        snaps=[self.snap(str(i).zfill(40)) for i in range(1,4)]
+        eid="ENTRY-GLOOB-BOOK-CONTRACT"
+        snaps[0]["surveillance"]={"entities":[{"entity_id":eid,"surveillance_state":"STABLE_CONTROL","control_established_in_epoch":True}]}
+        out=control_surveillance.surveil({"snapshots":snaps},self.policy)
+        target=next(e for e in out["entities"] if e["entity_id"]==eid)
+        self.assertGreater(target["residual_pc2_plus"],self.policy["qualification"]["pc2_plus_residual_ceiling"])
+        self.assertEqual(target["surveillance_state"],"STABLE_CONTROL")
+        self.assertTrue(target["control_carried_forward"])
+
 if __name__=="__main__": unittest.main()
