@@ -1,0 +1,39 @@
+{
+  "schema": "gloob-semantic-graph/0.2",
+  "book": {"id": "BOOK-QPLANT", "slug": "qplant", "title": "QPLANT Knowledge Book"},
+  "chapter": {"id": "CH-ENERGY", "slug": "energy", "title": "Energy and efficiency"},
+  "entry": {
+    "id": "ENTRY-LKT-POWER-BREAKDOWN",
+    "slug": "lkt-power-breakdown",
+    "title": "LKT offered-point power breakdown",
+    "address": "gloob://qplant/energy/lkt-power-breakdown"
+  },
+  "operator_refs": ["OP-GLOOB-DEPTH-PROJECT", "OP-GLOOB-RENDER"],
+  "sources": [
+    {
+      "id": "SRC-QPLANT-W135-INVCOP",
+      "repo": "GBOGEB/cryoplant-project",
+      "path": "triage/w135/QPS_W135_ITERATION_METRICS_v0.1.yaml",
+      "commit": "a9cb3241fef2a7b5a071fcc9a833ae10769c51a9",
+      "blob": "6da34ea74880356826826dfc82c11508e10d19fa",
+      "authority": "CANONICAL_ENGINEERING_PROJECTION"
+    }
+  ],
+  "atoms": [
+    {"id":"ATOM-LKT-DIRECT-SUBTOTAL","slug":"direct-load-subtotal","heading":"Direct load subtotal","min_depth":2,"kind":"metric","value":908,"unit":"kW","note":"Composition: 814 + 83 + 5 + 3 + 3 kW."},
+    {"id":"ATOM-LKT-CWS","slug":"cws-support","heading":"Cooling-water support","min_depth":2,"kind":"metric","value":80.8,"unit":"kW"},
+    {"id":"ATOM-LKT-EXPECTED","slug":"expected-pre-uncertainty","heading":"Expected pre-uncertainty power","min_depth":3,"kind":"metric","value":988.8,"unit":"kW"},
+    {"id":"ATOM-LKT-UNCERTAINTY","slug":"power-uncertainty","heading":"Power uncertainty interpretation","min_depth":4,"kind":"statement","value":"The five percent term is classified as power-consumption uncertainty, not as a multiplier on Qeq."}
+  ],
+  "edges": [
+    {"from":"BOOK-QPLANT","type":"CONTAINS","to":"CH-ENERGY"},
+    {"from":"CH-ENERGY","type":"CONTAINS","to":"ENTRY-LKT-POWER-BREAKDOWN"},
+    {"from":"ENTRY-LKT-POWER-BREAKDOWN","type":"SOURCED_FROM","to":"SRC-QPLANT-W135-INVCOP"},
+    {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-DIRECT-SUBTOTAL"},
+    {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-CWS"},
+    {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-EXPECTED"},
+    {"from":"SRC-QPLANT-W135-INVCOP","type":"AUTHORITY_FOR","to":"ATOM-LKT-UNCERTAINTY"},
+    {"from":"ENTRY-LKT-POWER-BREAKDOWN","type":"TRANSFORMED_BY","to":"OP-GLOOB-DEPTH-PROJECT"},
+    {"from":"OP-GLOOB-DEPTH-PROJECT","type":"TRANSFORMED_BY","to":"OP-GLOOB-RENDER"}
+  ]
+}
