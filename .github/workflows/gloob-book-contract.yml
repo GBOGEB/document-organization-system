@@ -49,10 +49,11 @@ jobs:
           test -f gloob/control/generated/federated-history.json
           test -f gloob/control/generated/recursive-control.json
           test -f gloob/control/generated/residual-worker-plan.json
-          python -c 'import json,os; r=json.load(open("gloob/control/generated/measured-telemetry.json"))["receipt"]; assert r["source_commit"] == os.environ["CONTROL_SOURCE_SHA"]'
-          python -c 'import json; h=json.load(open("gloob/control/generated/federated-history.json")); assert len(h["snapshots"]) >= 3'
-          python -c 'import json; c=json.load(open("gloob/control/generated/recursive-control.json")); assert c["state"] == "CLASSIFIED"'
+          python -c 'import json,os; r=json.load(open("gloob/control/generated/measured-telemetry.json"))["receipt"]; print("source",r["source_commit"],"expected",os.environ["CONTROL_SOURCE_SHA"]); assert r["source_commit"] == os.environ["CONTROL_SOURCE_SHA"]'
+          python -c 'import json; h=json.load(open("gloob/control/generated/federated-history.json")); print("history",h["snapshot_count"],h["distinct_source_commits"],h["download_errors"]); assert h["snapshot_count"] >= 3 and len(set(h["distinct_source_commits"])) >= 3'
+          python -c 'import json; c=json.load(open("gloob/control/generated/recursive-control.json")); print("recursive",c["state"],c["snapshot_count"]); assert c["state"] == "CLASSIFIED"'
       - name: Upload control receipts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gloob-control-receipts
