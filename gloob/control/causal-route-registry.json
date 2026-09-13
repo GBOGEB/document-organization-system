@@ -1,0 +1,26 @@
+{
+  "schema": "gloob-causal-route-registry/0.1",
+  "policy_id": "GLOOB-CAUSAL-ROUTING-V1.0",
+  "default_repo": "GBOGEB/document-organization-system",
+  "books": {
+    "BOOK-QPLANT": {
+      "semantic_repo": "GBOGEB/document-organization-system",
+      "domain_repo": "GBOGEB/cryoplant-project",
+      "home_crew": "QPLANT_BOOK_CREW"
+    },
+    "BOOK-GLOOB": {
+      "semantic_repo": "GBOGEB/document-organization-system",
+      "domain_repo": "GBOGEB/document-organization-system",
+      "home_crew": "GLOOB_CORE_CREW"
+    }
+  },
+  "cause_routes": {
+    "SOURCE": {"crew": "SOURCE_EVIDENCE_CREW"},
+    "ATOM": {"crew": "SEMANTIC_ATOM_CREW"},
+    "EDGE": {"crew": "GRAPH_TOPOLOGY_CREW"},
+    "OPERATOR": {"crew": "OPERATOR_RUNTIME_CREW"},
+    "RUNTIME": {"crew": "RUNTIME_EVIDENCE_CREW"},
+    "FEDERATED_RETURN": {"crew": "FEDERATION_AMBASSADOR"}
+  },
+  "fallback_route": {"crew": "CAUSAL_TRIAGE"}
+}
