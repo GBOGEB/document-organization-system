@@ -13,7 +13,10 @@ def load(path): return json.loads(Path(path).read_text(encoding="utf-8"))
 
 def bundle_from_dir(path):
     path=Path(path); telemetry=load(path/"measured-telemetry.json")
-    return {"receipt":telemetry["receipt"],"telemetry":telemetry["payload"]}
+    out={"receipt":telemetry["receipt"],"telemetry":telemetry["payload"]}
+    causal=path/"causal-fingerprint.json"
+    if causal.exists(): out["causal"]=load(causal)["payload"]
+    return out
 
 def request_json(url,token):
     with urllib.request.urlopen(urllib.request.Request(url,headers=HEADERS(token))) as r: return json.loads(r.read().decode("utf-8"))
@@ -60,12 +63,12 @@ def federate(current_dir,repo=None,token=None,limit=8):
         prior,errors,available=github_bundles(repo,token,limit); bundles.extend(prior)
     if current_dir and (Path(current_dir)/"measured-telemetry.json").exists(): bundles.append(bundle_from_dir(current_dir))
     snapshots=dedup(bundles)
-    return {"schema":"gloob-federated-control-history/0.2","artifact_candidates":available,"download_errors":errors,"snapshot_count":len(snapshots),"distinct_source_commits":[s["receipt"]["source_commit"] for s in snapshots],"snapshots":snapshots}
+    return {"schema":"gloob-federated-control-history/0.3","artifact_candidates":available,"download_errors":errors,"snapshot_count":len(snapshots),"causal_snapshot_count":sum("causal" in s for s in snapshots),"distinct_source_commits":[s["receipt"]["source_commit"] for s in snapshots],"snapshots":snapshots}
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--current",default=str(ROOT/"control"/"generated")); ap.add_argument("--output",default=str(ROOT/"control"/"generated"/"federated-history.json")); ap.add_argument("--limit",type=int,default=8)
     args=ap.parse_args(); repo=os.getenv("GITHUB_REPOSITORY"); token=os.getenv("GITHUB_TOKEN")
     value=federate(args.current,repo,token,args.limit); Path(args.output).write_text(json.dumps(value,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-    print(json.dumps({k:value[k] for k in ("artifact_candidates","snapshot_count","distinct_source_commits","download_errors")},indent=2))
+    print(json.dumps({k:value[k] for k in ("artifact_candidates","snapshot_count","causal_snapshot_count","distinct_source_commits","download_errors")},indent=2))
 
 if __name__=="__main__": main()
