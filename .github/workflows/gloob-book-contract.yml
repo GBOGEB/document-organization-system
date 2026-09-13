@@ -23,9 +23,21 @@ jobs:
         run: python -m unittest discover -s gloob/tests -p "test_*.py"
       - name: Render all profiles
         run: python gloob/render_book.py --all-profiles
+      - name: Emit measured control receipts
+        run: python gloob/emit_control_receipts.py
       - name: Verify artifacts exist
         run: |
           test -f gloob/examples/qplant-energy-lkt-invcop-compact.html
           test -f gloob/examples/qplant-energy-lkt-invcop-standard.md
           test -f gloob/examples/qplant-energy-lkt-invcop-deep.pdf
           test -f gloob/examples/qplant-energy-lkt-invcop-deep.receipt.json
+          test -f gloob/control/generated/measured-telemetry.json
+          test -f gloob/control/generated/pca-priority.json
+          test -f gloob/control/generated/rebuild-shared-authority.json
+          test -f gloob/control/generated/worker-plan.json
+      - name: Upload control receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gloob-control-receipts
+          path: gloob/control/generated/*.json
+          if-no-files-found: error
