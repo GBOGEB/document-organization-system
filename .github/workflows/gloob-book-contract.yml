@@ -14,6 +14,8 @@ on:
 jobs:
   contract:
     runs-on: ubuntu-latest
+    env:
+      CONTROL_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,6 +37,7 @@ jobs:
           test -f gloob/control/generated/pca-priority.json
           test -f gloob/control/generated/rebuild-shared-authority.json
           test -f gloob/control/generated/worker-plan.json
+          python -c 'import json,os; r=json.load(open("gloob/control/generated/measured-telemetry.json"))["receipt"]; assert r["source_commit"] == os.environ["CONTROL_SOURCE_SHA"]'
       - name: Upload control receipts
         uses: actions/upload-artifact@v4
         with:
