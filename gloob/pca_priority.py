@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import json, math, sys
+from collections import defaultdict
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
@@ -14,10 +15,21 @@ def norm(v): return math.sqrt(dot(v,v))
 def matvec(a,v): return [sum(a[i][j]*v[j] for j in range(len(v))) for i in range(len(a))]
 
 def standardize(rows):
-    cols=[[float(r[f]) for r in rows] for f in FEATURES]
-    means=[sum(c)/len(c) for c in cols]
-    std=[math.sqrt(sum((x-m)**2 for x in c)/max(1,len(c)-1)) for c,m in zip(cols,means)]
-    return [[0.0 if s==0 else (float(r[f])-m)/s for f,m,s in zip(FEATURES,means,std)] for r in rows]
+    """Z-standardise features inside each entity class before global PCA.
+
+    Raw cardinalities are not comparable across BOOK, ENTRY, ATOM, EDGE_TYPE and
+    OPERATOR populations. Within-class standardisation preserves shape/movement
+    while preventing normal class scale (for example an Operator reused by every
+    Entry) from being misclassified as residual pressure.
+    """
+    z=[[0.0 for _ in FEATURES] for _ in rows]; groups=defaultdict(list)
+    for i,r in enumerate(rows): groups[r["entity_type"]].append(i)
+    for inds in groups.values():
+        for j,f in enumerate(FEATURES):
+            col=[float(rows[i][f]) for i in inds]; mean=sum(col)/len(col)
+            std=math.sqrt(sum((x-mean)**2 for x in col)/max(1,len(col)-1))
+            for i,x in zip(inds,col): z[i][j]=0.0 if std==0 else (x-mean)/std
+    return z
 
 def covariance(z):
     n=len(z); p=len(FEATURES)
@@ -41,18 +53,15 @@ def components(cov,count=4):
     return out
 
 def report_from_rows(rows):
-    rows=[dict(r) for r in rows]
-    z=standardize(rows); comps=components(covariance(z),4)
+    rows=[dict(r) for r in rows]; z=standardize(rows); comps=components(covariance(z),4)
     for c in comps:
-        vec=[c["loadings"][f] for f in FEATURES]
-        c["scores"]={rows[i]["entity_id"]:dot(z[i],vec) for i in range(len(rows))}
-    pc1=comps[0]["scores"] if comps else {r["entity_id"]:0.0 for r in rows}
-    lo,hi=min(pc1.values()),max(pc1.values()); ranking=[]
+        vec=[c["loadings"][f] for f in FEATURES]; c["scores"]={rows[i]["entity_id"]:dot(z[i],vec) for i in range(len(rows))}
+    pc1=comps[0]["scores"] if comps else {r["entity_id"]:0.0 for r in rows}; lo,hi=min(pc1.values()),max(pc1.values()); ranking=[]
     for r in rows:
         raw=pc1[r["entity_id"]]; pr=50.0 if hi==lo else 100.0*(raw-lo)/(hi-lo)
         ranking.append({"entity_id":r["entity_id"],"entity_type":r["entity_type"],"priority":round(pr,6),"pc1_score":round(raw,6),"telemetry":{f:r[f] for f in FEATURES}})
     ranking.sort(key=lambda x:(-x["priority"],x["entity_type"],x["entity_id"]))
-    return {"schema":"gloob-pca-priority/0.2","basis":"MEASURED_REPOSITORY_TELEMETRY","features":FEATURES,"components":comps,"ranking":ranking}
+    return {"schema":"gloob-pca-priority/0.3","basis":"MEASURED_REPOSITORY_TELEMETRY","standardization":"WITHIN_ENTITY_CLASS","features":FEATURES,"components":comps,"ranking":ranking}
 
 def report(): return report_from_rows(telemetry.snapshot()["rows"])
 def entry_priorities(): return {r["entity_id"]:r["priority"] for r in report()["ranking"] if r["entity_type"]=="ENTRY"}
