@@ -1,0 +1,22 @@
+{
+  "schema": "gloob-control-surveillance-policy/0.1",
+  "policy_id": "CONTROL_SURVEILLANCE_V0.9",
+  "qualification": {
+    "minimum_epoch_snapshots": 3,
+    "pc1_max_step": 0.05,
+    "pc2_plus_residual_ceiling": 0.70
+  },
+  "escalation": {
+    "reopen_only_after_failed_qualification_window": true,
+    "unchanged_control_is_sticky": true
+  },
+  "residual_discovery": {
+    "components": ["PC3", "PC4"],
+    "requires_telemetry_epoch_change": true,
+    "minimum_weighted_energy_delta": 0.05,
+    "minimum_relative_energy_increase": 0.25,
+    "action": "DISCOVER_ONLY"
+  },
+  "authority": "publication-control",
+  "note": "Thresholds are configurable control-policy values, not engineering acceptance criteria."
+}
