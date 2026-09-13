@@ -16,16 +16,14 @@ def matvec(a,v): return [sum(a[i][j]*v[j] for j in range(len(v))) for i in range
 def standardize(rows):
     cols=[[float(r[f]) for r in rows] for f in FEATURES]
     means=[sum(c)/len(c) for c in cols]
-    std=[]
-    for c,m in zip(cols,means):
-        std.append(math.sqrt(sum((x-m)**2 for x in c)/max(1,len(c)-1)))
+    std=[math.sqrt(sum((x-m)**2 for x in c)/max(1,len(c)-1)) for c,m in zip(cols,means)]
     return [[0.0 if s==0 else (float(r[f])-m)/s for f,m,s in zip(FEATURES,means,std)] for r in rows]
 
 def covariance(z):
     n=len(z); p=len(FEATURES)
     return [[sum(z[r][i]*z[r][j] for r in range(n))/max(1,n-1) for j in range(p)] for i in range(p)]
 
-def components(cov,count=2):
+def components(cov,count=4):
     work=[r[:] for r in cov]; total=sum(cov[i][i] for i in range(len(cov))); out=[]
     for k in range(min(count,len(cov))):
         v=[float(i+1+k) for i in range(len(cov))]; n=norm(v); v=[x/n for x in v]
@@ -43,7 +41,7 @@ def components(cov,count=2):
     return out
 
 def report():
-    snap=telemetry.snapshot(); rows=snap["rows"]; z=standardize(rows); comps=components(covariance(z),2)
+    snap=telemetry.snapshot(); rows=snap["rows"]; z=standardize(rows); comps=components(covariance(z),4)
     for c in comps:
         vec=[c["loadings"][f] for f in FEATURES]
         c["scores"]={rows[i]["entity_id"]:dot(z[i],vec) for i in range(len(rows))}
@@ -53,7 +51,7 @@ def report():
         raw=pc1[r["entity_id"]]; pr=50.0 if hi==lo else 100.0*(raw-lo)/(hi-lo)
         ranking.append({"entity_id":r["entity_id"],"entity_type":r["entity_type"],"priority":round(pr,6),"pc1_score":round(raw,6),"telemetry":{f:r[f] for f in FEATURES}})
     ranking.sort(key=lambda x:(-x["priority"],x["entity_type"],x["entity_id"]))
-    return {"schema":"gloob-pca-priority/0.1","basis":"MEASURED_REPOSITORY_TELEMETRY","features":FEATURES,"components":comps,"ranking":ranking}
+    return {"schema":"gloob-pca-priority/0.2","basis":"MEASURED_REPOSITORY_TELEMETRY","features":FEATURES,"components":comps,"ranking":ranking}
 
 def entry_priorities(): return {r["entity_id"]:r["priority"] for r in report()["ranking"] if r["entity_type"]=="ENTRY"}
 
