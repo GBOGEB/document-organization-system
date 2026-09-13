@@ -40,8 +40,9 @@ def components(cov,count=4):
             for j in range(len(work)): work[i][j]-=eig*v[i]*v[j]
     return out
 
-def report():
-    snap=telemetry.snapshot(); rows=snap["rows"]; z=standardize(rows); comps=components(covariance(z),4)
+def report_from_rows(rows):
+    rows=[dict(r) for r in rows]
+    z=standardize(rows); comps=components(covariance(z),4)
     for c in comps:
         vec=[c["loadings"][f] for f in FEATURES]
         c["scores"]={rows[i]["entity_id"]:dot(z[i],vec) for i in range(len(rows))}
@@ -53,6 +54,7 @@ def report():
     ranking.sort(key=lambda x:(-x["priority"],x["entity_type"],x["entity_id"]))
     return {"schema":"gloob-pca-priority/0.2","basis":"MEASURED_REPOSITORY_TELEMETRY","features":FEATURES,"components":comps,"ranking":ranking}
 
+def report(): return report_from_rows(telemetry.snapshot()["rows"])
 def entry_priorities(): return {r["entity_id"]:r["priority"] for r in report()["ranking"] if r["entity_type"]=="ENTRY"}
 
 if __name__=="__main__": print(json.dumps(report(),indent=2,sort_keys=True))
