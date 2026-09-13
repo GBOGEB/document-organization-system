@@ -1,0 +1,77 @@
+{
+  "schema": "gloob-control-timeline/0.1",
+  "events": [
+    {
+      "id": "EVT-BOOK-V01-HEAD-PASS",
+      "sequence": 10,
+      "kind": "RUNTIME_PROOF",
+      "label": "Book v0.1 exact-head contract PASS",
+      "version": "Book v0.1",
+      "sha": "1a579ca572b0c9052204d7b4dcb1b3262db843a5",
+      "run_id": 34698538654,
+      "result": "PASS",
+      "scope": "publication",
+      "entry_ids": ["*"]
+    },
+    {
+      "id": "EVT-BOOK-V01-CONTROL",
+      "sequence": 20,
+      "kind": "PROMOTION",
+      "label": "Book v0.1 control baseline",
+      "version": "Book v0.1",
+      "sha": "0cb96270b0e827333b254fb286f1d5c4a8d59a51",
+      "run_id": 34698555926,
+      "result": "PASS",
+      "scope": "publication",
+      "entry_ids": ["*"]
+    },
+    {
+      "id": "EVT-REGISTRY-V02-HEAD-PASS",
+      "sequence": 30,
+      "kind": "RUNTIME_PROOF",
+      "label": "Registry v0.2 exact-head contract PASS",
+      "version": "Registry v0.2",
+      "sha": "6cdf2b28b1085dfb4a45abe29123de8745d2eb2d",
+      "run_id": 34708371636,
+      "result": "PASS",
+      "scope": "registry",
+      "entry_ids": ["*"]
+    },
+    {
+      "id": "EVT-REGISTRY-V02-CONTROL",
+      "sequence": 40,
+      "kind": "PROMOTION",
+      "label": "Registry v0.2 CONTROL",
+      "version": "Registry v0.2",
+      "sha": "2f37dc12e8b3cbd7b8180de9431cb22369ed5987",
+      "run_id": 34708536259,
+      "result": "PASS",
+      "scope": "registry",
+      "entry_ids": ["*"]
+    },
+    {
+      "id": "EVT-GATEWAY-V03-HEAD-PASS",
+      "sequence": 50,
+      "kind": "RUNTIME_PROOF",
+      "label": "Gateway v0.3 exact-head contract PASS",
+      "version": "Gateway v0.3",
+      "sha": "fd52ac5b9bb0f356006b5bbfecd190007ab2063c",
+      "run_id": 34714171056,
+      "result": "PASS",
+      "scope": "gateway",
+      "entry_ids": ["*"]
+    },
+    {
+      "id": "EVT-GATEWAY-V03-CONTROL",
+      "sequence": 60,
+      "kind": "PROMOTION",
+      "label": "Gateway v0.3 CONTROL",
+      "version": "Gateway v0.3",
+      "sha": "e49327ca5c725d760df5d74ffb9cadd517ebf0f1",
+      "run_id": 34714244326,
+      "result": "PASS",
+      "scope": "gateway",
+      "entry_ids": ["*"]
+    }
+  ]
+}
