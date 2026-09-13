@@ -1,0 +1,27 @@
+{
+  "schema": "gloob-glob-capabilities/0.1",
+  "glob": {
+    "id": "GLOB-GLOOB",
+    "title": "Gloob Ask/Act capability surface",
+    "authority": "publication-control",
+    "default_act_mode": "PLAN_ONLY"
+  },
+  "ask": [
+    {"id": "ASK-ENTRY", "verb": "entry", "binding": "control_plane.ask_entry", "read_only": true},
+    {"id": "ASK-WHERE-USED", "verb": "where-used", "binding": "control_plane.ask_where_used", "read_only": true},
+    {"id": "ASK-PROVENANCE", "verb": "provenance", "binding": "control_plane.ask_provenance", "read_only": true},
+    {"id": "ASK-RUNTIME", "verb": "runtime", "binding": "control_plane.ask_runtime", "read_only": true},
+    {"id": "ASK-PRIORITY", "verb": "priority", "binding": "control_plane.priority_report", "read_only": true}
+  ],
+  "act": [
+    {"id": "ACT-REBUILD", "verb": "rebuild", "binding": "control_plane.plan_rebuild", "default_mode": "PLAN_ONLY", "mutates": false},
+    {"id": "ACT-ASSIGN", "verb": "assign-workers", "binding": "control_plane.plan_workers", "default_mode": "PLAN_ONLY", "mutates": false},
+    {"id": "ACT-FREEZE", "verb": "freeze-edition", "binding": "registry.freeze_edition", "default_mode": "PLAN_ONLY", "mutates": false}
+  ],
+  "invariants": [
+    "Ask never mutates authority data",
+    "Act is PLAN_ONLY unless a separately governed executor consumes the plan",
+    "runtime receipts do not confer engineering acceptance",
+    "priority scores are derived from measured repository telemetry, never seeded expert scores"
+  ]
+}
