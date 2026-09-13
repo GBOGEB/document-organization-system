@@ -15,7 +15,14 @@ class ControlPlaneV05Tests(unittest.TestCase):
         s=telemetry.snapshot(); self.assertFalse(s["expert_seeded_scores"])
         kinds={r["entity_type"] for r in s["rows"]}
         self.assertTrue({"BOOK","ENTRY","ATOM","SHARED_ATOM","EDGE_TYPE","OPERATOR"}.issubset(kinds))
-        self.assertEqual(len([r for r in s["rows"] if r["entity_type"]=="ENTRY"]),3)
+        self.assertEqual(len([r for r in s["rows"] if r["entity_type"]=="ENTRY"]),5)
+        self.assertGreater(s["global_control_events"],0)
+
+    def test_global_receipts_are_not_multiplied_into_entities(self):
+        rows=telemetry.measured_rows()
+        scoped=[r for r in rows if r["entity_type"] in {"ENTRY","BOOK","OPERATOR"}]
+        self.assertTrue(all(r["runtime_proof_count"]==0 for r in scoped))
+        self.assertTrue(all(r["promotion_count"]==0 for r in scoped))
 
     def test_pca_has_pc1_pc2_and_measured_ranking(self):
         r=pca_priority.report()
@@ -30,6 +37,8 @@ class ControlPlaneV05Tests(unittest.TestCase):
         self.assertEqual(set(shared["affected_entries"]),{"ENTRY-LKT-INVCOP","ENTRY-GLOOB-BOOK-CONTRACT","ENTRY-GLOOB-SESSION-CONTROL"})
         local=glob_runtime.plan_rebuild(["ATOM-LKT-INVCOP"])
         self.assertEqual(local["affected_entries"],["ENTRY-LKT-INVCOP"])
+        moved=glob_runtime.plan_rebuild(["ATOM-LKT-DIRECT-SUBTOTAL"])
+        self.assertEqual(moved["affected_entries"],["ENTRY-LKT-POWER-BREAKDOWN"])
         self.assertEqual(shared["mode"],"PLAN_ONLY")
 
     def test_worker_plan_uses_priority_and_measured_cost(self):
