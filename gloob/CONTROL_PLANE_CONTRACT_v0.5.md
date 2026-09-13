@@ -60,7 +60,7 @@ CI emits and uploads:
 - `rebuild-shared-authority.json`
 - `worker-plan.json`
 
-Each receipt is bound to `GITHUB_SHA` and `GITHUB_RUN_ID`.
+Each receipt records `source_commit`, `runner_commit`, `run_id` and event. On pull requests, `source_commit` is the exact PR head while `runner_commit` records GitHub's execution SHA. CI asserts the source binding before artifact upload.
 
 ## Authority boundary
 
@@ -70,6 +70,6 @@ Runtime/control receipts prove publication-control behaviour only. They do not p
 
 1. inherited Book/Registry/Gateway/View tests remain green;
 2. v0.5 tests prove measured-only telemetry, PCA, blast radius and PLAN_ONLY worker feedback;
-3. exact-head run executes and uploads control receipts;
+3. exact-head run executes and uploads source-bound control receipts;
 4. merge only after exact-head PASS;
 5. fresh-main contract + Pages PASS before `Control Plane v0.5 CONTROL`.
