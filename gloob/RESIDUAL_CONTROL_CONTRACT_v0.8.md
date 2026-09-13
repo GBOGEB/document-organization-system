@@ -38,4 +38,10 @@ Representative residuals:
 - `EDGE-TYPE-TRANSFORMED_BY`: 0.451572
 - `ENTRY-LKT-PERFORMANCE-POINT`: 0.432846
 
-No promotion is declared from this single snapshot.
+## Second observed qualifying snapshot
+
+Exact source SHA `1cfcc2ad5ca93501dd16b63909b6ede9988229f8`, run `34752955507`, reproduced the same measured feature vectors and residuals. The changed surfaces therefore advanced to telemetry-epoch snapshot 2 with residual qualification count 2 and remained IMPROVE, as required by the three-snapshot rule.
+
+The hysteresis boundary also remained intact: `ENTRY-GLOOB-BOOK-CONTRACT` stayed CONTROL in its unchanged telemetry epoch despite its cross-sectional PC2+ residual rotating to 0.941442.
+
+No promotion is declared from two snapshots. A third distinct exact-source-SHA receipt is required.
