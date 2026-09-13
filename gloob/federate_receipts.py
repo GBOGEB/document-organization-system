@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, io, json, os, tempfile, urllib.request, zipfile
+import argparse, io, json, os, tempfile, urllib.error, urllib.request, zipfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
 HEADERS=lambda token:{"Authorization":f"Bearer {token}","Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","User-Agent":"gloob-recursive-control"}
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self,req,fp,code,msg,headers,newurl): return None
 
 def load(path): return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -16,7 +19,13 @@ def request_json(url,token):
     with urllib.request.urlopen(urllib.request.Request(url,headers=HEADERS(token))) as r: return json.loads(r.read().decode("utf-8"))
 
 def download_zip(url,token):
-    with urllib.request.urlopen(urllib.request.Request(url,headers=HEADERS(token))) as r: return r.read()
+    req=urllib.request.Request(url,headers=HEADERS(token)); opener=urllib.request.build_opener(NoRedirect)
+    try:
+        with opener.open(req) as r: return r.read()
+    except urllib.error.HTTPError as exc:
+        if exc.code not in (301,302,303,307,308) or not exc.headers.get("Location"): raise
+        signed=urllib.request.Request(exc.headers["Location"],headers={"User-Agent":"gloob-recursive-control"})
+        with urllib.request.urlopen(signed) as r: return r.read()
 
 def github_bundles(repo,token,limit=8):
     data=request_json(f"https://api.github.com/repos/{repo}/actions/artifacts?name=gloob-control-receipts&per_page=30",token)
