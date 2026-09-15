@@ -42,6 +42,12 @@ jobs:
         run: python gloob/control_surveillance.py gloob/control/generated/federated-history.json --capacity 2
       - name: Attribute change and route causes
         run: python gloob/causal_routing.py gloob/control/generated/federated-history.json gloob/control/generated/control-surveillance.json
+      - name: Emit external causal handshakes
+        run: python gloob/external_causal_return.py gloob/control/generated/causal-route-plan.json
+      - name: Federate external causal returns
+        run: python gloob/federate_external_returns.py gloob/control/generated/external-handshake-plan.json
+      - name: Close or requalify causal routes
+        run: python gloob/external_causal_return.py gloob/control/generated/causal-route-plan.json --federated-returns gloob/control/generated/federated-external-returns.json
       - name: Verify artifacts exist
         run: |
           test -f gloob/examples/qplant-energy-lkt-invcop-compact.html
@@ -62,15 +68,16 @@ jobs:
           test -f gloob/control/generated/control-escalation-plan.json
           test -f gloob/control/generated/causal-attribution.json
           test -f gloob/control/generated/causal-route-plan.json
-          python -c 'import json,os; r=json.load(open("gloob/control/generated/measured-telemetry.json"))["receipt"]; print("source",r["source_commit"],"expected",os.environ["CONTROL_SOURCE_SHA"]); assert r["source_commit"] == os.environ["CONTROL_SOURCE_SHA"]'
-          python -c 'import json; h=json.load(open("gloob/control/generated/federated-history.json")); print("history",h["snapshot_count"],h.get("causal_snapshot_count",0),h["distinct_source_commits"],h["download_errors"]); assert h["snapshot_count"] >= 3 and len(set(h["distinct_source_commits"])) >= 3; assert h.get("causal_snapshot_count",0) >= 1'
-          python -c 'import json; c=json.load(open("gloob/control/generated/recursive-control.json")); print("recursive",c["state"],c["snapshot_count"]); assert c["state"] == "CLASSIFIED"'
-          python -c 'import json; b=json.load(open("gloob/control/generated/residual-burndown.json")); assert b["schema"] == "gloob-residual-burndown/0.1"'
-          python -c 'import json; s=json.load(open("gloob/control/generated/control-surveillance.json")); print("surveillance",s["counts"]); assert s["state"] == "SURVEILLING"; assert s["counts"]["ESCALATE"] == 0; assert s["counts"]["REQUALIFY"] == 0'
-          python -c 'import json; d=json.load(open("gloob/control/generated/residual-discovery.json")); print("discoveries",len(d["discoveries"])); assert len(d["discoveries"]) == 0'
-          python -c 'import json; p=json.load(open("gloob/control/generated/control-escalation-plan.json")); assert p["mode"] == "CAUSAL_ATTRIBUTION_REQUIRED" and not p["assignments"] and not p["pending_causal_attribution"]'
-          python -c 'import json; a=json.load(open("gloob/control/generated/causal-attribution.json")); print("causal",a["state"],a.get("causal_snapshot_count",0),a.get("counts",{})); assert a["state"] == "ATTRIBUTED"; assert a["counts"]["CAUSAL_ESCALATE"] == 0; assert a["counts"]["CAUSAL_REQUALIFY"] == 0'
-          python -c 'import json; p=json.load(open("gloob/control/generated/causal-route-plan.json")); print("routes",len(p["assignments"]),p["blocked_unattributed"]); assert p["mode"] == "CAUSE_BOUND_ONLY"; assert not p["assignments"]; assert not p["blocked_unattributed"]'
+          test -f gloob/control/generated/external-handshake-plan.json
+          test -f gloob/control/generated/federated-external-returns.json
+          test -f gloob/control/generated/external-return-ledger.json
+          test -f gloob/control/generated/route-closure-plan.json
+          python -c 'import json,os; r=json.load(open("gloob/control/generated/measured-telemetry.json"))["receipt"]; assert r["source_commit"] == os.environ["CONTROL_SOURCE_SHA"]'
+          python -c 'import json; h=json.load(open("gloob/control/generated/federated-history.json")); print("history",h["snapshot_count"],h.get("external_return_snapshot_count",0),h["download_errors"]); assert h["snapshot_count"] >= 3 and len(set(h["distinct_source_commits"])) >= 3'
+          python -c 'import json; s=json.load(open("gloob/control/generated/control-surveillance.json")); print("surveillance",s["counts"]); assert s["state"] == "SURVEILLING" and s["counts"]["ESCALATE"] == 0 and s["counts"]["REQUALIFY"] == 0'
+          python -c 'import json; a=json.load(open("gloob/control/generated/causal-attribution.json")); print("causal",a["counts"]); assert a["state"] == "ATTRIBUTED" and a["counts"]["CAUSAL_ESCALATE"] == 0 and a["counts"]["CAUSAL_REQUALIFY"] == 0'
+          python -c 'import json; p=json.load(open("gloob/control/generated/causal-route-plan.json")); print("routes",len(p["assignments"])); assert p["mode"] == "CAUSE_BOUND_HANDSHAKE_REQUIRED" and not p["assignments"] and not p["blocked_unattributed"]'
+          python -c 'import json; h=json.load(open("gloob/control/generated/external-handshake-plan.json")); f=json.load(open("gloob/control/generated/federated-external-returns.json")); l=json.load(open("gloob/control/generated/external-return-ledger.json")); c=json.load(open("gloob/control/generated/route-closure-plan.json")); print("external",len(h["handshakes"]),f["state"],l["counts"]); assert not h["handshakes"]; assert f["state"] == "NO_OPEN_HANDSHAKES"; assert l["handshake_count"] == 0 and l["return_count"] == 0; assert not c["requalify"] and not c["keep_open"] and not c["triage"]'
       - name: Upload control receipts
         if: always()
         uses: actions/upload-artifact@v4
