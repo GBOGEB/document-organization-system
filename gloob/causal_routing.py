@@ -130,8 +130,7 @@ def window_qualifies(snaps,eid,policy):
 
 def repos_for(entity,causes,route_registry):
     repos=set(); items=[]
-    for cause in causes:
-        items.extend(entity["causes"][cause]["items"])
+    for cause in causes: items.extend(entity["causes"][cause]["items"])
     if any(c in {"SOURCE","FEDERATED_RETURN"} for c in causes):
         for item in items:
             if isinstance(item,dict) and item.get("repo"): repos.add(item["repo"])
@@ -143,9 +142,18 @@ def repos_for(entity,causes,route_registry):
     return sorted(repos)
 
 
+def bound_route(eid,cause,centity,cfg,route_registry,current):
+    route={"entity_id":eid,"cause":cause,"books":centity["books"],"repos":repos_for(centity,[cause],route_registry),"crew":cfg.get("crew","CAUSAL_TRIAGE"),"action":"OPEN_BOUNDED_WORK","reason":"FAILED_CAUSAL_EPOCH_QUALIFICATION","causal_fingerprint":centity["fingerprint"],"opened_from_source_commit":current.get("receipt",{}).get("source_commit")}
+    identity={k:route[k] for k in ("entity_id","cause","books","repos","crew","causal_fingerprint","opened_from_source_commit")}
+    route["route_id"]="ROUTE-"+digest(identity)[:16].upper()
+    route["assignment_digest"]=digest({**identity,"route_id":route["route_id"]})
+    route["return_contract"]={"schema":"gloob-causal-return/0.1","must_echo":["route_id","assignment_digest"],"exact_sha":True,"steps_gt_zero":True}
+    return route
+
+
 def attribute(history,surveillance,route_registry,policy):
     snaps=[s for s in history.get("snapshots",[]) if s.get("causal")]
-    if not snaps: return {"schema":"gloob-causal-attribution/0.1","state":"NO_CAUSAL_HISTORY","entities":[],"routes":[]}
+    if not snaps: return {"schema":"gloob-causal-attribution/0.2","state":"NO_CAUSAL_HISTORY","entities":[],"routes":[]}
     current=snaps[-1]; min_n=int(policy["qualification"]["minimum_epoch_snapshots"]); entities=[]; routes=[]
     for sitem in surveillance.get("entities",[]):
         eid=sitem["entity_id"]; centity=causal_entity(current,eid)
@@ -161,13 +169,13 @@ def attribute(history,surveillance,route_registry,policy):
         if state=="CAUSAL_ESCALATE" and causes:
             for cause in causes:
                 cfg=route_registry.get("cause_routes",{}).get(cause,route_registry.get("fallback_route",{}))
-                routes.append({"entity_id":eid,"cause":cause,"books":centity["books"],"repos":repos_for(centity,[cause],route_registry),"crew":cfg.get("crew","CAUSAL_TRIAGE"),"action":"OPEN_BOUNDED_WORK","reason":"FAILED_CAUSAL_EPOCH_QUALIFICATION"})
+                routes.append(bound_route(eid,cause,centity,cfg,route_registry,current))
     counts={k:sum(e["state"]==k for e in entities) for k in ("UNCHANGED_CONTROL","CAUSAL_REQUALIFY","CAUSAL_CONTROL","CAUSAL_ESCALATE")}
-    return {"schema":"gloob-causal-attribution/0.1","state":"ATTRIBUTED","causal_snapshot_count":len(snaps),"counts":counts,"entities":entities,"routes":routes}
+    return {"schema":"gloob-causal-attribution/0.2","state":"ATTRIBUTED","causal_snapshot_count":len(snaps),"counts":counts,"entities":entities,"routes":routes}
 
 
 def route_plan(attribution):
-    return {"schema":"gloob-causal-route-plan/0.1","mode":"CAUSE_BOUND_ONLY","assignments":attribution.get("routes",[]),"blocked_unattributed":[e["entity_id"] for e in attribution.get("entities",[]) if e["state"]=="CAUSAL_ESCALATE" and not e.get("attributed")]}
+    return {"schema":"gloob-causal-route-plan/0.2","mode":"CAUSE_BOUND_HANDSHAKE_REQUIRED","assignments":attribution.get("routes",[]),"blocked_unattributed":[e["entity_id"] for e in attribution.get("entities",[]) if e["state"]=="CAUSAL_ESCALATE" and not e.get("attributed")]}
 
 
 def main():

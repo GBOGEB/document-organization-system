@@ -1,0 +1,14 @@
+{
+  "schema": "gloob-external-return-policy/0.1",
+  "policy_id": "GLOOB-EXTERNAL-CAUSAL-RETURN-V1.1",
+  "return_artifact_name": "gloob-causal-return",
+  "accepted_outcomes": ["RESOLVED", "DEFERRED", "REJECTED_BY_OWNER"],
+  "resolved_action": "CLOSE_EXTERNAL_ROUTE_AND_REQUALIFY_LOCAL_CAUSAL_EPOCH",
+  "deferred_action": "KEEP_EXTERNAL_ROUTE_OPEN",
+  "rejected_by_owner_action": "ROUTE_BACK_TO_CAUSAL_TRIAGE",
+  "require_exact_sha": true,
+  "require_assignment_digest": true,
+  "require_target_repo_match": true,
+  "require_route_id_match": true,
+  "control_credit_from_external_return": false
+}
