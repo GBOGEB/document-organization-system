@@ -1,0 +1,25 @@
+{
+  "schema": "gloob-dispatch-envelope/0.1",
+  "dispatch_id": "DISPATCH-571FFA3C1610A78A",
+  "route_id": "ROUTE-80372D288726D227",
+  "assignment_digest": "3cd64ef3c78acab79fe1a040868055e4421f29fc61ff896f975f55de6b267a3e",
+  "entity_id": "DISPATCH-CANARY-V12-DOW",
+  "cause": "RUNTIME",
+  "books": ["BOOK-GLOOB"],
+  "target_repo": "GBOGEB/ABACUS",
+  "crew": "FEDERATION_AMBASSADOR",
+  "opened_from_source_commit": "206bde0595cf89d652480dcc6f2f0e3f7fddf5bb",
+  "causal_fingerprint": "f6bc27c4c87bb2bbb8b8ba87397054122ff24efdb1687318f6c5151cfd070e0c",
+  "transport": {
+    "mode": "IMMUTABLE_GLOOB_POINTER",
+    "pilot": true
+  },
+  "required_ack": {
+    "schema": "gloob-dispatch-ack/0.1"
+  },
+  "required_return": {
+    "schema": "gloob-causal-return/0.1",
+    "outcomes": ["RESOLVED", "DEFERRED", "REJECTED_BY_OWNER"]
+  },
+  "envelope_digest": "ff7a1fac73240ab44dff7464f32d2f177367fd7e245244f8b1dad33075cf5eb4"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "gloob-dispatch-policy/0.1",
+  "policy_id": "GLOOB-FEDERATED-DISPATCH-V1.2",
+  "require_route_id": true,
+  "require_assignment_digest": true,
+  "require_target_repo": true,
+  "require_crew": true,
+  "require_envelope_digest": true,
+  "transport_modes": ["IMMUTABLE_GLOOB_POINTER", "CONNECTOR_CONTROL_PLANE"],
+  "delivery_ack_schema": "gloob-dispatch-ack/0.1",
+  "return_schema": "gloob-causal-return/0.1",
+  "replay_policy": "ONE_ACTIVE_DELIVERY_PER_DISPATCH_ID",
+  "supersession_policy": "NEW_ASSIGNMENT_DIGEST_SUPERSEDES_OLD_ROUTE_DELIVERY",
+  "control_credit_from_delivery_ack": false,
+  "control_credit_from_external_return": false
+}
