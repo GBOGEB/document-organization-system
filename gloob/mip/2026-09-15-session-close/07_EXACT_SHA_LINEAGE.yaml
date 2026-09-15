@@ -1,0 +1,41 @@
+schema: gloob.mip.exact_sha_lineage.v1.1
+controlled_lineage:
+  - level: Control Surveillance v0.9
+    merge_sha: 17b8e7c54201f9c7c236affcf2025cfb45e62d2c
+    pr: 49
+  - level: Causal Attribution and Routing v1.0
+    pr: 50
+    exact_head_sha: 3ee4937bf7e71aabd3e0ee09a97a02123dad8a97
+    exact_head_run: 34777001186
+    merge_sha: 3729f3864c3f6019c4b0a4e2bbe0c1ad419bff68
+    fresh_main_run: 34777038025
+    pages_run: 34777037366
+  - level: External Causal-Return Closure v1.1
+    pr: 52
+    exact_head_sha: 6f32a0712700bf80d49bb1c85c11813cf8ece420
+    exact_head_run: 34926808606
+    exact_head_artifact_id: 10380311283
+    exact_head_artifact_digest: sha256:f74ccf113cc734fce4d0896294720144f8556dce5112c6296a00d72fc16d8491
+    merge_sha: c831758a247d928220e4b85efc13e3e74ba7da51
+    fresh_main_run: 34926844761
+    fresh_main_artifact_id: 10379618104
+    fresh_main_artifact_digest: sha256:0aeac9c845e27bbde1d5da2261ef04a933fd10de13d74eac1d363c58bd12f168
+    pages_run: 34926844148
+federated_snapshot_source_commits:
+  - ea0dc9f995d947b4653575ab416f097dbff2e83b
+  - 17b8e7c54201f9c7c236affcf2025cfb45e62d2c
+  - d2390172236668733a7204c42b91f519d1bdabab
+  - 63f04192a3606d0bccd70b723ad5cb6e17e66510
+  - 56fc49b0a2594daa074d62ee6c7098c3ab97f357
+  - 3ee4937bf7e71aabd3e0ee09a97a02123dad8a97
+  - 3729f3864c3f6019c4b0a4e2bbe0c1ad419bff68
+  - 6f32a0712700bf80d49bb1c85c11813cf8ece420
+  - c831758a247d928220e4b85efc13e3e74ba7da51
+handover_transaction:
+  branch: w123/gloob-v11-session-close-3pr-mip
+  exact_head_sha: PENDING
+  exact_head_run: PENDING
+  merge_sha: PENDING
+  fresh_main_run: PENDING
+  pages_run: PENDING
+note: the product CONTROL baseline is c831758a...; later handover SHAs prove persistence and restartability, not a new product feature level
