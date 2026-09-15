@@ -1,0 +1,25 @@
+{
+  "schema": "gloob-dispatch-envelope/0.1",
+  "dispatch_id": "DISPATCH-F2500FDCE8FA91AC",
+  "route_id": "ROUTE-2D12DB0ACA8A731A",
+  "assignment_digest": "f543698ad083e74eec8e244bc8ecb0ee1a12650b6b75e6ba900a40e9016b976c",
+  "entity_id": "DISPATCH-CANARY-V12",
+  "cause": "RUNTIME",
+  "books": ["BOOK-QPLANT"],
+  "target_repo": "GBOGEB/cryoplant-project",
+  "crew": "RUNTIME_EVIDENCE_CREW",
+  "opened_from_source_commit": "206bde0595cf89d652480dcc6f2f0e3f7fddf5bb",
+  "causal_fingerprint": "a7254a13ac6830fce4978dd779848d7af4615cdee10880c8bdbd4a890df507fe",
+  "transport": {
+    "mode": "IMMUTABLE_GLOOB_POINTER",
+    "pilot": true
+  },
+  "required_ack": {
+    "schema": "gloob-dispatch-ack/0.1"
+  },
+  "required_return": {
+    "schema": "gloob-causal-return/0.1",
+    "outcomes": ["RESOLVED", "DEFERRED", "REJECTED_BY_OWNER"]
+  },
+  "envelope_digest": "1b4713aaebdbe623a5667b017f4488b3a7ed350d55fb7007175209e678b5bd32"
+}
