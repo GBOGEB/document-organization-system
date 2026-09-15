@@ -1,0 +1,26 @@
+{
+  "schema": "gloob-causal-route-plan/0.2",
+  "mode": "CAUSE_BOUND_HANDSHAKE_REQUIRED",
+  "assignments": [
+    {
+      "entity_id": "DISPATCH-CANARY-V12",
+      "cause": "RUNTIME",
+      "books": ["BOOK-QPLANT"],
+      "repos": ["GBOGEB/cryoplant-project"],
+      "crew": "RUNTIME_EVIDENCE_CREW",
+      "action": "OPEN_BOUNDED_WORK",
+      "reason": "V1.2_CONTROLLED_DISPATCH_CANARY",
+      "causal_fingerprint": "a7254a13ac6830fce4978dd779848d7af4615cdee10880c8bdbd4a890df507fe",
+      "opened_from_source_commit": "206bde0595cf89d652480dcc6f2f0e3f7fddf5bb",
+      "route_id": "ROUTE-2D12DB0ACA8A731A",
+      "assignment_digest": "f543698ad083e74eec8e244bc8ecb0ee1a12650b6b75e6ba900a40e9016b976c",
+      "return_contract": {
+        "schema": "gloob-causal-return/0.1",
+        "must_echo": ["route_id", "assignment_digest"],
+        "exact_sha": true,
+        "steps_gt_zero": true
+      }
+    }
+  ],
+  "blocked_unattributed": []
+}
