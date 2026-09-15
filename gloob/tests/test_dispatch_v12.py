@@ -12,15 +12,23 @@ class DispatchV12Tests(unittest.TestCase):
         self.policy = json.loads((ROOT / "control" / "dispatch-policy.json").read_text())
         self.route_plan = json.loads((ROOT / "dispatch" / "pilot" / "route-plan.json").read_text())
         self.pilot = json.loads((ROOT / "dispatch" / "pilot" / "dispatch-envelope.json").read_text())
+        self.abacus_route_plan = json.loads((ROOT / "dispatch" / "pilot" / "abacus-route-plan.json").read_text())
+        self.abacus_pilot = json.loads((ROOT / "dispatch" / "pilot" / "abacus-dispatch-envelope.json").read_text())
 
-    def test_pilot_envelope_is_deterministic_and_valid(self):
+    def test_cryoplant_pilot_envelope_is_deterministic_and_valid(self):
         route = self.route_plan["assignments"][0]
         built = dispatch.envelope(route, "GBOGEB/cryoplant-project", pilot=True)
         self.assertEqual(built, self.pilot)
         self.assertEqual(dispatch.validate_envelope(built, self.policy), [])
 
+    def test_abacus_dow_pilot_envelope_is_deterministic_and_valid(self):
+        route = self.abacus_route_plan["assignments"][0]
+        built = dispatch.envelope(route, "GBOGEB/ABACUS", pilot=True)
+        self.assertEqual(built, self.abacus_pilot)
+        self.assertEqual(dispatch.validate_envelope(built, self.policy), [])
+
     def test_tamper_breaks_digest(self):
-        bad = dict(self.pilot)
+        bad = dict(self.abacus_pilot)
         bad["crew"] = "CAUSAL_TRIAGE"
         self.assertIn("ENVELOPE_DIGEST_MISMATCH", dispatch.validate_envelope(bad, self.policy))
 
