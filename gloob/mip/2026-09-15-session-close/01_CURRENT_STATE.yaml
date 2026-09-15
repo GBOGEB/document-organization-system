@@ -1,0 +1,43 @@
+schema: gloob.mip.current_state.v1.1
+session: gloob-v1.1-external-return-close
+frozen_product_baseline:
+  repo: GBOGEB/document-organization-system
+  sha: c831758a247d928220e4b85efc13e3e74ba7da51
+  pr: 52
+  pr_head: 6f32a0712700bf80d49bb1c85c11813cf8ece420
+proof:
+  exact_head_contract_run: 34926808606
+  exact_head_artifact:
+    id: 10380311283
+    digest: sha256:f74ccf113cc734fce4d0896294720144f8556dce5112c6296a00d72fc16d8491
+  fresh_main_contract_run: 34926844761
+  fresh_main_artifact:
+    id: 10379618104
+    digest: sha256:0aeac9c845e27bbde1d5da2261ef04a933fd10de13d74eac1d363c58bd12f168
+  pages_run: 34926844148
+live_control_state:
+  surveillance:
+    STABLE_CONTROL: 32
+    REQUALIFY: 0
+    ESCALATE: 0
+  causal:
+    UNCHANGED_CONTROL: 32
+    CAUSAL_CONTROL: 0
+    CAUSAL_REQUALIFY: 0
+    CAUSAL_ESCALATE: 0
+    routes: 0
+  external_execution:
+    handshakes: 0
+    returns: 0
+    accepted_requalify: 0
+    rejected_returns: 0
+    awaiting_returns: 0
+    closure_actions: 0
+federated_history:
+  snapshots: 9
+  causal_snapshots: 7
+  surveillance_snapshots: 8
+  external_return_snapshots: 1
+  download_errors: 0
+state: CONTROL
+next_frontier: FEDERATED_MISSION_DISPATCH_AND_RESPONDER_RUNTIME_V1.2
