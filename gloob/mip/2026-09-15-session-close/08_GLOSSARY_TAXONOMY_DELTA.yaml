@@ -1,0 +1,41 @@
+schema: gloob.mip.glossary_taxonomy_delta.v1.1
+terms:
+  3PR:
+    meaning_here: recursive application of the established Preserve, Parse/Normalize, Propagate, Prove, Prune closure over the current session state
+  MIP_METHOD:
+    meaning: Modernize, Innovate, Perpetuate
+    exclude: contractual Manufacturing and Inspection Plan
+  CONTROL:
+    meaning: locally qualified controlled state under Gloob policy and runtime proof
+  EXTERNAL_RESOLVED:
+    meaning: target owner asserts and proves successful execution for the bound route; closes external assignment only
+    does_not_mean: CONTROL
+  CAUSAL_ROUTE:
+    identity:
+      - route_id
+      - assignment_digest
+      - entity_id
+      - cause
+      - target repo
+      - crew
+  HANDSHAKE:
+    meaning: outbound governed description of one cause-bound assignment and required return contract
+  CAUSAL_RETURN:
+    artifact_name: gloob-causal-return
+    meaning: exact-SHA target-repo execution receipt bound to one route
+  LOCAL_REQUALIFICATION:
+    meaning: Gloob re-observes repaired telemetry/causal state under its own qualification window after an accepted RESOLVED return
+  DISPATCH:
+    meaning: active delivery of a governed assignment into a target-repository runtime so work actually starts
+  DELIVERY_ACK:
+    meaning: target-repo acknowledgement of dispatch intake; distinct from final causal return
+  STATISTICAL_RESIDUAL:
+    rule: existence of PCA residual alone is not work
+  RUNTIME_RECEIPT:
+    rule: proves observed execution only; does not confer engineering acceptance
+new_frontier_terms:
+  - FEDERATED_MISSION_DISPATCH
+  - RESPONDER_RUNTIME
+  - REPLAY_PROTECTION
+  - ROUTE_SUPERSESSION
+  - DISPATCH_EXPIRY

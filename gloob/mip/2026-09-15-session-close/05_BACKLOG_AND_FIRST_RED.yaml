@@ -1,0 +1,35 @@
+schema: gloob.mip.backlog_first_red.v1.1
+first_red:
+  id: V1.2_OUTBOUND_ACTUATION
+  rank: 1
+  statement: Gloob can govern and verify an external causal return, but cannot yet dispatch the governed assignment into the target repository runtime.
+  required_proof: one real exact-SHA round trip through target repo execution and v1.1 closure
+ranked_backlog:
+  - rank: 1
+    id: DISPATCH_ENVELOPE
+    action: define deterministic signed/bound dispatch envelope from handshake identity
+  - rank: 2
+    id: TARGET_REPO_INGRESS
+    action: implement idempotent target-repo intake with replay and stale-route rejection
+  - rank: 3
+    id: RESPONDER_CAPABILITY_BINDING
+    action: bind repo-local responder to required competency/crew without fabricating unavailable crew facts
+  - rank: 4
+    id: DELIVERY_ACK
+    action: produce accepted/rejected/deferred delivery acknowledgement distinct from final causal return
+  - rank: 5
+    id: ROUND_TRIP_DOV
+    action: execute one real >0-step target workflow and return exact-SHA evidence through v1.1
+  - rank: 6
+    id: RETRY_TIMEOUT_POLICY
+    action: add retry, timeout, expiry and supersession only after the first real round trip proves the transport semantics
+  - rank: 7
+    id: FANOUT_AND_CREW_OPTIMIZATION
+    action: scale to multi-repo/multi-crew orchestration only after single-route closure is controlled
+explicit_non_backlog:
+  - generic PC2 residual reduction
+  - PC3 or PC4 optimization without new causal variance
+  - reopening controlled entities because population PCA rotated
+  - granting CONTROL from an external RESOLVED assertion
+  - broad organization crawling when there is no open route
+stop_rule: execute first attainable red; do not compensate it with unrelated federation, rendering, statistics or documentation work

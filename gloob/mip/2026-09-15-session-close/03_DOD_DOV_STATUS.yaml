@@ -1,0 +1,36 @@
+schema: gloob.mip.dod_dov_status.v1.1
+product_increment: External Causal-Return Closure v1.1
+dod:
+  causal_route_identity: PASS
+  deterministic_assignment_digest: PASS
+  governed_external_handshake: PASS
+  bounded_target_repo_federation: PASS
+  exact_sha_return_verification: PASS
+  stale_or_mismatched_return_rejection: PASS
+  resolved_return_closes_external_route_only: PASS
+  local_requalification_trigger: PASS
+  return_and_closure_state_federated_into_history: PASS
+  live_no_route_zero_cross_repo_behavior: PASS
+dov:
+  exact_head_contract:
+    run: 34926808606
+    status: PASS
+    sha: 6f32a0712700bf80d49bb1c85c11813cf8ece420
+  fresh_main_contract:
+    run: 34926844761
+    status: PASS
+    sha: c831758a247d928220e4b85efc13e3e74ba7da51
+  fresh_main_pages:
+    run: 34926844148
+    status: PASS
+    sha: c831758a247d928220e4b85efc13e3e74ba7da51
+  fresh_main_receipt_binding: PASS
+product_state: CONTROL
+engineering_acceptance_credit_from_this_increment: 0
+commercial_credit_from_this_increment: 0
+open_dov_boundary:
+  id: V1.2_REAL_EXTERNAL_DISPATCH
+  status: OPEN
+  reason: no real governed target-repository dispatch has yet been executed end-to-end through a target responder and returned through the v1.1 closure loop
+handover_transaction_dov:
+  status: PENDING_HANDOVER_PR_EXACT_HEAD_AND_FRESH_MAIN

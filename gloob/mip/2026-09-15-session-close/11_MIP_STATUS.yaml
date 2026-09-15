@@ -1,0 +1,49 @@
+schema: gloob.mip.method_status.v1.1
+session: gloob-v1.1-external-return-close
+meaning:
+  M: Modernize
+  I: Innovate
+  P: Perpetuate
+  exclude: contractual Manufacturing and Inspection Plan
+Modernize:
+  status: PASS
+  changes:
+    - residual-driven work selection replaced by guarded surveillance and causal attribution
+    - generic escalation replaced by Book/repo/crew cause-bound routing
+    - manual completion acknowledgement replaced by governed external return semantics
+Innovate:
+  status: PASS_WITH_NEXT_FRONTIER
+  delivered:
+    - causal fingerprints for SOURCE, ATOM, EDGE, OPERATOR, RUNTIME and FEDERATED_RETURN
+    - deterministic route_id and assignment_digest
+    - external handshake contract
+    - bounded target-repo return discovery
+    - exact-SHA >0-step return verification
+    - automatic external route closure or rejection
+    - local requalification trigger without external CONTROL credit
+  next_innovation:
+    - active federated dispatch and target-repo responder runtime
+Perpetuate:
+  status: PASS_IF_HANDOVER_PR_GREEN
+  durable_objects:
+    - frozen current-state receipt
+    - authority crosswalk
+    - DoD/DoV status
+    - ranked first-red/backlog
+    - opportunity sweep
+    - exact-SHA lineage
+    - glossary/taxonomy delta
+    - standalone resume prompt
+    - 3PR status
+    - MIP status
+    - restart checklist
+    - integrity manifest
+  delete_safe_gate:
+    chat_exclusive_decisions: 0
+    unclassified_todos: 0
+    unclassified_opportunities: 0
+    standalone_resume_prompt: PASS
+    exact_product_proof_recorded: PASS
+    handover_exact_head_ci: PENDING
+    handover_fresh_main_ci: PENDING
+overall: PASS_WITH_HANDOVER_RUNTIME_GATE

@@ -1,0 +1,23 @@
+{
+  "schema": "gloob.mip.integrity_manifest.v1.1",
+  "session": "gloob-v1.1-external-return-close",
+  "hash_model": "git_blob_sha1",
+  "manifest_excludes_itself": true,
+  "pre_manifest_branch_commit": "456197d2cd46b8385fe99c09c99b3f3842a49b57",
+  "pre_manifest_package_tree": "36c01c0be07666c8a2ff7dd735d92ab2d98be223",
+  "files": [
+    {"path":"00_SESSION_EXECUTIVE.md","blob":"eef0db578d98922e0b1cb0c27123d92cbd8954cb","size":3398},
+    {"path":"01_CURRENT_STATE.yaml","blob":"46692f0be49769efa835aa0a86e6cee75e94d2b7","size":1204},
+    {"path":"02_AUTHORITY_CROSSWALK.yaml","blob":"abfd521333e831d65fc2e62f56cabf8a7498eec6","size":1609},
+    {"path":"03_DOD_DOV_STATUS.yaml","blob":"3a668a7e82f0b75f7f5357bdbf569057469c9211","size":1312},
+    {"path":"04_NEXT_VICTORY_CONDITION.md","blob":"c9a7c062cf9174e47bbccaba6396256ce03964ab","size":2085},
+    {"path":"05_BACKLOG_AND_FIRST_RED.yaml","blob":"b6b7604ce78f3c12e627dc70d4a682f01c14b6bb","size":1784},
+    {"path":"06_OPPORTUNITY_SWEEP.yaml","blob":"5cc2cab519eb6619e9524aeb84c04fa8db061866","size":1206},
+    {"path":"07_EXACT_SHA_LINEAGE.yaml","blob":"dfeae5464e5a703ef7d6c77f047e67193af361ca","size":1958},
+    {"path":"08_GLOSSARY_TAXONOMY_DELTA.yaml","blob":"d04bf943c4cb185f59f806cf967388daaecbd7ce","size":1679},
+    {"path":"09_RESUME_PROMPT.md","blob":"96cbf16edc5312e551af20032d2f18c00f5f78d1","size":3446},
+    {"path":"10_3PR_STATUS.yaml","blob":"e41ea9da57dadfae81c256e0863cc5a9ce00dd94","size":1456},
+    {"path":"11_MIP_STATUS.yaml","blob":"9e1fcc1c5372ff0d1907f5fdcce4a91006caeca7","size":1673},
+    {"path":"12_RESTART_CHECKLIST.md","blob":"da89791259aaab30bb6c4a277f57d607273143b2","size":1758}
+  ]
+}

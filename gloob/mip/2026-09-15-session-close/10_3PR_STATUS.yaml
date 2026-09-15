@@ -1,0 +1,41 @@
+schema: gloob.mip.3pr_status.v1.1
+session: gloob-v1.1-external-return-close
+meaning: recursive application of the controlled 3P closure to the full session state
+phases:
+  3P1_PRESERVE:
+    status: ACHIEVED
+    evidence:
+      - 00_SESSION_EXECUTIVE.md
+      - 01_CURRENT_STATE.yaml
+      - 07_EXACT_SHA_LINEAGE.yaml
+  3P2_PARSE_NORMALIZE:
+    status: ACHIEVED
+    evidence:
+      - 08_GLOSSARY_TAXONOMY_DELTA.yaml
+      - route/return/control semantics disambiguated
+  3P3_PROPAGATE:
+    status: ACHIEVED_FOR_SESSION
+    evidence:
+      - 02_AUTHORITY_CROSSWALK.yaml
+      - publication-semantic handover stored in canonical Gloob repo
+    boundary:
+      - no engineering authority transferred
+      - no runtime authority transferred
+      - no source-authoritative engineering content duplicated
+  3P4_PROVE:
+    status: ACHIEVED_FOR_PRODUCT_BASELINE
+    evidence:
+      - exact-head run 34926808606 PASS on 6f32a0712700bf80d49bb1c85c11813cf8ece420
+      - fresh-main run 34926844761 PASS on c831758a247d928220e4b85efc13e3e74ba7da51
+      - Pages run 34926844148 PASS on c831758a247d928220e4b85efc13e3e74ba7da51
+    handover_proof: PENDING_PR_RUNTIME
+  3P5_PRUNE_RANK:
+    status: ACHIEVED
+    evidence:
+      - 05_BACKLOG_AND_FIRST_RED.yaml
+      - 06_OPPORTUNITY_SWEEP.yaml
+      - chat_only_decisions: 0
+      - unclassified_todos: 0
+      - unclassified_opportunities: 0
+overall: PASS_WITH_EXPLICIT_V1.2_FRONTIER
+first_red: V1.2_OUTBOUND_ACTUATION

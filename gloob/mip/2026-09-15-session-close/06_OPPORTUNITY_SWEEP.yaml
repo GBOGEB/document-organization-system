@@ -1,0 +1,28 @@
+schema: gloob.mip.opportunity_sweep.v1.1
+classified_opportunities:
+  CONTROL:
+    - external causal-return closure v1.1
+    - durable CONTROL carry-forward under unchanged telemetry
+    - causal attribution before work opening
+    - bounded repo federation for return discovery
+  NEXT:
+    - federated mission dispatch envelope
+    - target-repo responder runtime
+    - delivery acknowledgement
+    - responder capability and crew eligibility binding
+    - replay, expiry and supersession semantics
+  LATER:
+    - multi-route fanout
+    - load-aware crew selection
+    - REX feedback into competency evidence
+    - dispatch transport abstraction beyond GitHub Actions artifacts
+    - mission-level orchestration across Grand Mission repo waves
+  REJECTED_AS_PREMATURE:
+    - optimizing PCA residuals without new telemetry change
+    - scaling federation before one real route round trip
+    - automated retry storms before timeout semantics are proved
+    - treating external completion as CONTROL
+chat_only_decisions: 0
+unclassified_todos: 0
+unclassified_opportunities: 0
+principle: statistical residual is not work; external acknowledgement is not CONTROL; execute only causally and authority-bound work
