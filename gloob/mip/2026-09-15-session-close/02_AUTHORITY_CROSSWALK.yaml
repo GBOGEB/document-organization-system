@@ -1,0 +1,47 @@
+schema: gloob.mip.authority_crosswalk.v1.1
+publication_semantic_authority:
+  repo: GBOGEB/document-organization-system
+  scope:
+    - Book identity and graph semantics
+    - surveillance and causal-routing policy
+    - external handshake and return-closure protocol
+    - session handover package
+engineering_authority:
+  qplant_domain_repo: GBOGEB/cryoplant-project
+  rule: engineering facts remain source-bound and are never promoted by Gloob runtime receipts alone
+runtime_authority:
+  examples:
+    - GBOGEB/CODEX
+    - target repository workflow receipts
+  rule: runtime evidence proves execution only; it does not confer engineering acceptance or CONTROL
+external_route_authority:
+  assignment_owner: causal route target repo plus named crew
+  identity:
+    - route_id
+    - assignment_digest
+    - entity_id
+    - cause
+    - target_repo
+    - crew
+return_authority:
+  artifact_name: gloob-causal-return
+  acceptance_requires:
+    - matching route_id
+    - matching assignment_digest
+    - authorized target repo
+    - matching crew
+    - exact 40-hex source_commit
+    - runner_commit equal to source_commit
+    - run_id present
+    - steps greater than zero
+    - conclusion success
+control_authority:
+  rule: an external RESOLVED return closes the external assignment and triggers local requalification; it never grants CONTROL directly
+handover_authority:
+  path: gloob/mip/2026-09-15-session-close/
+  authority_type: publication-semantic continuity record
+  does_not_transfer:
+    - engineering source ownership
+    - runtime source ownership
+    - acceptance authority
+    - commercial authority
