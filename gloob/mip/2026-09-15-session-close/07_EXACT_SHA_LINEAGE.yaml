@@ -33,9 +33,6 @@ federated_snapshot_source_commits:
   - c831758a247d928220e4b85efc13e3e74ba7da51
 handover_transaction:
   branch: w123/gloob-v11-session-close-3pr-mip
-  exact_head_sha: PENDING
-  exact_head_run: PENDING
-  merge_sha: PENDING
-  fresh_main_run: PENDING
-  pages_run: PENDING
+  proof_location: Git history and the pull request that first introduces gloob/mip/2026-09-15-session-close/
+  self_reference_policy: exact handover head, merge and fresh-main SHAs are intentionally not embedded in files whose own content contributes to those SHAs; derive them from the introducing PR and workflow history
 note: the product CONTROL baseline is c831758a...; later handover SHAs prove persistence and restartability, not a new product feature level
