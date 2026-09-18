@@ -1,0 +1,78 @@
+schema: gloob.ke_block_roundtrip.3pstar_mip_control.v1
+as_of: "2026-09-18T17:01:00+02:00"
+repository: GBOGEB/document-organization-system
+base_main_sha: 836aea21e6eccdeb7d31fe9ad5ca2ee608d1c2af
+authority_transfer: false
+formal_credit_delta: 0
+engineering_credit_delta: 0
+commercial_credit_delta: 0
+
+scope:
+  subject: MASTER_DOC_KE_BLOCK_ROUNDTRIP
+  source_master_role: CANONICAL_T0_V1
+  candidate_role: DERIVED_REVIEW_OUTPUT
+  knowledge_role: RECURSIVE_PROCESS_AND_EXECUTION_MEMORY
+  office_candidates:
+    - REPORT_Master_Candidate.docx
+    - METRICS_KPI.xlsx
+    - DECK_Overview.pptx
+  human_readable_companions:
+    - 00_3PSTAR_MIP_EXECUTIVE.md
+    - 02_cd.yml
+    - 03_artefact_index.json
+    - 04_ASCII_workflows.txt
+    - 05_ranking_index.json
+
+three_p_star:
+  preserve:
+    state: PASS
+    evidence:
+      - MASTER remains source-authoritative
+      - USER inputs retained as repeatable test subjects
+  parse_normalize:
+    state: PASS
+    evidence:
+      - cd.yml normalizes pipeline and promotion gate
+      - artefact_index.json normalizes trace links
+      - ranking_index.json makes next action explicit
+  propagate:
+    state: PASS
+    evidence:
+      - repo-native versioned control pack created
+  prove:
+    state: PASS_STATIC_CONTRACT
+    limitation: OFFICE_BINARY_RENDER_QA_NOT_YET_CLAIMED
+  prune_rank:
+    state: PASS
+    first_red: OFFICE_BINARY_BUILD_AND_RENDER_QA
+
+mip:
+  modernize:
+    state: PASS
+    result: ONE_OFF_PACK_TO_VERSIONED_DECLARATIVE_CONTROL
+  innovate:
+    state: PASS
+    result: BIDIRECTIONAL_BUILD_MINCE_KNOWLEDGE_CONDUIT
+  perpetuate:
+    state: PASS
+    result: INDEX_TEST_RANKING_AND_PARENT_HANDOFF_SURFACES
+
+promotion:
+  target: CANDIDATE_BASELINE
+  requires:
+    - KPI_GATES_PASS
+    - ROUNDTRIP_STRUCTURE_PASS
+    - OFFICE_BINARY_RENDER_QA_PASS
+    - USER_APPROVAL
+  current_state: WITHHELD_PENDING_OFFICE_BINARY_BUILD_AND_RENDER_QA
+
+non_compensation:
+  schema_pass_ne_binary_visual_qa: true
+  candidate_ne_baseline: true
+  generated_ne_source_authoritative: true
+  process_knowledge_ne_master_truth: true
+  authority_transfer: false
+
+stop_state:
+  state: SAFE_CONTINUE
+  next: OFFICE_BINARY_BUILD_AND_RENDER_QA
