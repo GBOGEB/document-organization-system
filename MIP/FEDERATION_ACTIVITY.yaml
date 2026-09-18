@@ -1,5 +1,5 @@
-schema: gbogeb-federation-activity/1.2.0
-as_of: '2026-09-18T18:03:00+02:00'
+schema: gbogeb-federation-activity/1.3.0
+as_of: '2026-09-18T18:19:55+02:00'
 repo: GBOGEB/document-organization-system
 classification: FEDERATION_CANDIDATE
 federation_role: DOCUMENT_ORGANISATION_AND_OUTWARD_ARTIFACT_INDEX
@@ -8,17 +8,18 @@ recent_activity:
   - {pr: 28, role: mip_rollout, state: MERGED}
   - {pr: 60, role: data_rich_document_contract, state: MERGED, merge_sha: 794bb0535b8f1f497023b3ab8e949e79d3a740d8}
   - {pr: 63, role: docx_rtm_adapter_stale_base, state: SUPERSEDED_CLOSED}
-  - {branch: adapter/docx-rtm-json-ssot-v1r1-20260918, role: docx_rtm_json_ssot_adapter, state: EXACT_HEAD_PROOF_PENDING}
+  - {pr: 64, role: docx_rtm_json_ssot_adapter, state: MERGED, merge_sha: e181903236e70b7b798b56fd59fc8948cd9885c0}
+  - {repo: GBOGEB/DOCX_RTM_Automation, pr: 62, role: docx_rtm_consumer, state: MERGED, merge_sha: fd897b83b2ba1de2766afb7280ad3b851a04e2f0}
 
 mip_state:
   modernize: DATA_RICH_JSON_CONTRACT_PASS_EXACT_HEAD
-  innovate: TYPED_GRAPH_AND_SPARSE_PLACEMENT_PASS_BOUNDED
-  perpetuate: JSON_CONTRACT_PASS_DOCX_RTM_ADAPTER_IN_PROOF
+  innovate: TYPED_GRAPH_SPARSE_PLACEMENT_AND_DOCX_BRIDGE_PASS_BOUNDED
+  perpetuate: PASS_CROSS_REPO_DOCX_RTM_ADAPTER_LOOP
 
 three_p_capability:
   P1_source_atom: true
-  P2_integration_graph: improved
-  P3_evidence_control: improved
+  P2_integration_graph: true
+  P3_evidence_control: true
 
 runtime_proof:
   json_contract:
@@ -27,15 +28,30 @@ runtime_proof:
     workflow_run: 35360779635
     job: 105651217468
     result: PASS_8_TESTS
-  docx_rtm_adapter:
-    state: EXACT_HEAD_CI_PENDING
-    base_main: 167d66e963eebbe982ffae6c36d78580a2390a92
-    workflow: .github/workflows/docx-rtm-adapter.yml
-    evidence:
-      - adapters/docx_rtm/README.md
-      - adapters/docx_rtm/bridge_contract.yaml
-      - adapters/docx_rtm/build_projection.py
-      - adapters/docx_rtm/tests/test_projection.py
+  docx_rtm_producer:
+    state: PASS_EXACT_HEAD
+    head: 37876b85c10c139be8c23f2bdf47496b92363d0b
+    workflow_run: 35367290289
+    artifact_digest: sha256:a805ccdd39f027d0285376d7321477901223874f1be65b51bf1578d6a499978c
+  docx_rtm_consumer:
+    state: PASS_EXACT_HEAD_RENDER
+    repo: GBOGEB/DOCX_RTM_Automation
+    head: 08d9fa4d5e0d2d1684490b3480f7dd5b44bd6926
+    workflow_run: 35367734640
+    job: 105674143274
+    merge_sha: fd897b83b2ba1de2766afb7280ad3b851a04e2f0
+    artifact_id: 10556508305
+    artifact_digest: sha256:5834b664708de31107fa272e4f69438ba36c537e0971474b834e91bc30860fc5
+    structural_checks:
+      source_projection_binding: PASS
+      governed_reference_docx_build: PASS
+      pandoc_docx_render: PASS
+      heading_style_check: PASS
+      template_numbering_check: PASS
+      duplicate_numbering_check: PASS
+      libreoffice_pdf_render: PASS
+      png_render_evidence: PASS
+    human_visual_approval: NOT_CLAIMED
 
 source_authority: {state: ORGANISATION_ONLY, may_override_qps_child: false}
 
@@ -56,17 +72,19 @@ document_contract:
   ssot_rule: JSON_SEMANTICS_GIT_VERSION_LEDGER_RENDERED_VIEWS_NONAUTHORITATIVE
 
 docx_rtm_adapter:
-  state: PRODUCER_CONTRACT_IMPLEMENTED_CI_PENDING
+  state: PASS_CROSS_REPO_LOOP
   bridge_contract: adapters/docx_rtm/bridge_contract.yaml
   projection_builder: adapters/docx_rtm/build_projection.py
+  consumer_return_receipt: adapters/docx_rtm/CONSUMER_RETURN_RECEIPT_20260918.yaml
   consumer_repo: GBOGEB/DOCX_RTM_Automation
-  consumer_entrypoint: src/core/rtm_roundtrip.py::RTMRoundtrip.md_to_docx
-  heading_numbering_owner: WORD_REFERENCE_TEMPLATE
+  consumer_merge_sha: fd897b83b2ba1de2766afb7280ad3b851a04e2f0
+  heading_numbering_owner: REFERENCE_DOCX_MULTILEVEL_LIST
+  heading_levels: [Heading1, Heading2, Heading3]
   literal_heading_number_filter: FORBIDDEN
   semantic_writeback: JSON_CHANGE_SET_ONLY
 
-current_blocker: exact-head producer adapter CI and one bounded consumer render receipt from DOCX_RTM_Automation
-next_victory: exact-head producer PASS, merge producer PR, then bind DOCX_RTM consumer bridge and obtain DOCX hash plus heading-style and duplicate-numbering receipt
+current_blocker: HUMAN_VISUAL_APPROVAL_FOR_RENDERED_SAMPLE_ONLY
+next_victory: visually inspect the two rendered PNG pages, then generalize the adapter from ADR-001 fixture to the first controlled production document without changing the SSOT boundary
 
 federation_dependencies:
   upstream: [GBOGEB/DOCX_RTM_Automation]
