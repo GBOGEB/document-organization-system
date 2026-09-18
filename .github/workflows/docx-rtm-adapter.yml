@@ -1,0 +1,58 @@
+name: DOCX_RTM JSON SSOT adapter
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/docx_rtm/**'
+      - 'contracts/data_rich_document/**'
+      - '.github/workflows/docx-rtm-adapter.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'adapters/docx_rtm/**'
+      - 'contracts/data_rich_document/**'
+      - '.github/workflows/docx-rtm-adapter.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  projection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Revalidate JSON SSOT
+        run: >-
+          python contracts/data_rich_document/validate_document.py
+          contracts/data_rich_document/examples/adr-001.json
+
+      - name: Run adapter fail-closed tests
+        run: >-
+          python -m unittest discover
+          -s adapters/docx_rtm/tests
+          -p 'test_*.py'
+
+      - name: Build exact-head DOCX_RTM projection
+        run: |
+          mkdir -p adapter_out
+          python adapters/docx_rtm/build_projection.py \
+            contracts/data_rich_document/examples/adr-001.json \
+            --output-dir adapter_out \
+            --source-repo GBOGEB/document-organization-system \
+            --source-ref "$GITHUB_SHA"
+
+      - name: Upload projection receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: docx-rtm-projection-${{ github.sha }}
+          path: adapter_out/
+          if-no-files-found: error
