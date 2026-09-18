@@ -1,0 +1,70 @@
+SEC-01 — FORWARD / BUILD
+========================
+[USER/SYSTEM INPUT]
+        |
+        v
+[PRE-PARSE + PRE-SMOKE]
+        |
+        v
+[PARSE + MAP MASTER]
+        |
+        v
+[KE_BLOCKS: KNOWLEDGE + EXECUTION]
+        |
+        v
+[EXECUTE / BUILD / TEST]
+        |
+        +------> [DOCX candidate]
+        +------> [XLSX candidate]
+        +------> [PPTX candidate]
+        +------> [MD/YAML/JSON companions]
+        |
+        v
+[COMPARE + KPI + TRACE]
+        |
+        v
+[CANDIDATE_BASELINE?] --only if gates + USER approval--> [BASELINE]
+
+
+SEC-02 — BACKWARD / MINCE
+=========================
+[CANDIDATE SET + cd.yml]
+        |
+        v
+[REVERSE MAP]
+        |
+        v
+[RECONSTRUCT MASTER']
+        |
+        v
+[DIFF MASTER <-> MASTER']
+        |
+        v
+[CLASSIFY GAP / DRIFT / MISSING KNOWLEDGE]
+        |
+        v
+[FEEDBACK TO KE_BLOCKS]
+        |
+        +------------------------------------+
+                                             |
+                                             v
+                                      [NEXT BUILD]
+
+
+SEC-03 — RECURSIVE DMAIC
+========================
+DEFINE  -> goals / source / scope / stop
+MEASURE -> execution / KPI / hashes / trace
+ANALYZE -> gaps / dependency / impact / rank
+IMPROVE -> refactor / new block / new test / scale
+CONTROL -> version / changelog / promotion / regression
+    ^                                               |
+    +-----------------------------------------------+
+
+NURTURING MIRROR
+================
+MASTER is not the enemy.
+CANDIDATE is not trusted because it resembles MASTER.
+The loop learns from:
+  source truth + process experience + test evidence + human correction.
+Knowledge may grow beyond the static MASTER while source authority remains explicit.
