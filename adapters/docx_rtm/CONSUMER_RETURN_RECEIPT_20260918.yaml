@@ -1,0 +1,61 @@
+schema: gbogeb.docx_rtm.consumer_return_receipt/1.0.0
+as_of: '2026-09-18T18:19:55+02:00'
+
+producer:
+  repo: GBOGEB/document-organization-system
+  adapter_merge_sha: e181903236e70b7b798b56fd59fc8948cd9885c0
+  adapter_pr: 64
+  exact_head_proof:
+    head: 37876b85c10c139be8c23f2bdf47496b92363d0b
+    workflow_run: 35367290289
+    artifact_digest: sha256:a805ccdd39f027d0285376d7321477901223874f1be65b51bf1578d6a499978c
+
+consumer:
+  repo: GBOGEB/DOCX_RTM_Automation
+  pr: 62
+  merged_sha: fd897b83b2ba1de2766afb7280ad3b851a04e2f0
+  exact_head: 08d9fa4d5e0d2d1684490b3480f7dd5b44bd6926
+  workflow_run: 35367734640
+  job: 105674143274
+
+render_receipt:
+  state: PASS
+  source_projection_binding: PASS
+  governed_reference_docx_build: PASS
+  pandoc_docx_render: PASS
+  heading_style_check: PASS
+  template_numbering_check: PASS
+  duplicate_numbering_check: PASS
+  libreoffice_pdf_render: PASS
+  png_render_evidence: PASS
+  pdf_pages: 2
+  pdf_page_size: LETTER_612x792_PT
+
+artifact:
+  id: 10556508305
+  name: data-rich-docx-render-08d9fa4d5e0d2d1684490b3480f7dd5b44bd6926
+  digest: sha256:5834b664708de31107fa272e4f69438ba36c537e0971474b834e91bc30860fc5
+  expires_at: '2026-12-17T16:18:57Z'
+  contains:
+    - config/reference.docx
+    - projection/ADR-001.projection.md
+    - projection/ADR-001.outward_document_manifest.json
+    - output/ADR-001.docx
+    - output/ADR-001.render_receipt.json
+    - render/ADR-001.pdf
+    - render/ADR-001-page-*.png
+
+visual_control:
+  binary_render_proven: true
+  human_visual_approval: NOT_CLAIMED
+  reason: structural and raster generation were CI-proven; human visual acceptance remains a distinct review gate
+
+authority:
+  authority_transfer: false
+  rendered_output_authoritative: false
+  engineering_credit: false
+  compliance_credit: false
+  procurement_acceptance_credit: false
+  semantic_writeback: JSON_CHANGE_SET_ONLY
+
+disposition: PASS_CROSS_REPO_DOCX_RTM_ADAPTER_LOOP
