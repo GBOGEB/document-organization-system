@@ -1,0 +1,85 @@
+{
+  "schema": "gloob.ke_block_roundtrip.artefact_index.v1",
+  "repository": "GBOGEB/document-organization-system",
+  "control_root": "gloob/mip/2026-09-18-ke-block-roundtrip",
+  "source_master": {
+    "logical_name": "MASTER(DOC)",
+    "version": "T0_V1",
+    "authority": "SOURCE"
+  },
+  "artefacts": [
+    {
+      "sec": "SEC-01",
+      "rank": 1,
+      "name": "Forward Build Flow",
+      "path": "04_ASCII_workflows.txt",
+      "role": "HUMAN_TRACE",
+      "depends_on": [],
+      "produces": [
+        "REPORT_Master_Candidate.docx",
+        "METRICS_KPI.xlsx",
+        "DECK_Overview.pptx",
+        "02_cd.yml"
+      ]
+    },
+    {
+      "sec": "SEC-02",
+      "rank": 2,
+      "name": "Backward Mince Flow",
+      "path": "04_ASCII_workflows.txt",
+      "role": "ROUNDTRIP_TRACE",
+      "depends_on": [
+        "SEC-01"
+      ],
+      "produces": [
+        "MASTER_PRIME",
+        "DIFF_REPORT"
+      ]
+    },
+    {
+      "sec": "SEC-03",
+      "rank": 3,
+      "name": "Recursive DMAIC",
+      "path": "04_ASCII_workflows.txt",
+      "role": "CONTROL_LOOP",
+      "depends_on": [
+        "SEC-01",
+        "SEC-02"
+      ],
+      "produces": [
+        "KPI_RECEIPT",
+        "CHANGELOG",
+        "NEXT_RANK"
+      ]
+    },
+    {
+      "sec": "SEC-04",
+      "rank": 4,
+      "name": "Candidate Descriptor",
+      "path": "02_cd.yml",
+      "role": "MACHINE_CONTROL",
+      "depends_on": [
+        "SEC-01",
+        "SEC-02",
+        "SEC-03"
+      ],
+      "produces": [
+        "PROMOTION_GATE"
+      ]
+    },
+    {
+      "sec": "SEC-05",
+      "rank": 5,
+      "name": "Ranking Index",
+      "path": "05_ranking_index.json",
+      "role": "NEXT_ACTION",
+      "depends_on": [
+        "SEC-04"
+      ],
+      "produces": [
+        "FIRST_RED"
+      ]
+    }
+  ],
+  "promotion_state": "WITHHELD_PENDING_OFFICE_BINARY_BUILD_AND_RENDER_QA"
+}
