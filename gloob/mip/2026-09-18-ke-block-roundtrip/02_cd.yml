@@ -1,0 +1,54 @@
+version: 1.0.0
+candidate_id: KE_BLOCK_ROUNDTRIP_20260918
+source_master:
+  logical_name: MASTER(DOC)
+  version: T0_V1
+  authority: SOURCE
+pipeline:
+  forward:
+    - id: F01
+      action: PRE_PARSE
+    - id: F02
+      action: PARSE_MASTER
+    - id: F03
+      action: MAP_STRUCTURE
+    - id: F04
+      action: BUILD_KE_BLOCKS
+    - id: F05
+      action: EXECUTE_BLOCKS
+    - id: F06
+      action: GENERATE_CANDIDATES
+    - id: F07
+      action: COMPARE_AND_SCORE
+    - id: F08
+      action: SNAPSHOT_AND_VERSION
+  backward:
+    - id: B01
+      action: LOAD_CANDIDATE_SET
+    - id: B02
+      action: REVERSE_MAP
+    - id: B03
+      action: RECONSTRUCT_MASTER_PRIME
+    - id: B04
+      action: DIFF_MASTER_VS_MASTER_PRIME
+    - id: B05
+      action: CLASSIFY_GAPS
+    - id: B06
+      action: FEEDBACK_TO_KE_BLOCKS
+artefacts:
+  office:
+    word: REPORT_Master_Candidate.docx
+    excel: METRICS_KPI.xlsx
+    powerpoint: DECK_Overview.pptx
+  companions:
+    ascii: 04_ASCII_workflows.txt
+    trace_index: 03_artefact_index.json
+    ranking: 05_ranking_index.json
+kpi_targets:
+  structure_fidelity: ">=0.90"
+  semantic_similarity: ">=0.88"
+  coverage_delta: ">=0.05"
+  defect_rate: "<=0.05"
+promotion_gate:
+  expression: KPI_GATES_PASS AND ROUNDTRIP_STRUCTURE_PASS AND OFFICE_BINARY_RENDER_QA_PASS AND USER_APPROVAL
+  default: WITHHELD
