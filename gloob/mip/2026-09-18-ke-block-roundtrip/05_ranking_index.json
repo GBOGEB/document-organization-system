@@ -1,0 +1,29 @@
+{
+  "schema": "gloob.ke_block_roundtrip.ranking_index.v1",
+  "as_of": "2026-09-18T17:01:00+02:00",
+  "ranking_method": "impact_then_nearest_executable_gap",
+  "ranked": [
+    {
+      "rank": 1,
+      "id": "OFFICE_BINARY_BUILD_AND_RENDER_QA",
+      "state": "RED",
+      "reason": "The control contract is normalized, but DOCX/XLSX/PPTX binaries are not yet repo-native exact-head build+render proof.",
+      "next": "Build each Office candidate, render/inspect, hash, and write QA receipt."
+    },
+    {
+      "rank": 2,
+      "id": "ROUNDTRIP_RECONSTRUCTION_METRIC",
+      "state": "AMBER",
+      "reason": "MASTER' reconstruction metric is declared but not yet measured on a real source document.",
+      "next": "Run one real MASTER -> candidate -> MASTER' cycle and record structural/semantic deltas."
+    },
+    {
+      "rank": 3,
+      "id": "LIVE_DASHBOARD",
+      "state": "PARKED",
+      "reason": "Useful only after the artefact/index contract has real measured runs.",
+      "next": "Expose index, KPI and run receipts after ranks 1-2 are burned."
+    }
+  ],
+  "stop_after_rank_1_until_state_changes": true
+}
