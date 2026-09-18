@@ -1,0 +1,40 @@
+name: Data-rich document contract
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/data_rich_document/**'
+      - '.github/workflows/data-rich-document-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/data_rich_document/**'
+      - '.github/workflows/data-rich-document-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate canonical ADR example
+        run: >-
+          python contracts/data_rich_document/validate_document.py
+          contracts/data_rich_document/examples/adr-001.json
+
+      - name: Run fail-closed invariant tests
+        run: >-
+          python -m unittest discover
+          -s contracts/data_rich_document/tests
+          -p 'test_*.py'
