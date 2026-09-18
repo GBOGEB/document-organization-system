@@ -1,5 +1,5 @@
-schema: gbogeb.docx_rtm.consumer_return_receipt/1.0.0
-as_of: '2026-09-18T18:19:55+02:00'
+schema: gbogeb.docx_rtm.consumer_return_receipt/1.1.0
+as_of: '2026-09-18T19:45:00+02:00'
 
 producer:
   repo: GBOGEB/document-organization-system
@@ -12,11 +12,13 @@ producer:
 
 consumer:
   repo: GBOGEB/DOCX_RTM_Automation
-  pr: 62
-  merged_sha: fd897b83b2ba1de2766afb7280ad3b851a04e2f0
-  exact_head: 08d9fa4d5e0d2d1684490b3480f7dd5b44bd6926
-  workflow_run: 35367734640
-  job: 105674143274
+  original_pr: 62
+  pagination_fix_issue: 64
+  pagination_fix_pr: 65
+  pagination_fix_exact_head: 332bc99e26597ab8857f5cc38f5921c293d78334
+  pagination_fix_merge_sha: a373ded8808ff1a9dfc40fe7374eb7fcabb6d3b3
+  workflow_run: 35375677112
+  job: 105699668504
 
 render_receipt:
   state: PASS
@@ -26,29 +28,59 @@ render_receipt:
   heading_style_check: PASS
   template_numbering_check: PASS
   duplicate_numbering_check: PASS
+  requirement_pagination_structural_check: PASS
+  requirement_pagination_layout_check: PASS
   libreoffice_pdf_render: PASS
   png_render_evidence: PASS
+  independent_visual_review: PASS
   pdf_pages: 2
   pdf_page_size: LETTER_612x792_PT
 
+pagination_feedback:
+  preflight:
+    split_requirements:
+      - REQ-002
+    page_breaks_added: 1
+    pdf_sha256: e90e9a8b4dba8b9bc2342e14a744da54e3148816cc327a1cf8250e54c80efd3c
+  final:
+    split_requirements: []
+    page_breaks_added: 0
+    pdf_sha256: 654e74630861b5b398ab577d55da5f692bf4549b0af480498822428109353b02
+    rendered_docx_sha256: e936ffcb89eb7da13b8be8d447c8453b5b4499a4907390816846f5c8ec94a6b9
+  method:
+    - render preflight PDF
+    - detect governed requirement blocks spanning pages
+    - add explicit page_break_before to split requirement
+    - rerender
+    - fail closed unless final split set is empty
+
 artifact:
-  id: 10556508305
-  name: data-rich-docx-render-08d9fa4d5e0d2d1684490b3480f7dd5b44bd6926
-  digest: sha256:5834b664708de31107fa272e4f69438ba36c537e0971474b834e91bc30860fc5
-  expires_at: '2026-12-17T16:18:57Z'
+  id: 10560525654
+  name: data-rich-docx-render-332bc99e26597ab8857f5cc38f5921c293d78334
+  digest: sha256:ce9c806aebcce0cc9f15eaaf728c4e2bb30e4e93cb2db26b80c9e8c3ce8db8f0
+  expires_at: '2026-12-17T17:39:57Z'
   contains:
     - config/reference.docx
     - projection/ADR-001.projection.md
     - projection/ADR-001.outward_document_manifest.json
     - output/ADR-001.docx
     - output/ADR-001.render_receipt.json
+    - output/ADR-001.pagination_pre.json
+    - output/ADR-001.pagination_final.json
     - render/ADR-001.pdf
     - render/ADR-001-page-*.png
 
 visual_control:
   binary_render_proven: true
-  human_visual_approval: NOT_CLAIMED
-  reason: structural and raster generation were CI-proven; human visual acceptance remains a distinct review gate
+  independent_visual_review: PASS
+  reviewed_pages: 2
+  visual_findings:
+    clipping: NONE
+    overlap: NONE
+    orphaned_requirement_metadata: NONE
+    duplicate_heading_numbering: NONE_OBSERVED
+  user_visual_approval: NOT_CLAIMED
+  reason: independent QA can prove absence of observed layout defects but cannot substitute for explicit user baseline approval
 
 authority:
   authority_transfer: false
@@ -58,4 +90,10 @@ authority:
   procurement_acceptance_credit: false
   semantic_writeback: JSON_CHANGE_SET_ONLY
 
-disposition: PASS_CROSS_REPO_DOCX_RTM_ADAPTER_LOOP
+supersedes_operationally:
+  prior_consumer_pr: 62
+  prior_artifact_digest: sha256:5834b664708de31107fa272e4f69438ba36c537e0971474b834e91bc30860fc5
+  supersession_reason: VISUAL_QA_FOUND_REQUIREMENT_PAGE_SPLIT_THEN_REPAIRED
+
+disposition: PASS_CROSS_REPO_DOCX_RTM_ADAPTER_LOOP_WITH_INDEPENDENT_VISUAL_QA
+remaining_first_red: USER_VISUAL_APPROVAL
