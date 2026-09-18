@@ -1,0 +1,58 @@
+schema: gloob.3pstar.status.v1
+as_of: "2026-09-18"
+repository: GBOGEB/document-organization-system
+base_main_sha: 9649677831a93bf519cb045bd2d16fab8a01c9da
+product:
+  level: v1.2
+  name: FEDERATED_MISSION_DISPATCH_AND_RESPONDER_RUNTIME
+  state: CONTROL
+proof:
+  exact_head:
+    sha: 6214d5f1a2235099a6ed23d142f694994b003ca4
+    run_id: 34936179068
+    conclusion: success
+    artifact_id: 10383164278
+    artifact_digest: sha256:19ef4972e9241510010a89379eb96e486026c8e86c11b26045b8affd3b3a91b1
+  merge:
+    sha: 9649677831a93bf519cb045bd2d16fab8a01c9da
+  fresh_main:
+    run_id: 34936608687
+    conclusion: success
+    artifact_id: 10383532189
+    artifact_digest: sha256:f6fa3c567078347bdd3441cdade9a132f5a9c1826e4e1f046edc8e6e9553af86
+  pages:
+    run_id: 34936607875
+    build: success
+    deploy: success
+    report_build_status: success
+external_round_trip:
+  target_repo: GBOGEB/ABACUS
+  target_merge_sha: 00770255e0b47915bbac684404212d84e9e57731
+  target_runtime_run_id: 34936014830
+  target_fresh_main_run_id: 34936427348
+  return_receipt_commit: 806464513538fbf9b0e33e82ba3006fe8c03c464
+  control_credit: false
+  engineering_acceptance_credit: false
+  commercial_credit: false
+three_p_star:
+  preserve:
+    state: PASS
+    statement: Preserve v1.1 authority and v1.2 exact-SHA round-trip evidence without rewriting historical baselines.
+  parse_normalize:
+    state: PASS
+    statement: Normalize product, runtime, target, and authority planes; queued evidence is not PASS and external completion is not CONTROL.
+  propagate:
+    state: PASS
+    statement: Propagate v1.2 dispatch/return closure through Gloob and the bounded ABACUS responder without authority transfer.
+  prove:
+    state: PASS
+    statement: Exact-head, target runtime, target fresh-main, Gloob fresh-main contract, artifact, and Pages deployment are all successful.
+  prune_rank:
+    state: PASS
+    statement: No statistical residual is promoted to work; the next bounded first-red is QPLANT responder-runtime hardening.
+first_red:
+  id: QPLANT_RESPONDER_RUNTIME_HARDENING
+  target_repo: GBOGEB/cryoplant-project
+  reason: Current QPLANT responder differs from the proved ABACUS pattern at main replay suppression, fresh-main self-test coverage, and force-add receipt persistence.
+  credit: 0
+overall: PASS
