@@ -1,0 +1,68 @@
+schema: gbogeb.docx-rtm-adapter-contract/1.0.0
+as_of: '2026-09-18T18:03:00+02:00'
+
+producer:
+  repo: GBOGEB/document-organization-system
+  semantic_ssot: contracts/data_rich_document/document.schema.json
+  adapter: adapters/docx_rtm/build_projection.py
+  authority: DOCUMENT_ORGANISATION_ONLY
+
+consumer:
+  repo: GBOGEB/DOCX_RTM_Automation
+  markdown_to_docx_entrypoint: src/core/rtm_roundtrip.py::RTMRoundtrip.md_to_docx
+  reference_doc: config/reference.docx
+  authority: TOOLING_TRANSFORM_ONLY
+
+input_contract:
+  required:
+    - projection_markdown
+    - outward_document_manifest
+  manifest_schema: gbogeb.docx-rtm-outward-document-manifest/1.0.0
+  source_hash_required: true
+  source_git_ref_required_for_controlled_run: true
+
+heading_contract:
+  maximum_supported_level: 3
+  mapping:
+    1: {markdown: '#', word_style: 'Heading 1'}
+    2: {markdown: '##', word_style: 'Heading 2'}
+    3: {markdown: '###', word_style: 'Heading 3'}
+  source_title_numbering: FORBIDDEN
+  display_numbering_owner: WORD_REFERENCE_TEMPLATE
+  forbidden_consumer_filter:
+    path: config/filters/extend_headings.lua
+    reason: prepends literal numbers into heading text and would duplicate template-managed numbering
+
+requirement_contract:
+  semantic_owner: JSON_REQUIREMENT_OBJECT
+  rendered_once: true
+  primary_placement: first_section_id
+  secondary_placements: manifest_links_only
+  consumer_may_change_semantics: false
+
+return_receipt:
+  required:
+    - source_json_sha256
+    - projection_markdown_sha256
+    - source_git_ref
+    - rendered_docx_sha256
+    - reference_doc_identity_or_sha256
+    - render_status
+    - heading_style_check
+    - duplicate_numbering_check
+  acceptance:
+    render_status: PASS
+    heading_style_check: PASS
+    duplicate_numbering_check: PASS
+
+roundtrip_change_rule:
+  generated_docx_is_ssot: false
+  docx_edits_may_directly_override_json: false
+  proposed_semantic_edits_return_as: JSON_CHANGE_SET
+  approval_required_before_json_application: true
+
+controls:
+  authority_transfer: false
+  engineering_credit: false
+  compliance_credit: false
+  procurement_acceptance_credit: false
