@@ -1,19 +1,46 @@
-schema: gbogeb-federation-activity/1.0.0
-as_of: '2026-09-10T06:47:00+02:00'
+schema: gbogeb-federation-activity/1.1.0
+as_of: '2026-09-18T17:01:00+02:00'
 repo: GBOGEB/document-organization-system
 classification: FEDERATION_CANDIDATE
 federation_role: DOCUMENT_ORGANISATION_AND_OUTWARD_ARTIFACT_INDEX
 last_pr: 28
 recent_activity:
   - {pr: 28, role: mip_rollout, state: MERGED}
-mip_state: {modernize: ACTIVE, innovate: LINK_TO_DOCX_RTM_AFTER_CONTRACT, perpetuate: WITHHELD}
-three_p_capability: {P1_source_atom: partial, P2_integration_graph: partial, P3_evidence_control: partial}
-runtime_proof: {state: WITHHELD, required: executable_pre_run_status_receipt}
+  - {branch: docs/data-rich-document-v1-20260918, role: data_rich_document_contract, state: PR_PENDING}
+mip_state:
+  modernize: DATA_RICH_JSON_CONTRACT_PASS
+  innovate: TYPED_GRAPH_AND_SPARSE_PLACEMENT_PASS_BOUNDED
+  perpetuate: LOCAL_CONTROL_PASS_EXACT_HEAD_CI_PENDING
+three_p_capability:
+  P1_source_atom: partial
+  P2_integration_graph: improved
+  P3_evidence_control: improved
+runtime_proof:
+  state: LOCAL_BOUNDED_PASS_EXACT_HEAD_CI_PENDING
+  evidence:
+    - contracts/data_rich_document/3PSTAR_CONTROL_20260918.yaml
+    - contracts/data_rich_document/MIP_CONTROL_20260918.yaml
+    - contracts/data_rich_document/tests/test_validate_document.py
+    - .github/workflows/data-rich-document-contract.yml
+  required:
+    - exact-head GitHub Actions run with executed validation steps
+    - stable DOCX_RTM contract for end-to-end outward document perpetuation
 source_authority: {state: ORGANISATION_ONLY, may_override_qps_child: false}
-produces_receipts: [artifact_index_receipt, document_organisation_receipt]
-consumes_receipts: [docx_rtm_outward_manifest]
-current_blocker: executable pre-run/status proof and stable DOCX_RTM contract
-next_victory: generate deterministic artifact index from a fresh exact head and bind its output hashes
+produces_receipts:
+  - artifact_index_receipt
+  - document_organisation_receipt
+  - data_rich_document_contract_receipt
+consumes_receipts:
+  - docx_rtm_outward_manifest
+document_contract:
+  state: REVIEW_PR_PENDING
+  schema: contracts/data_rich_document/document.schema.json
+  example: contracts/data_rich_document/examples/adr-001.json
+  validator: contracts/data_rich_document/validate_document.py
+  contract_readme: contracts/data_rich_document/README.md
+  ssot_rule: JSON_SEMANTICS_GIT_VERSION_LEDGER_RENDERED_VIEWS_NONAUTHORITATIVE
+current_blocker: exact-head CI plus stable DOCX_RTM adapter contract
+next_victory: merge reviewed data-rich document contract, observe exact-head CI PASS, then bind one DOCX_RTM adapter without creating a second SSOT
 federation_dependencies:
   upstream: [GBOGEB/DOCX_RTM_Automation]
   downstream: []

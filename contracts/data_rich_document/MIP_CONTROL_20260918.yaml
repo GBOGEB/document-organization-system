@@ -1,0 +1,51 @@
+schema: gbogeb.data-rich-document.mip-control/v1
+as_of: '2026-09-18T17:01:00+02:00'
+repo: GBOGEB/document-organization-system
+branch: docs/data-rich-document-v1-20260918
+predecessor_3pstar: contracts/data_rich_document/3PSTAR_CONTROL_20260918.yaml
+method: MIP
+sequence: [Modernize, Innovate, Perpetuate]
+authority_transfer: false
+formal_credit_delta: 0
+engineering_credit_delta: 0
+
+modernize:
+  result: PASS
+  changes:
+    - add Draft-2020-12 JSON Schema for document, outline, sections, content blocks, requirements, relations, external references, change sets, history and render profiles
+    - separate immutable section identity from derived display numbering
+    - make Git the byte-level version ledger and JSON history the semantic change ledger
+    - add standard-library semantic validator for cross-object invariants
+
+innovate:
+  result: PASS_BOUNDED
+  changes:
+    - use sparse sibling rank for insertion space without renumbering stable IDs
+    - model cross-references as typed graph edges instead of ambiguous free-text strings
+    - make change sets approval-aware and revert-by-new-event rather than destructive history deletion
+    - keep requirement objects independent from their rendered prose placement
+  guardrail: no new competing SSOT, no engineering-authority promotion, no rendered-output authority
+
+perpetuate:
+  result: PASS_LOCAL_CONTROL_EXACT_HEAD_CI_PENDING
+  proof:
+    runtime: LOCAL_CONTAINER
+    validator_checks:
+      valid_document: PASS
+      duplicate_id_fail_closed: PASS
+      outline_parent_drift_fail_closed: PASS
+      sibling_rank_collision_fail_closed: PASS
+      unresolved_relation_target_fail_closed: PASS
+      applied_change_without_history_receipt_fail_closed: PASS
+  durable_controls:
+    - contracts/data_rich_document/README.md
+    - contracts/data_rich_document/document.schema.json
+    - contracts/data_rich_document/examples/adr-001.json
+    - contracts/data_rich_document/validate_document.py
+    - contracts/data_rich_document/tests/test_validate_document.py
+  remaining_gates:
+    - exact-head CI/workflow execution for this branch
+    - stable DOCX_RTM adapter contract before claiming end-to-end outward document perpetuation
+    - generated artifact hash binding before release-level promotion
+
+disposition: PASS_3PSTAR_THEN_MIP_BOUNDED_PR_READY

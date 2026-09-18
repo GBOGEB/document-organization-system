@@ -1,0 +1,402 @@
+{
+  "schema_version": "1.0.0",
+  "document": {
+    "id": "ADR-001",
+    "title": "JSON SSOT for Data-rich Engineering Documents",
+    "document_type": "ADR",
+    "version": "1.0.0",
+    "status": "review",
+    "updated_at": "2026-09-18T17:01:00+02:00",
+    "authority": {
+      "ssot": "THIS_JSON",
+      "version_control": "GIT",
+      "rendered_outputs_authoritative": false
+    }
+  },
+  "outline": [
+    {
+      "section_id": "SEC-001",
+      "children": [
+        {"section_id": "SEC-110", "children": []}
+      ]
+    },
+    {
+      "section_id": "SEC-200",
+      "children": [
+        {
+          "section_id": "SEC-210",
+          "children": [
+            {"section_id": "SEC-211", "children": []}
+          ]
+        },
+        {"section_id": "SEC-220", "children": []}
+      ]
+    },
+    {"section_id": "SEC-300", "children": []}
+  ],
+  "sections": [
+    {
+      "id": "SEC-001",
+      "title": "Context and Scope",
+      "heading_level": 1,
+      "placement": {
+        "parent_section_id": null,
+        "rank": 1000,
+        "after_section_id": null,
+        "before_section_id": "SEC-200",
+        "rationale": "Establish context before the architecture decision."
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      },
+      "content_blocks": [
+        {
+          "id": "BLK-001",
+          "type": "paragraph",
+          "version": "1.0.0",
+          "text": "Engineering documents need structured requirements, traceable sources, interfaces and decisions while remaining renderable to human-facing formats.",
+          "evidence_class": "AUTHORIAL",
+          "source_refs": [],
+          "supersedes": []
+        }
+      ],
+      "tags": ["scope"]
+    },
+    {
+      "id": "SEC-110",
+      "title": "Objectives",
+      "heading_level": 2,
+      "placement": {
+        "parent_section_id": "SEC-001",
+        "rank": 1000,
+        "after_section_id": null,
+        "before_section_id": null,
+        "rationale": "State the document-model objectives inside the context."
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      },
+      "content_blocks": [
+        {
+          "id": "BLK-110",
+          "type": "list",
+          "version": "1.0.0",
+          "text": "Stable IDs; section-level refinement; typed relations; approved change sets; deterministic rendering; Git-backed rollback.",
+          "evidence_class": "AUTHORIAL",
+          "source_refs": [],
+          "supersedes": []
+        }
+      ],
+      "tags": ["objectives"]
+    },
+    {
+      "id": "SEC-200",
+      "title": "Architecture Decision",
+      "heading_level": 1,
+      "placement": {
+        "parent_section_id": null,
+        "rank": 2000,
+        "after_section_id": "SEC-001",
+        "before_section_id": "SEC-300",
+        "rationale": "Place the decision after context and before consequences."
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      },
+      "content_blocks": [
+        {
+          "id": "BLK-200",
+          "type": "decision",
+          "version": "1.0.0",
+          "text": "Use one canonical JSON document graph as semantic SSOT and derive visible numbering and outward formats from that graph.",
+          "evidence_class": "AUTHORIAL",
+          "source_refs": [],
+          "supersedes": []
+        }
+      ],
+      "tags": ["decision"]
+    },
+    {
+      "id": "SEC-210",
+      "title": "Section and Content Model",
+      "heading_level": 2,
+      "placement": {
+        "parent_section_id": "SEC-200",
+        "rank": 1000,
+        "after_section_id": null,
+        "before_section_id": "SEC-220",
+        "rationale": "Define canonical content entities before interfaces."
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      },
+      "content_blocks": [
+        {
+          "id": "BLK-210",
+          "type": "paragraph",
+          "version": "1.0.0",
+          "text": "The outline contains section references only. Each section owns its title, placement, revision and ordered content blocks.",
+          "evidence_class": "AUTHORIAL",
+          "source_refs": [],
+          "supersedes": []
+        }
+      ],
+      "tags": ["section-model"]
+    },
+    {
+      "id": "SEC-211",
+      "title": "Change Transactions",
+      "heading_level": 3,
+      "placement": {
+        "parent_section_id": "SEC-210",
+        "rank": 1000,
+        "after_section_id": null,
+        "before_section_id": null,
+        "rationale": "Change mechanics refine the section model."
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      },
+      "content_blocks": [
+        {
+          "id": "BLK-211",
+          "type": "paragraph",
+          "version": "1.0.0",
+          "text": "Each update identifies targets, paths and rationale. Applied and reverted changes remain traceable through semantic history and Git.",
+          "evidence_class": "AUTHORIAL",
+          "source_refs": [],
+          "supersedes": []
+        }
+      ],
+      "tags": ["change-control"]
+    },
+    {
+      "id": "SEC-220",
+      "title": "Interfaces and Cross-references",
+      "heading_level": 2,
+      "placement": {
+        "parent_section_id": "SEC-200",
+        "rank": 2000,
+        "after_section_id": "SEC-210",
+        "before_section_id": null,
+        "rationale": "Define interactions after canonical entities are established."
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      },
+      "content_blocks": [
+        {
+          "id": "BLK-220",
+          "type": "interface",
+          "version": "1.0.0",
+          "text": "Typed relations connect sections, requirements and content blocks. DOCX, PDF, Markdown and HTML are generated interfaces.",
+          "evidence_class": "AUTHORIAL",
+          "source_refs": ["EXT-001"],
+          "supersedes": []
+        }
+      ],
+      "tags": ["interfaces"]
+    },
+    {
+      "id": "SEC-300",
+      "title": "Requirements and Consequences",
+      "heading_level": 1,
+      "placement": {
+        "parent_section_id": null,
+        "rank": 3000,
+        "after_section_id": "SEC-200",
+        "before_section_id": null,
+        "rationale": "Close with formal obligations and controls."
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      },
+      "content_blocks": [
+        {
+          "id": "BLK-300",
+          "type": "requirement_summary",
+          "version": "1.0.0",
+          "text": "Requirements remain structured objects and may be rendered into sections without becoming prose-only duplicates.",
+          "evidence_class": "AUTHORIAL",
+          "source_refs": [],
+          "supersedes": []
+        }
+      ],
+      "tags": ["requirements"]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "title": "Stable section identity",
+      "shall_statement": "Each document section shall have an immutable stable identifier independent of its rendered heading number.",
+      "rationale": "Section moves must not break traceability.",
+      "priority": "CRUCIAL",
+      "risk": "HIGH",
+      "section_ids": ["SEC-210", "SEC-300"],
+      "references": ["EXT-001"],
+      "allocation": ["document-model"],
+      "verification": {
+        "method": "inspection",
+        "status": "planned",
+        "evidence_refs": []
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      }
+    },
+    {
+      "id": "REQ-002",
+      "title": "Approved iterative refinement",
+      "shall_statement": "The document model shall record proposed, approved, applied and reverted change sets without deleting prior semantic history.",
+      "rationale": "Continuous refinement must remain auditable and reversible.",
+      "priority": "MUST",
+      "risk": "HIGH",
+      "section_ids": ["SEC-211", "SEC-300"],
+      "references": ["REQ-001"],
+      "allocation": ["change-control"],
+      "verification": {
+        "method": "test",
+        "status": "planned",
+        "evidence_refs": []
+      },
+      "revision": {
+        "version": "1.0.0",
+        "status": "review",
+        "based_on": null,
+        "updated_at": "2026-09-18T17:01:00+02:00",
+        "approved_by": []
+      }
+    }
+  ],
+  "relations": [
+    {
+      "id": "REL-001",
+      "from": "REQ-002",
+      "to": "REQ-001",
+      "type": "depends_on",
+      "rationale": "Auditable edits require stable target identities.",
+      "status": "active"
+    },
+    {
+      "id": "REL-002",
+      "from": "SEC-211",
+      "to": "SEC-210",
+      "type": "refines",
+      "rationale": "Change transactions refine the section and content model.",
+      "status": "active"
+    },
+    {
+      "id": "REL-003",
+      "from": "SEC-220",
+      "to": "EXT-001",
+      "type": "derived_from",
+      "rationale": "The interface mapping follows established multi-level document conversion guidance.",
+      "status": "active"
+    }
+  ],
+  "external_references": [
+    {
+      "id": "EXT-001",
+      "title": "Structured heading and Word-template conversion guidance",
+      "kind": "source_document",
+      "locator": "Code Storage and Naming of files.txt",
+      "revision": "source-upload"
+    }
+  ],
+  "change_sets": [
+    {
+      "id": "CHG-001",
+      "status": "applied",
+      "created_at": "2026-09-18T17:01:00+02:00",
+      "created_by": "document-author",
+      "approved_by": ["document-owner"],
+      "reverts_change_set": null,
+      "changes": [
+        {
+          "op": "add",
+          "target_id": "ADR-001",
+          "path": "/document",
+          "value": "Initial contract baseline",
+          "rationale": "Create the first governed JSON document graph example."
+        }
+      ]
+    }
+  ],
+  "history": [
+    {
+      "id": "HIST-001",
+      "at": "2026-09-18T17:01:00+02:00",
+      "document_version": "1.0.0",
+      "event": "created",
+      "change_set_ids": ["CHG-001"],
+      "summary": "Initial ADR example for the data-rich document contract."
+    }
+  ],
+  "render_profiles": [
+    {
+      "id": "VIEW-DOCX",
+      "format": "DOCX",
+      "template": null,
+      "max_heading_level": 3,
+      "heading_numbering": "template_managed",
+      "authority": "GENERATED_VIEW"
+    },
+    {
+      "id": "VIEW-PDF",
+      "format": "PDF",
+      "template": null,
+      "max_heading_level": 3,
+      "heading_numbering": "derived",
+      "authority": "GENERATED_VIEW"
+    },
+    {
+      "id": "VIEW-MD",
+      "format": "MARKDOWN",
+      "template": null,
+      "max_heading_level": 3,
+      "heading_numbering": "derived",
+      "authority": "GENERATED_VIEW"
+    },
+    {
+      "id": "VIEW-HTML",
+      "format": "HTML",
+      "template": null,
+      "max_heading_level": 3,
+      "heading_numbering": "derived",
+      "authority": "GENERATED_VIEW"
+    }
+  ]
+}
