@@ -5,7 +5,7 @@
 - Producer repository: `GBOGEB/pipeline-automation-hub`
 - Producer issue: `#268`
 - Producer PR: `#271`
-- Producer branch head at handover: `1aa1eaf44220b933793ea69b79f8edcc2411d645`
+- Producer branch head at handover: `405f1a74830771bb569ebf28759b9793bbe04d50`
 - Consumer issue: `GBOGEB/document-organization-system#58`
 - Authority transfer: `false`
 - Formal credit delta: `0`
@@ -34,7 +34,7 @@ This is a deterministic document-fidelity kernel, not a trained GAN. The adversa
 5. **MIP Innovate — PASS**: per-block SHA-256, tamper detection, nurturing feedback and machine-readable candidate descriptor added.
 6. **MIP Perpetuate — PASS_WITH_INFRA_BLOCKER**: source README, tests, CI workflow, control record and handover exist.
 7. **3PC Prepare — PASS**.
-8. **3PC Prove — LOCAL_PASS / REMOTE_PREEXECUTION_HOLD**: 3/3 local tests pass; producer Actions run `35360192569`, job `105649269753`, remained queued with `steps=null` on two checks.
+8. **3PC Prove — LOCAL_PASS / REMOTE_PREEXECUTION_HOLD**: 3/3 local tests pass; producer Actions attempts `35360192569`/job `105649269753` and `35360256537`/job `105649472509` both remained queued with `steps=null`; the two-attempt retry budget is exhausted.
 9. **3PC Commit — HOLD_REMOTE_PROOF**: producer PR stays open until the unchanged proof obtains a real runner and executes steps.
 
 ## Infrastructure classification
