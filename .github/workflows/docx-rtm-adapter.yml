@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout exact commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -48,11 +50,11 @@ jobs:
             contracts/data_rich_document/examples/adr-001.json \
             --output-dir adapter_out \
             --source-repo GBOGEB/document-organization-system \
-            --source-ref "$GITHUB_SHA"
+            --source-ref "${{ github.event.pull_request.head.sha || github.sha }}"
 
       - name: Upload projection receipt
         uses: actions/upload-artifact@v4
         with:
-          name: docx-rtm-projection-${{ github.sha }}
+          name: docx-rtm-projection-${{ github.event.pull_request.head.sha || github.sha }}
           path: adapter_out/
           if-no-files-found: error
