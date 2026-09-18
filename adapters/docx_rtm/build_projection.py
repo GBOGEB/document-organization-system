@@ -240,6 +240,7 @@ def build_manifest(
     source_repo: str = "",
     source_ref: str = "",
     source_path: str = "",
+    max_heading_level: int = DEFAULT_MAX_HEADING_LEVEL,
 ) -> Dict[str, Any]:
     document = data["document"]
     return {
@@ -262,13 +263,12 @@ def build_manifest(
             "format": "MARKDOWN",
             "sha256": sha256_bytes(markdown.encode("utf-8")),
             "heading_contract": {
-                "maximum_heading_level": DEFAULT_MAX_HEADING_LEVEL,
+                "maximum_heading_level": max_heading_level,
                 "numbering": "TEMPLATE_MANAGED",
                 "heading_text_contains_numbers": False,
                 "style_map": {
-                    "1": "Heading 1",
-                    "2": "Heading 2",
-                    "3": "Heading 3",
+                    str(level): f"Heading {level}"
+                    for level in range(1, max_heading_level + 1)
                 },
             },
             "section_count": len(section_map),
@@ -318,6 +318,7 @@ def project_file(
         source_repo=source_repo,
         source_ref=source_ref,
         source_path=str(source_path),
+        max_heading_level=max_heading_level,
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
