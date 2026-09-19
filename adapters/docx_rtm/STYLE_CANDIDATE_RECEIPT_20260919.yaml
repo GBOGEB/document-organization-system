@@ -1,0 +1,68 @@
+schema: gbogeb.docx_rtm.style_candidate_receipt/1.0.0
+as_of: '2026-09-19T09:18:00+02:00'
+status: PASS_CANDIDATE_READY_FOR_USER_REVIEW
+
+approved_visual_baseline:
+  status: IMMUTABLE_REFERENCE
+  docx_sha256: e936ffcb89eb7da13b8be8d447c8453b5b4499a4907390816846f5c8ec94a6b9
+  pdf_sha256: 654e74630861b5b398ab577d55da5f692bf4549b0af480498822428109353b02
+  source_pr: 69
+
+candidate:
+  style_id: QPS_TECH_GRAPHITE_TEAL_COPPER_V1
+  consumer_repo: GBOGEB/DOCX_RTM_Automation
+  consumer_pr: 71
+  consumer_merge_sha: 78de18967bae343b68f6e757c610262b2b385112
+  exact_render_head: 92468c5fb9210144901729d5385c48cc858b1099
+  workflow_run: 35428885415
+  job_id: 105859678433
+  artifact:
+    id: 10580151437
+    digest: sha256:c7483e4253f7ff746121897b3b51383fee3b095b7ee1793c5a54cad9c70cac7e
+  style_sha256: 9338e9634185c5ae9184533ddc77541badd7ba84ea6bf7c9fb576c5c01a02df8
+  docx_sha256: 64d3d76c71977a6a71b2bef54574f0cc3330b5f26ce984c051c9f3ea77bc8213
+  pdf_sha256: bd8d29bbc3a2429ad723e6897faf633583128d5f7482cc207f32974a1a2295f0
+
+style_tokens:
+  body: graphite
+  hierarchy: deep_teal
+  special_numbers: copper
+  requirement_ids: copper
+  metadata_labels: copper
+  captions:
+    text: neutral_gray
+    number: copper
+  title_rule: DISABLED
+  font_size_granularity_pt: 0.5
+  user_font_mode: NAME_REFERENCE_ONLY
+
+proof:
+  render_status: PASS
+  semantic_source_invariance: PASS
+  projection_markdown_invariance: PASS
+  template_numbering: PASS
+  duplicate_numbering: PASS
+  requirement_pagination: PASS
+  final_split_requirements: []
+  pdf_pages: 2
+  visual_style_contract: PASS
+  independent_visual_qa: PASS
+  legacy_standard_blue_observed: false
+  visual_delta:
+    page_count_equal: true
+    mean_changed_pixel_ratio: 0.07894457
+    page_1_changed_pixel_ratio: 0.11515327
+    page_2_changed_pixel_ratio: 0.04273588
+
+review:
+  user_style_candidate_approval: NOT_CLAIMED
+  candidate_baseline_replacement: WITHHELD
+  next_gate: USER_STYLE_REVIEW
+
+authority:
+  semantic_ssot: JSON
+  authority_transfer: false
+  rendered_output_authoritative_for_semantics: false
+  engineering_credit: false
+  compliance_credit: false
+  procurement_acceptance_credit: false
