@@ -1,5 +1,5 @@
-schema: gbogeb.docx_rtm.consumer_return_receipt/1.1.0
-as_of: '2026-09-18T19:45:00+02:00'
+schema: gbogeb.docx_rtm.consumer_return_receipt/1.2.0
+as_of: '2026-09-19T08:11:00+02:00'
 
 producer:
   repo: GBOGEB/document-organization-system
@@ -79,8 +79,14 @@ visual_control:
     overlap: NONE
     orphaned_requirement_metadata: NONE
     duplicate_heading_numbering: NONE_OBSERVED
-  user_visual_approval: NOT_CLAIMED
-  reason: independent QA can prove absence of observed layout defects but cannot substitute for explicit user baseline approval
+  user_visual_approval: PASS
+  user_approval_source: EXPLICIT_CHAT_APPROVAL
+  user_approval_quote: "Approve docx and pdf !"
+  user_approval_at: '2026-09-19T08:11:00+02:00'
+  approved_scope:
+    - CORRECTED_DOCX_RENDER
+    - CORRECTED_PDF_RENDER
+  visual_baseline: PROMOTED
 
 authority:
   authority_transfer: false
@@ -95,5 +101,6 @@ supersedes_operationally:
   prior_artifact_digest: sha256:5834b664708de31107fa272e4f69438ba36c537e0971474b834e91bc30860fc5
   supersession_reason: VISUAL_QA_FOUND_REQUIREMENT_PAGE_SPLIT_THEN_REPAIRED
 
-disposition: PASS_CROSS_REPO_DOCX_RTM_ADAPTER_LOOP_WITH_INDEPENDENT_VISUAL_QA
-remaining_first_red: USER_VISUAL_APPROVAL
+disposition: PASS_USER_APPROVED_VISUAL_BASELINE
+remaining_first_red: NONE_FOR_ACCEPTED_VISUAL_BASELINE
+next_first_red: GOVERNED_STYLE_SYSTEM_CANDIDATE
