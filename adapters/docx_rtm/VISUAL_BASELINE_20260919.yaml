@@ -1,0 +1,49 @@
+schema: gbogeb.docx_rtm.visual_baseline/1.0.0
+as_of: '2026-09-19T08:11:00+02:00'
+status: PROMOTED_USER_APPROVED
+
+approval:
+  source: EXPLICIT_CHAT_APPROVAL
+  quote: "Approve docx and pdf !"
+  approved_at: '2026-09-19T08:11:00+02:00'
+  scope:
+    - DOCX
+    - PDF
+
+source_lineage:
+  semantic_ssot: GBOGEB/document-organization-system
+  semantic_authority: JSON
+  adapter_merge_sha: e181903236e70b7b798b56fd59fc8948cd9885c0
+
+render_lineage:
+  consumer_repo: GBOGEB/DOCX_RTM_Automation
+  consumer_merge_sha: a373ded8808ff1a9dfc40fe7374eb7fcabb6d3b3
+  exact_head_sha: 332bc99e26597ab8857f5cc38f5921c293d78334
+  workflow_run: 35375677112
+  job_id: 105699668504
+  artifact_id: 10560525654
+  artifact_digest: sha256:ce9c806aebcce0cc9f15eaaf728c4e2bb30e4e93cb2db26b80c9e8c3ce8db8f0
+
+approved_hashes:
+  docx: e936ffcb89eb7da13b8be8d447c8453b5b4499a4907390816846f5c8ec94a6b9
+  pdf: 654e74630861b5b398ab577d55da5f692bf4549b0af480498822428109353b02
+
+qa:
+  structural: PASS
+  pagination: PASS
+  independent_visual: PASS
+  user_visual: PASS
+
+authority:
+  visual_baseline_authoritative_for_regression: true
+  rendered_output_authoritative_for_semantics: false
+  authority_transfer: false
+  engineering_credit: false
+  compliance_credit: false
+  procurement_acceptance_credit: false
+
+style_evolution:
+  baseline_is_immutable_reference: true
+  new_style_requires_new_candidate: true
+  semantic_hash_change_allowed: false
+  next_slice: GOVERNED_VISUAL_STYLE_TOKENS_AND_TEMPLATE_PACK
