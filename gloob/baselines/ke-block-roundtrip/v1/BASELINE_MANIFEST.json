@@ -1,0 +1,26 @@
+{
+  "schema": "gloob.ke_block_roundtrip.baseline_manifest.v1",
+  "baseline_id": "KE_BLOCK_ROUNDTRIP_BASELINE_V1",
+  "state": "BASELINE_V1_CONTROLLED",
+  "promoted_at": "2026-09-22T18:56:00+02:00",
+  "source_control": {
+    "source_master_sha256": "b634c6c7d68742c8561e3589697bbe20889bdb1187e0c25e1816757e75b454a1",
+    "prior_control_merge": "167d66e963eebbe982ffae6c36d78580a2390a92",
+    "parent_missioncontrol_merge": "168fe4b92330cf3a8dc3675b3e2d51559e8f91f0"
+  },
+  "binary_hashes": {
+    "KE_BLOCK_Roundtrip_Report_Baseline_v1.docx": "27b37fd807234a24048dfee479dfad50c6293ff19d2a36913183f135f8ac9d2c",
+    "KE_BLOCK_Roundtrip_KPI_Baseline_v1.xlsx": "8cd51d1ac89fe21d39a1281a414659a92f5a93afcc812a30be86d29450502312",
+    "KE_BLOCK_Roundtrip_Deck_Baseline_v1.pptx": "bac54897883d55f8d1b9df0ef7628583204697eff89fa8c6eed9568a268298e9",
+    "KE_BLOCK_Roundtrip_Baseline_v1.zip": "179f130e442640025b67eae1d8f21cf18a92e24e47721458d4efd9506bf3afc9"
+  },
+  "reconstruction": {
+    "master_prime_sha256": "5eb2695b04104b0c7b082a96cab5fd7a8e09a90a44778cdac9bbf48892a643e1",
+    "structure_fidelity": 1,
+    "contract_semantic_similarity": 1,
+    "required_marker_coverage": 1,
+    "defect_rate": 0
+  },
+  "current_pointer": "gloob/baselines/ke-block-roundtrip/CURRENT.json",
+  "status": "CONTROLLED"
+}

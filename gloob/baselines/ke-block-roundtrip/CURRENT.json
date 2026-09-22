@@ -1,0 +1,18 @@
+{
+  "schema": "gloob.ke_block_roundtrip.current_baseline.v1",
+  "baseline_id": "KE_BLOCK_ROUNDTRIP_BASELINE_V1",
+  "state": "CONTROLLED",
+  "path": "gloob/baselines/ke-block-roundtrip/v1",
+  "promoted_at": "2026-09-22T18:56:00+02:00",
+  "source_master_authority": "UNCHANGED",
+  "next_gate": "RETEST_ON_NEXT_CHANGE",
+  "reentry_predicates": [
+    "NEW_INPUT",
+    "BIGGER_SAMPLE",
+    "NEW_TASK",
+    "NEW_FUNCTION",
+    "REFACTOR",
+    "SCALING_CHANGE",
+    "SOURCE_CHANGE"
+  ]
+}
