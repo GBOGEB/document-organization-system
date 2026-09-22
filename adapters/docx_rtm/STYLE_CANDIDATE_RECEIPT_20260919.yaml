@@ -1,5 +1,5 @@
-schema: gbogeb.docx_rtm.style_candidate_receipt/1.0.0
-as_of: '2026-09-19T09:18:00+02:00'
+schema: gbogeb.docx_rtm.style_candidate_receipt/1.1.0
+as_of: '2026-09-22T15:05:00+02:00'
 status: PASS_CANDIDATE_READY_FOR_USER_REVIEW
 
 approved_visual_baseline:
@@ -66,3 +66,48 @@ authority:
   engineering_credit: false
   compliance_credit: false
   procurement_acceptance_credit: false
+
+mip_enhancement_20260922:
+  status: PASS
+  first_red_closed: STYLE_FONT_RESOLUTION_AND_VISIBLE_TOKEN_COVERAGE
+  consumer_repo: GBOGEB/DOCX_RTM_Automation
+  feature_pr: 74
+  feature_merge_sha: fbb931d28b551f33f6988882c9a983dc69dcde42
+  control_pr: 75
+  control_merge_sha: f7620c308be6fb4288b19f6dcd59e2a27df57d6a
+  functional_head_sha: 7f5cfc7fc693db13fcdebe83a84f1604279f1818
+  python_ci:
+    run_id: 35730488649
+    job_id: 106754547629
+    conclusion: success
+  render_ci:
+    run_id: 35730488674
+    job_id: 106754547718
+    conclusion: success
+  artifact:
+    id: 10694454768
+    digest: sha256:f791e91b39604f5761e316ced3ef0c4cda6fcb39ef10c71aa3edd92d74516b00
+  font_resolution:
+    source_style_sha256: 9338e9634185c5ae9184533ddc77541badd7ba84ea6bf7c9fb576c5c01a02df8
+    resolved_style_sha256: 4ea6c9a2b0fe26ddc6ed4e5954832fca8cbaad4572d2c216547c11d8de2c76cf
+    body: "Aptos -> Liberation Sans"
+    heading: "Aptos Display -> Liberation Sans"
+    mono: "Aptos Mono -> Liberation Mono"
+    fallback_resolution: PASS
+  visible_style_specimen:
+    coverage: PASS
+    failed_checks: 0
+    table_count: 2
+    docx_sha256: 2a5413ead320950e4ec7756fe6f875f3718ba419bae52f4df44f058a6bc55cdc
+    independent_visual_qa: PASS
+  deterministic_render:
+    docx_sha256: 5f4a075d81a47fa0904bdd24b672d6c13595cc1137c9572836c3f443d525e415
+    pdf_sha256: 8b39a9959756dbc9fea92ee33d28b0fa86396f1f7b6fa58917b39a3292117d30
+    pages: 2
+    split_requirements: []
+    semantic_invariance: PASS
+    visual_delta_mean: 0.0767814
+  review_state:
+    user_style_candidate_approval: NOT_CLAIMED
+    next_gate: USER_STYLE_REVIEW
+    baseline_replacement: WITHHELD
