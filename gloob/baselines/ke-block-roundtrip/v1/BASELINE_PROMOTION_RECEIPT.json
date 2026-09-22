@@ -1,0 +1,62 @@
+{
+  "schema": "gloob.ke_block_roundtrip.baseline_promotion_receipt.v1",
+  "baseline_id": "KE_BLOCK_ROUNDTRIP_BASELINE_V1",
+  "promoted_at": "2026-09-22T18:56:00+02:00",
+  "promotion_basis": "explicit user instruction: Next, proceed",
+  "source_authority": {
+    "logical_name": "MASTER(DOC)",
+    "file": "MASTER_contract.md",
+    "sha256": "b634c6c7d68742c8561e3589697bbe20889bdb1187e0c25e1816757e75b454a1",
+    "status": "UNCHANGED_SOURCE_AUTHORITY"
+  },
+  "validated_outputs": {
+    "docx": {
+      "file": "KE_BLOCK_Roundtrip_Report_Baseline_v1.docx",
+      "sha256": "27b37fd807234a24048dfee479dfad50c6293ff19d2a36913183f135f8ac9d2c"
+    },
+    "xlsx": {
+      "file": "KE_BLOCK_Roundtrip_KPI_Baseline_v1.xlsx",
+      "sha256": "8cd51d1ac89fe21d39a1281a414659a92f5a93afcc812a30be86d29450502312"
+    },
+    "pptx": {
+      "file": "KE_BLOCK_Roundtrip_Deck_Baseline_v1.pptx",
+      "sha256": "bac54897883d55f8d1b9df0ef7628583204697eff89fa8c6eed9568a268298e9"
+    },
+    "master_prime": {
+      "file": "MASTER_prime_reconstructed.md",
+      "sha256": "5eb2695b04104b0c7b082a96cab5fd7a8e09a90a44778cdac9bbf48892a643e1"
+    },
+    "baseline_zip": {
+      "file": "KE_BLOCK_Roundtrip_Baseline_v1.zip",
+      "sha256": "179f130e442640025b67eae1d8f21cf18a92e24e47721458d4efd9506bf3afc9"
+    }
+  },
+  "proof": {
+    "binary_render_qa": "PASS_VISUAL_QA_RENDERED_AND_INSPECTED",
+    "roundtrip_structure_pass": true,
+    "contract_semantic_similarity_pass": true,
+    "marker_coverage_pass": true,
+    "defect_rate_pass": true,
+    "user_approval": true
+  },
+  "promotion": {
+    "from": "CANDIDATE_BASELINE_WITHHELD",
+    "to": "BASELINE_V1_CONTROLLED",
+    "result": "PASS_PROMOTED"
+  },
+  "non_compensation": {
+    "baseline_ne_source_master": true,
+    "baseline_ne_qps_engineering_authority": true,
+    "baseline_ne_procurement_acceptance": true,
+    "baseline_ne_commercial_release": true
+  },
+  "retest_on": [
+    "NEW_INPUT",
+    "BIGGER_SAMPLE",
+    "NEW_TASK",
+    "NEW_FUNCTION",
+    "REFACTOR",
+    "SCALING_CHANGE",
+    "SOURCE_CHANGE"
+  ]
+}
