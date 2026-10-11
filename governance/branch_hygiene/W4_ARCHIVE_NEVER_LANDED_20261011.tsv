@@ -1,0 +1,4 @@
+# W4_ARCHIVE_NEVER_LANDED (2 branches, mode archive). Census 2026-10-11 against main.
+# Executable files that never reached main. Run only after the known-fix backlog review. Tagged archive/<branch> first.
+codex/cryo-v0.4.9-session-handover	e770d74c18773359504a031dbf2a01f9b855d7b9	archive
+feature/nist-parity-tests-and-deployment-checklist	6f1663d314cbeed949075fe21ece98cd8721a1fd	archive
