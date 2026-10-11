@@ -1,0 +1,4 @@
+# W2_ARCHIVE_SUPERSEDED (2 branches, mode archive). Census 2026-10-11 against main.
+# Changed files already identical on main, docs/evidence snapshots, or unrelated history. Tagged archive/<branch> first.
+mip/ke-block-roundtrip-20260918	023d9b3e6d062b174a8992e0aed11bca94e078cc	archive
+mip/l1-v2-stat-guards	e05b05fc18ceae17722acc312bc75c0db5398c5c	archive
