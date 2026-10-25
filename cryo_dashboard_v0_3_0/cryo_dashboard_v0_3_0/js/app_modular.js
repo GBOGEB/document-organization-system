@@ -2076,7 +2076,7 @@ export async function initApp() {
       "afterbegin",
       `<div style="background: #fbbf24; color: #000; padding: 20px; margin: 20px; border-radius: 8px;">
         <strong>Error loading dashboard:</strong> ${error.message}<br>
-        Tip: v0.4.7 uses ES6 modules. Open via a local server: <code>python -m http.server</code>
+        Tip: v0.4.9 uses ES6 modules. Open via a local server: <code>python -m http.server</code>
       </div>`
     );
     console.error(error);
