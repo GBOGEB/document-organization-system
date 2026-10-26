@@ -1,0 +1,14 @@
+# Document Organization System Requirements
+# Core dependencies for the document organization system
+
+# Optional but recommended for enhanced features
+colorama>=0.4.4          # Cross-platform colored terminal output
+pathlib2>=2.3.5          # Enhanced path handling (Python < 3.4)
+
+# Development and testing (optional)
+pytest>=6.0.0            # Testing framework
+black>=21.0.0             # Code formatting
+flake8>=3.8.0             # Code linting
+
+# Documentation (optional)
+markdown>=3.3.0           # Markdown processing
