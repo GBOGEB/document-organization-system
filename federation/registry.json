@@ -81,7 +81,7 @@
         "file_browser": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/files.html",
         "index": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html"
       },
-      "notes": "Smoke GREEN (823 NIST + 5 contract). PR #80 merged. GitHub Pages currently serves main:/docs; dashboard is outside /docs (see pages workflow added in this slice)."
+      "notes": "Smoke GREEN (823 NIST + 5 ssot_contract + 8 registry_contract = 836). PR #80 merged; PR #81 open (this slice). GitHub Pages currently serves main:/docs; dashboard is outside /docs (see docs/deploy/pages.yml.txt)."
     }
   ],
   "disposition": "LOCAL_INDEX_ACTIVE; TRIAD_REGISTRY_PROMOTION_DEFERRED_TO_HUMAN_REVIEW",
