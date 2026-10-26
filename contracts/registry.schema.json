@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gbogeb.github.io/document-organization-system/contracts/registry.schema.json",
+  "title": "GBOGEB Federation Registry",
+  "description": "Dependency-free JSON Schema contract for federation/registry.json, the repo-local cross-repo index of the GBOGEB code space. Mirrors the triad convention of a schema contract per canonical SSOT artifact (see GBOGEB/CODEX, GBOGEB/cryoplant-project contracts/*.schema.json). The registry is reference-only and additive; it never mutates the triad registry of record.",
+  "type": "object",
+  "required": ["schema_version", "owner", "registry_of_record", "local_ssot_pointer", "repos"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^federation-registry/[0-9]+\\.[0-9]+$" },
+    "owner": { "type": "string", "const": "GBOGEB" },
+    "registry_of_record": { "type": "string", "pattern": "^GBOGEB/" },
+    "local_ssot_pointer": { "type": "string", "minLength": 1 },
+    "generated_at_utc": { "type": "string", "format": "date-time" },
+    "integration_model": { "type": "string" },
+    "non_destructive": { "type": "boolean" },
+    "repos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["repo", "role", "default_branch", "reference_only", "authoritative_artifacts"],
+        "additionalProperties": true,
+        "properties": {
+          "repo": { "type": "string", "pattern": "^GBOGEB/[A-Za-z0-9._-]+$" },
+          "role": { "type": "string", "minLength": 1 },
+          "visibility": { "type": "string", "enum": ["public", "private"] },
+          "default_branch": { "type": "string", "minLength": 1 },
+          "html_url": { "type": "string", "pattern": "^https://github.com/GBOGEB/" },
+          "reference_only": { "type": "boolean" },
+          "is_self": { "type": "boolean" },
+          "subtree": { "type": "string", "minLength": 1 },
+          "dashboard_version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "authoritative_artifacts": { "type": "object", "minProperties": 1 },
+          "entry_points": { "type": "object" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "disposition": { "type": "string" }
+  }
+}

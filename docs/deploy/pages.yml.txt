@@ -1,0 +1,100 @@
+# ============================================================================
+# APPLY MANUALLY: copy this file to  .github/workflows/pages.yml  and commit.
+# The Abacus GitHub App cannot push files under .github/workflows/ (it lacks
+# the `workflows` permission), so this deploy workflow is shipped here as text.
+# From a local clone with workflow-push rights (your PAT or the web UI):
+#     mkdir -p .github/workflows
+#     cp docs/deploy/pages.yml.txt .github/workflows/pages.yml
+#     git add .github/workflows/pages.yml && git commit -m "ci: add Pages deploy workflow" && git push
+# Then set Settings -> Pages -> Source = "GitHub Actions".
+# ============================================================================
+name: Deploy Cryo Dashboard to GitHub Pages
+
+# WHY THIS EXISTS
+# ---------------
+# The repository's Pages site was configured with the LEGACY source
+# `main:/docs`, but the Cryogenic Material Dashboard lives OUTSIDE /docs
+# (under cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/). As a result every
+# dashboard entry point returned HTTP 404 on gbogeb.github.io.
+#
+# This workflow publishes the dashboard subtree as a Pages artifact via the
+# GitHub Actions deployment path, with a root landing page that links to every
+# entry point. It is additive and non-destructive.
+#
+# ONE-TIME SETTING REQUIRED (repo owner): Settings -> Pages -> Build and
+# deployment -> Source = "GitHub Actions". This switches the site away from the
+# legacy main:/docs source so this workflow's output is served. Until that
+# toggle is flipped the dashboard is NOT live.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/**"
+      - "federation/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; do not cancel an in-progress production deploy.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DASH: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble Pages artifact
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # Publish the dashboard subtree at the site root.
+          cp -r "$DASH"/. _site/
+          # Make the federation registry fetchable at ../../federation/registry.json
+          # relative to the dashboard files (preserves the subtree-relative path
+          # used by federation_hub.html when served from a nested structure).
+          mkdir -p _site/federation
+          cp -r federation/. _site/federation/ 2>/dev/null || true
+          # Jekyll must not process this static site.
+          touch _site/.nojekyll
+          # Root landing page -> federation hub (falls back to the launcher).
+          cat > _site/landing.html <<'HTML'
+          <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+          <meta http-equiv="refresh" content="0; url=./federation_hub.html">
+          <title>Cryo Dashboard — redirecting</title></head>
+          <body style="font-family:system-ui;background:#0f1117;color:#e0e0e0;text-align:center;padding:40px">
+          <p>Redirecting to the <a style="color:#60a5fa" href="./federation_hub.html">Federation Hub</a>…</p>
+          <p><a style="color:#60a5fa" href="./ssot_launcher.html">SSOT Launcher</a> ·
+             <a style="color:#60a5fa" href="./index.html">Index</a></p>
+          </body></html>
+          HTML
+          echo "Artifact contents:" && ls -1 _site | head -40
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

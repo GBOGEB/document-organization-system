@@ -1,3 +1,32 @@
+## v0.4.9-federation
+**Date:** 2026-10-26
+
+Slice 05 — **Federation SSOT Hub + Pages Recovery**. Additive, cross-link integration model (b); no triad-governed file in ABACUS/CODEX/cryoplant was mutated.
+
+### Added
+- **Federation registry** (`federation/registry.json`): machine-readable, repo-local cross-repo index linking this satellite to the W110 triad (cryoplant-project = child engineering truth, ABACUS = DOW consumption, CODEX = KEB semantic-runtime / registry of record) by reference only.
+- **Registry contract** (`contracts/registry.schema.json`): dependency-free JSON Schema (draft-07) governing `registry.json`, mirroring the triad `contracts/*.schema.json` convention.
+- **Registry contract test** (`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/tests/registry_contract.test.js`): 8 dependency-free checks (shape, no-duplicate repos, single self repo, local-path existence, external-repos-are-reference-only); wired into `npm test` and `test:contract`.
+- **Federation Hub** (`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/federation_hub.html`): dependency-light launcher rendering the registry (fetch with embedded `file://` fallback); linked from `ssot_launcher.html` (nav + launch card). Re-implements no property-evaluation logic (parity-safe).
+- **GitHub Pages workflow** (`docs/deploy/pages.yml.txt`, apply-as-text): publishes the dashboard subtree + federation registry as a Pages artifact with a root landing redirect and `.nojekyll`. Shipped as text because the Abacus GitHub App cannot push under `.github/workflows/`; the owner copies it into place (see `docs/FEDERATION_HUB.md` §4).
+- **Docs** (`docs/FEDERATION_HUB.md`): hub/registry/contract/Pages documentation.
+
+### Fixed
+- **GitHub Pages 404 (root cause)**: Pages source was the legacy `main:/docs`, but the dashboard lives outside `/docs`, so every entry point returned 404. The new Actions workflow serves the dashboard tree. Requires the owner to set **Settings → Pages → Source = GitHub Actions** (one-time) to go live.
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Test suite | 823 NIST + 5 ssot_contract + **8 registry_contract** = 836, all pass |
+| Repos indexed | 4 (triad + satellite) |
+| Governed files mutated in other repos | 0 (reference-only) |
+
+### Known / out of scope (non-blocking)
+- Triad registry promotion (satellite → ACTIVE in CODEX W110) stays a human-review action.
+- Security-alert inventory still needs the fine-grained PAT (report §9); cryoplant code scanning still off.
+- Pages is **not live** until the owner flips the Source setting.
+
 ## v0.4.9-nist
 **Date:** 2026-05-18
 

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Federation Hub — GBOGEB Code Space</title>
+<!--
+  Federation Hub — a dependency-free launcher that renders the repo-local
+  federation registry (federation/registry.json) as cross-repo cards plus
+  local dashboard entry points. It fetches the registry when served over HTTP
+  and falls back to an embedded copy so it also works from file://.
+  It intentionally re-implements NO property-evaluation logic (evalRational /
+  evalProp live only in js/materials.js and the SSOT viewers); the hub only
+  lists and links. Styling mirrors ssot_launcher.html.
+-->
+<style>
+:root[data-theme="dark"]{--bg:#0f1117;--panel:#1a1f2e;--card:#242938;--text:#e0e0e0;--muted:#94a3b8;--border:#2a3550;--accent:#60a5fa;--accent2:#93c5fd;--green:#4ade80;--amber:#fbbf24;--red:#f87171;--purple:#a78bfa;--cyan:#22d3ee}
+:root[data-theme="light"]{--bg:#f8fafc;--panel:#fff;--card:#f1f5f9;--text:#1e293b;--muted:#64748b;--border:#cbd5e1;--accent:#2563eb;--accent2:#1d4ed8;--green:#16a34a;--amber:#ea580c;--red:#dc2626;--purple:#7c3aed;--cyan:#0891b2}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:all .3s}
+.header{background:linear-gradient(135deg,var(--panel),var(--card));border-bottom:2px solid var(--border);padding:28px 24px;text-align:center;position:relative}
+.header h1{font-size:2rem;color:var(--accent);margin-bottom:6px}
+.header p{color:var(--muted);font-size:.95rem}
+.badge{display:inline-block;background:var(--card);border:1px solid var(--border);padding:3px 12px;border-radius:6px;font-size:.8rem;color:var(--accent);font-weight:700;margin:2px 4px}
+.badge-g{border-color:var(--green);color:var(--green)}
+.badge-a{border-color:var(--amber);color:var(--amber)}
+.theme-btn{position:absolute;top:20px;right:20px;background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;color:var(--text);font-size:.85rem;transition:all .2s}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+.container{max-width:1280px;margin:0 auto;padding:24px}
+.section{margin-bottom:32px}
+.section-title{font-size:1.3rem;color:var(--accent);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s;position:relative}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.card h3{color:var(--accent);font-size:1.1rem;margin-bottom:8px}
+.card p{color:var(--muted);font-size:.84rem;margin-bottom:10px}
+.card .tag{position:absolute;top:12px;right:12px;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:4px}
+.tag-self{background:var(--cyan);color:#111}
+.tag-pub{background:var(--green);color:#111}
+.tag-priv{background:var(--amber);color:#111}
+.btn{display:block;width:100%;padding:11px;border-radius:8px;text-align:center;text-decoration:none;font-weight:600;font-size:.88rem;transition:all .2s;border:none;cursor:pointer;margin-top:8px}
+.btn:hover{transform:scale(1.02);opacity:.9}
+.btn-b{background:var(--accent);color:#fff}
+.btn-o{background:var(--card);color:var(--accent);border:1px solid var(--border)}
+.btn-o:hover{border-color:var(--accent)}
+.role{font-size:.78rem;color:var(--cyan);font-weight:600;margin-bottom:6px}
+.art{list-style:none;margin:8px 0 0;padding:0;font-size:.74rem;color:var(--muted)}
+.art li{padding:2px 0;font-family:Consolas,monospace;word-break:break-all}
+.art li b{color:var(--text);font-family:'Segoe UI',system-ui,sans-serif}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+.pill-g{background:rgba(74,222,128,.15);color:var(--green)}
+.pill-a{background:rgba(251,191,36,.15);color:var(--amber)}
+.pill-m{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.entry-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.meta{background:var(--card);border:1px solid var(--cyan);border-radius:10px;padding:16px;font-size:.78rem;color:var(--muted);margin:16px 0}
+.meta b{color:var(--text)}
+.src{font-size:.72rem;color:var(--muted);text-align:center;margin-top:6px}
+.notice{background:var(--card);border:1px solid var(--amber);border-radius:8px;padding:12px 16px;font-size:.82rem;color:var(--text);margin:12px 0}
+</style>
+</head>
+<body>
+<div class="header">
+<button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
+<h1>🛰️ Federation Hub — GBOGEB Code Space</h1>
+<p>Cross-repo Single Source of Truth index · extends the W110 triad convention (reference-only, additive)</p>
+<div style="margin-top:8px">
+<span class="badge badge-g">Model: cross-link (b)</span>
+<span class="badge" id="repoCountBadge">repos: —</span>
+<span class="badge badge-a" id="rorBadge">registry of record: CODEX/W110</span>
+</div>
+</div>
+
+<div class="container">
+
+<div class="notice" id="pagesNotice">
+⚠️ <b>GitHub Pages:</b> this hub resolves at a clean URL only after <b>Settings → Pages → Source = GitHub Actions</b> is enabled (see <code>.github/workflows/pages.yml</code>). Until then the dashboard tree is not served (source is still <code>main:/docs</code>).
+</div>
+
+<!-- ── FEDERATION REPOS ── -->
+<div class="section" id="repos">
+<div class="section-title">🗂️ Federation Repositories</div>
+<div class="grid-3" id="repoGrid"><!-- cards injected --></div>
+<div class="src" id="dataSrc">loading registry…</div>
+</div>
+
+<!-- ── LOCAL ENTRY POINTS ── -->
+<div class="section" id="entries">
+<div class="section-title">🚀 Dashboard Entry Points (this repo)</div>
+<div class="entry-grid" id="entryGrid"><!-- injected --></div>
+</div>
+
+<!-- ── REGISTRY METADATA ── -->
+<div class="section" id="meta">
+<div class="section-title">🗄️ Registry Metadata</div>
+<div class="meta" id="metaBox"><!-- injected --></div>
+</div>
+
+</div>
+
+<script id="embeddedRegistry" type="application/json">
+{
+  "schema_version": "federation-registry/1.0",
+  "owner": "GBOGEB",
+  "registry_of_record": "GBOGEB/CODEX:federation/mip/W110_CANONICAL_SSOT_REGISTRY.{json,md,zod.ts}",
+  "local_ssot_pointer": "federation/CROSS_REPO_SSOT_POINTER.json",
+  "integration_model": "cross-link (b): repos stay separate; the dashboard SSOT extends the triad conventions",
+  "disposition": "LOCAL_INDEX_ACTIVE; TRIAD_REGISTRY_PROMOTION_DEFERRED_TO_HUMAN_REVIEW",
+  "repos": [
+    {"repo":"GBOGEB/cryoplant-project","role":"child engineering truth","visibility":"private","default_branch":"main","html_url":"https://github.com/GBOGEB/cryoplant-project","reference_only":true,"authoritative_artifacts":{"ssot_disposition":"federation/mip/W110_CHILD_MIP_SSOT_DISPOSITION.{json,md,zod.ts}","contracts_glob":"contracts/*.schema.json"},"notes":"QPS engineering truth. Smoke AMBER (root conftest in PR #2087)."},
+    {"repo":"GBOGEB/ABACUS","role":"DOW consumption analysis","visibility":"public","default_branch":"main","html_url":"https://github.com/GBOGEB/ABACUS","reference_only":true,"authoritative_artifacts":{"ssot_consumer":"federation/mip/W110_DOW_MIP_SSOT_CONSUMER.{json,md,zod.ts}","sarif":".github/workflows/bandit.yml"},"notes":"Smoke GREEN (make smoke: 35 passed)."},
+    {"repo":"GBOGEB/CODEX","role":"KEB semantic-runtime receipts / registry of record","visibility":"public","default_branch":"main","html_url":"https://github.com/GBOGEB/CODEX","reference_only":true,"authoritative_artifacts":{"ssot_registry":"federation/mip/W110_CANONICAL_SSOT_REGISTRY.{json,md,zod.ts}","sarif":".github/workflows/{codeql,bandit,osv-scanner}.yml"},"notes":"Smoke GREEN (pytest 14 + tsx 5)."},
+    {"repo":"GBOGEB/document-organization-system","role":"satellite — cryogenic material property dashboard","visibility":"public","default_branch":"main","html_url":"https://github.com/GBOGEB/document-organization-system","reference_only":false,"is_self":true,"dashboard_version":"v0.4.9","authoritative_artifacts":{"ssot":"cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/ssot.json","ssot_schema":"cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/contracts/ssot.schema.json"},"entry_points":{"ssot_launcher":"ssot_launcher.html","slides":"index_slides.html","modular_dashboard":"dashboard_modular.html","legacy_dashboard":"material_properties_dashboard_v1_10.html","file_browser":"files.html","index":"index.html"},"notes":"Smoke GREEN (823 NIST + 5 contract)."}
+  ]
+}
+</script>
+
+<script>
+function toggleTheme(){
+  const h=document.documentElement;
+  h.setAttribute("data-theme", h.getAttribute("data-theme")==="dark"?"light":"dark");
+}
+
+// Entry-point paths are repo-root-relative in registry.json but the hub lives
+// in the subtree, so for the self repo we prefer its sibling file names.
+const SELF_LOCAL = {
+  ssot_launcher:"ssot_launcher.html", slides:"index_slides.html",
+  modular_dashboard:"dashboard_modular.html",
+  legacy_dashboard:"material_properties_dashboard_v1_10.html",
+  file_browser:"files.html", index:"index.html"
+};
+const ENTRY_LABELS = {
+  ssot_launcher:"🧭 SSOT Launcher", slides:"🎬 Slide Presentation",
+  modular_dashboard:"📈 Modular Dashboard", legacy_dashboard:"🧊 Legacy v1.10",
+  file_browser:"📁 File Browser", index:"🏠 Index", federation_hub:"🛰️ Federation Hub"
+};
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function render(reg, sourceLabel){
+  document.getElementById("dataSrc").textContent = "registry source: " + sourceLabel;
+  document.getElementById("repoCountBadge").textContent = "repos: " + (reg.repos||[]).length;
+
+  // repo cards
+  const grid = document.getElementById("repoGrid");
+  grid.innerHTML = "";
+  (reg.repos||[]).forEach(r=>{
+    const self = r.is_self===true;
+    const vis = r.visibility==="private";
+    const tag = self ? '<span class="tag tag-self">SELF</span>'
+                     : (vis ? '<span class="tag tag-priv">PRIVATE</span>' : '<span class="tag tag-pub">PUBLIC</span>');
+    const arts = Object.entries(r.authoritative_artifacts||{})
+      .map(([k,v])=>`<li><b>${esc(k)}:</b> ${esc(v)}</li>`).join("");
+    const ver = r.dashboard_version?`<span class="pill pill-g">${esc(r.dashboard_version)}</span>`:"";
+    grid.insertAdjacentHTML("beforeend", `
+      <div class="card">${tag}
+        <div class="role">${esc(r.role)}</div>
+        <h3>${esc(r.repo)}</h3>
+        <p>${esc(r.notes||"")}</p>
+        <div class="pills">
+          <span class="pill pill-m">${esc(r.default_branch||"main")}</span>
+          ${r.reference_only?'<span class="pill pill-a">reference-only</span>':'<span class="pill pill-g">local</span>'}
+          ${ver}
+        </div>
+        <ul class="art">${arts}</ul>
+        <a class="btn btn-o" href="${esc(r.html_url||('https://github.com/'+r.repo))}" target="_blank" rel="noopener">Open on GitHub →</a>
+      </div>`);
+  });
+
+  // local entry points (self repo)
+  const self = (reg.repos||[]).find(r=>r.is_self===true) || {};
+  const eps = {...SELF_LOCAL, ...(self.entry_points||{})};
+  const eg = document.getElementById("entryGrid");
+  eg.innerHTML="";
+  Object.keys(ENTRY_LABELS).forEach(key=>{
+    let href = SELF_LOCAL[key] || (self.entry_points&&self.entry_points[key]);
+    if(key==="federation_hub") return; // don't link to self
+    if(!href) return;
+    // if registry gave a repo-root path, reduce to the basename for sibling access
+    if(href.includes("/")) href = href.split("/").pop();
+    eg.insertAdjacentHTML("beforeend",
+      `<a class="btn btn-b" href="${esc(href)}">${ENTRY_LABELS[key]}</a>`);
+  });
+
+  // metadata
+  document.getElementById("metaBox").innerHTML = `
+    <div><b>schema_version:</b> ${esc(reg.schema_version)}</div>
+    <div><b>owner:</b> ${esc(reg.owner)}</div>
+    <div><b>registry of record:</b> ${esc(reg.registry_of_record)}</div>
+    <div><b>local SSOT pointer:</b> ${esc(reg.local_ssot_pointer)}</div>
+    <div><b>integration model:</b> ${esc(reg.integration_model||"")}</div>
+    <div><b>disposition:</b> ${esc(reg.disposition||"")}</div>`;
+}
+
+(async function init(){
+  const embedded = JSON.parse(document.getElementById("embeddedRegistry").textContent);
+  // Candidate locations: nested in-repo serving (../../federation) and
+  // Pages-root serving (./federation), so the live registry is picked up in
+  // both layouts; otherwise fall back to the embedded copy (e.g. file://).
+  const candidates = ["../../federation/registry.json", "./federation/registry.json", "federation/registry.json"];
+  for(const url of candidates){
+    try{
+      const res = await fetch(url, {cache:"no-store"});
+      if(!res.ok) continue;
+      const reg = await res.json();
+      render(reg, url + " (live)");
+      return;
+    }catch(e){/* try next */}
+  }
+  render(embedded, "embedded fallback (file:// or fetch blocked)");
+})();
+</script>
+</body>
+</html>

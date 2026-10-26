@@ -1,0 +1,89 @@
+{
+  "schema_version": "federation-registry/1.0",
+  "purpose": "Repo-local, machine-readable federation registry for the GBOGEB code space. It cross-links this satellite (document-organization-system) to the W110 federation triad (cryoplant-project, ABACUS, CODEX) by REFERENCE ONLY. It is additive and non-destructive: it does not mutate any governed file in the other repositories. The registry of record remains GBOGEB/CODEX:federation/mip/W110_CANONICAL_SSOT_REGISTRY.*; this file is a local index that extends — does not replace — that convention.",
+  "generated_by": "Slice 05 — Federation SSOT Hub + Pages Recovery",
+  "generated_at_utc": "2026-10-26T00:00:00Z",
+  "owner": "GBOGEB",
+  "registry_of_record": "GBOGEB/CODEX:federation/mip/W110_CANONICAL_SSOT_REGISTRY.{json,md,zod.ts}",
+  "local_ssot_pointer": "federation/CROSS_REPO_SSOT_POINTER.json",
+  "integration_model": "cross-link (b): repos stay separate; the dashboard SSOT extends the triad SSOT/contract/Zod/SARIF conventions",
+  "repos": [
+    {
+      "repo": "GBOGEB/cryoplant-project",
+      "role": "child engineering truth",
+      "visibility": "private",
+      "default_branch": "main",
+      "html_url": "https://github.com/GBOGEB/cryoplant-project",
+      "reference_only": true,
+      "authoritative_artifacts": {
+        "ssot_disposition": "federation/mip/W110_CHILD_MIP_SSOT_DISPOSITION.{json,md,zod.ts}",
+        "contracts_glob": "contracts/*.schema.json",
+        "zod_glob": "**/*.zod.ts",
+        "sarif": "code scanning NOT enabled (known gap)"
+      },
+      "notes": "QPS engineering truth (v5.3.0 canonical across 180+ versioned artifacts). Smoke AMBER: plain pytest needs root conftest.py (in-flight PR #2087)."
+    },
+    {
+      "repo": "GBOGEB/ABACUS",
+      "role": "DOW consumption analysis",
+      "visibility": "public",
+      "default_branch": "main",
+      "html_url": "https://github.com/GBOGEB/ABACUS",
+      "reference_only": true,
+      "authoritative_artifacts": {
+        "ssot_consumer": "federation/mip/W110_DOW_MIP_SSOT_CONSUMER.{json,md,zod.ts}",
+        "contracts_glob": "contracts/*.schema.json",
+        "zod_glob": "**/*.zod.ts",
+        "sarif": ".github/workflows/bandit.yml, .github/codeql, .github/security"
+      },
+      "notes": "pyproject 5.0.0. Smoke GREEN (make smoke: 35 passed)."
+    },
+    {
+      "repo": "GBOGEB/CODEX",
+      "role": "KEB semantic-runtime receipts / registry of record",
+      "visibility": "public",
+      "default_branch": "main",
+      "html_url": "https://github.com/GBOGEB/CODEX",
+      "reference_only": true,
+      "authoritative_artifacts": {
+        "ssot_registry": "federation/mip/W110_CANONICAL_SSOT_REGISTRY.{json,md,zod.ts}",
+        "contracts_glob": "contracts/*.schema.json",
+        "zod_glob": "**/*.zod.ts",
+        "sarif": ".github/workflows/{codeql,bandit,osv-scanner,security-scan}.yml"
+      },
+      "notes": "pyproject 1.4.0. Smoke GREEN (pytest 14 + tsx 5). Holds the W110 registry; satellite promotion is a human-review action."
+    },
+    {
+      "repo": "GBOGEB/document-organization-system",
+      "role": "satellite — cryogenic material property dashboard (SSOT + NIST parity)",
+      "visibility": "public",
+      "default_branch": "main",
+      "html_url": "https://github.com/GBOGEB/document-organization-system",
+      "reference_only": false,
+      "is_self": true,
+      "subtree": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0",
+      "dashboard_version": "v0.4.9",
+      "authoritative_artifacts": {
+        "ssot": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/ssot.json",
+        "ssot_schema": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/contracts/ssot.schema.json",
+        "ssot_zod": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/contracts/ssot.zod.ts",
+        "registry_schema": "contracts/registry.schema.json",
+        "local_ssot_pointer": "federation/CROSS_REPO_SSOT_POINTER.json",
+        "nist_evidence": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/tests/nist_parity.test.js",
+        "sarif_exporter": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/scripts/nist_sarif_export.mjs"
+      },
+      "entry_points": {
+        "federation_hub": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/federation_hub.html",
+        "ssot_launcher": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/ssot_launcher.html",
+        "slides": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index_slides.html",
+        "modular_dashboard": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/dashboard_modular.html",
+        "legacy_dashboard": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/material_properties_dashboard_v1_10.html",
+        "file_browser": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/files.html",
+        "index": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html"
+      },
+      "notes": "Smoke GREEN (823 NIST + 5 ssot_contract + 8 registry_contract = 836). PR #80 merged; PR #81 open (this slice). GitHub Pages currently serves main:/docs; dashboard is outside /docs (see docs/deploy/pages.yml.txt)."
+    }
+  ],
+  "disposition": "LOCAL_INDEX_ACTIVE; TRIAD_REGISTRY_PROMOTION_DEFERRED_TO_HUMAN_REVIEW",
+  "non_destructive": true
+}
