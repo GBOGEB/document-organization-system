@@ -1,0 +1,15 @@
+# GBOGEB/document-organization-system wave claims -- this repository's prerogative.
+# Rules (must obey): GBOGEB/CODEX federation/waves/WAVE_NAMING_RULES.yaml
+# Elevated (federation-owned) waves: GBOGEB/CODEX federation/waves/GLOBAL_WAVES.yaml
+# Roll-up: CODEX scripts/build_wave_register.py reads this file at the exact commit.
+# Validate with CODEX scripts/wave_claims.py (MIP kit >= 1.3.0):
+#   wave_claims.py validate .waves/WAVE_CLAIMS.yaml \
+#     --expected-repo GBOGEB/document-organization-system
+schema: gbogeb.wave_claims/1
+repo: GBOGEB/document-organization-system
+owns: []
+participates:
+  - key: QPS:W107
+    role: receiver   # receipt/return; elevated
+  - key: QPS:W306
+    role: reviewer   # request/review; elevated
