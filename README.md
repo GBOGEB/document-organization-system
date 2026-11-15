@@ -1,102 +1,71 @@
-<!-- markdownlint-disable MD060 -->
+# document-organization-system — cryogenic material property dashboard and outward artefact worker
 
-# 🧊 Cryogenic Material Property Dashboard — v0.4.9
+<!-- markdownlint-disable MD001 MD013 MD022 MD029 MD031 MD032 MD033 MD040 MD060 -->
 
-**SCK CEN Engineering Tool** — 10 NIST materials · k(T) + cp(T) + Thermal
-Contraction · 1–300 K
+[![Dashboard: v0.4.9](https://img.shields.io/badge/dashboard-v0.4.9-blue?style=flat-square)](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/VERSION)
+[![Pages deploy](https://img.shields.io/github/actions/workflow/status/GBOGEB/document-organization-system/jekyll-gh-pages.yml?branch=main&style=flat-square&label=Pages%20deploy)](https://github.com/GBOGEB/document-organization-system/actions/workflows/jekyll-gh-pages.yml)
+[![dashboard tests](https://img.shields.io/github/actions/workflow/status/GBOGEB/document-organization-system/modular-ci-audit.yml?branch=main&style=flat-square&label=dashboard%20tests)](https://github.com/GBOGEB/document-organization-system/actions/workflows/modular-ci-audit.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
 
-## 🌐 Quickest Access — No Install Required
+> **Hosts the SCK CEN cryogenic material property dashboard (10 NIST materials, k(T), cp(T) and thermal contraction from 1 to 300 K) with a 766-case NIST parity suite, plus the federation's outward-artefact and book-contract tooling.**
 
-### Option 1 — GitHub Pages (primary, recommended)
+## At a glance
 
-Open the hosted URL in any browser. No Python, no server, no install.
+| | |
+|---|---|
+| **Domain** | Cryogenic material properties for engineering calculations (heat load, cool-down energy, contraction) and outward artefact packaging: file indexes, navigation, the DOCX/RTM adapter and the GLOOB book contracts |
+| **EPICs carried here** | **Dashboard v0.4.x** ([changelog](docs/CHANGELOG.md)) · **Federation SSOT hub** slice 05 ([#81](https://github.com/GBOGEB/document-organization-system/pull/81), [FEDERATION_HUB.md](docs/FEDERATION_HUB.md)) · **Level-1 worker** ([LEVEL1.md](LEVEL1.md)) · **GLOOB** book and control contracts ([gloob/](gloob/README.md)). No GitHub issues are open. |
+| **Owner and decision authority** | Repository owner **GBOGEB**: admission to the default branch, releases and every external grant. No agent, bot or CI verdict holds this authority. |
+| **Role in the federation** | An *outward-artefact property worker* (Level-1 role `OUTWARD_ARTIFACT_PROPERTY_WORKER`): it publishes calculated views and indexes; receipts route through the Hub. |
+| **Owns** | `data/materials.json` (NIST coefficient database) and the dashboard runtime, the parity tests, file indexes, `gloob/` contracts, the `adapters/docx_rtm` projection |
+| **Does not own** | The federation registry of record (CODEX) · engineering truth and design decisions (cryoplant-project) · DOW analysis (ABACUS) · RTM content |
+| **Status snapshot** | `main@a7da827`, read 15 November 2026 — 1 open issues, 0 open PRs. [Details ↓](#6-status-and-open-gates) |
 
-```text
-https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html
-```
+**New here?** Read [§1](#1-why-document-organization-system-exists--bios), then the route that matches you:
 
-All pages — including `dashboard_modular.html` — work directly over HTTPS. For
-setup steps see
-[`docs/GITHUB_PAGES_PUBLISH_GUIDE.md`](docs/GITHUB_PAGES_PUBLISH_GUIDE.md).
+| I want to… | Open this first |
+|---|---|
+| Use the dashboard now, no install | [Hosted dashboard](https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html) (Pages deploy green on 14 Nov 2026) |
+| Check the numbers are right | [Spot-check reference values](#spot-check-reference-values) and the [NIST parity report](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/docs/NIST_PARITY_TEST_REPORT_v0.4.9.md) |
+| Find any file | [`files.html`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/files.html) and [`file_index.yaml`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/file_index.yaml) |
+| Run the tests | [Run it locally](#7-run-it-locally) |
+| See how it links to the federation | [`docs/FEDERATION_HUB.md`](docs/FEDERATION_HUB.md) |
 
-### Option 2 — Double-click (file://) fallback
+## 1. Why document-organization-system exists — BIOS
 
-**Legacy dashboard only** — `material_properties_dashboard_v1_10.html` is fully
-self-contained. Double-click the file in Windows Explorer or macOS Finder. Opens
-in any browser, no server needed.
+**B — Baseline.** Dashboard **v0.4.9** (`VERSION`, tag `v0.4.9`). The legacy self-contained v1.10 HTML is kept but deprecated since v0.4.6.
 
-> Note: `dashboard_modular.html` uses ES6 `import` modules which browsers block
-> from `file://`. Use Option 1 or Option 3 for the modular dashboard.
+**I — Identity and integrity.** `data/materials.json` is the single coefficient source; `scripts/version-coherence-check.js` keeps `VERSION`, file indexes and pages in step.
 
-### Option 3 — Local Python server (dev/test)
+**O — Orchestration with ownership.** One calculation runtime (`js/`); the federation registry here is a pointer, and CODEX stays the registry of record. Promotion to an active satellite entry is a human review.
 
-```bash
-# From the project folder:
-python -m http.server 8000
-# Then open:
-http://localhost:8000/index.html
-```
+**S — Safety and source-qualified status.** 766 NIST parity tests, Romberg-referenced regression fixtures and schema validation run under `npm test`. Results are engineering aids, not design acceptance.
 
-Windows shortcuts: double-click `start_server.bat` or run `start_dashboard.ps1`.
+**Where authority lives:** [`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/data/materials.json`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/data/materials.json) (coefficients) · [`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/VERSION`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/VERSION) · [`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/ssot.json`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/ssot.json) · [`federation/registry.json`](federation/registry.json) · [`LEVEL1.md`](LEVEL1.md).
 
+## 2. From source to decision
 
+1. NIST Monograph 177 equations and coefficients → `data/materials.json`.
+2. Evaluator (`js/materials.js`) computes k, cp and contraction at temperature.
+3. Four integration methods (Trapezoid, Simpson, Romberg, Gauss–Legendre) give ∫k dT, ∫cp dT and ΔL.
+4. Parity, numerics, export and schema tests gate every change.
+5. Version coherence regenerates indexes; Pages publishes the static site.
+6. Receipts and pointers route to the federation through the Hub; engineers apply the numbers.
 
-## 📋 Access Matrix
+## 3. What is inside
 
-| Page | GitHub Pages | Double-click file:// | Local http:// |
+| Block | Native source | Input → output | Boundary |
 |---|---|---|---|
-| `index.html` (landing) | ✅ | ✅ | ✅ |
-| `dashboard_modular.html` *(primary v0.4.9)* | ✅ | ❌ ES6 modules blocked | ✅ |
-| `material_properties_dashboard_v1_10.html` *(legacy v1.10)* | ✅ | ✅ self-contained | ✅ |
-| `files.html` (this navigator) | ✅ | ✅ | ✅ |
-| `html_preview_hub.html` | ✅ | ✅ | ✅ |
+| Dashboard runtime | [`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/js/`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/js/), [`dashboard_modular.html`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/dashboard_modular.html) | Material, property, T range → values, integrals, Q̇, energy, ΔL | Within 1–300 K and each material's fit range |
+| Coefficient database | [`data/materials.json`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/data/materials.json) | NIST fits → 10 materials | Published correlations, not new measurements |
+| Tests | [`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/tests/`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/tests/) | Fixtures → parity, numerics, export, schema, index checks | Equation parity, not experimental validation |
+| Navigation and indexes | [`index.html`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html), [`files.html`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/files.html), [`file_index.json`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/file_index.json) | Repo files → navigator | A view |
+| Federation hub | [`federation/`](federation/), [`contracts/`](contracts/), [`federation_hub.html`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/federation_hub.html) | Registry → cross-repo pointers | Pointer, not registry of record |
+| DOCX/RTM adapter | [`adapters/docx_rtm/`](adapters/docx_rtm/README.md) | Bridge contract → projection | Projection only |
+| GLOOB contracts | [`gloob/`](gloob/README.md) | Book, control-plane and dispatch contracts | Contracts and controllers, not content |
+| Level-1 worker | [`level1/`](level1/), [`skill/`](skill/) | Runtime → MIP receipts | Receipts, not acceptance |
 
-
-
-## 🧭 Navigation
-
-```
-index.html          ← Start here — version selector and capability tier guide
-  ├─ dashboard_modular.html     ← Primary v0.4.9 dashboard (GitHub Pages or localhost)
-  ├─ material_properties_dashboard_v1_10.html  ← Legacy v1.10 (double-click OK)
-  └─ files.html     ← Full artifact navigator + this spot-check guide
-```
-
-## 🟢 Start Here
-
-If you only open three things, use this order:
-
-1. `index.html` — first entry point and runtime chooser.
-2. `files.html` — canonical navigator for docs, previews, and artifact classes.
-3. `dashboard_modular.html` — primary v0.4.9 runtime once you are ready to
-   calculate/export.
-
-Minimum artifact set for handover or clean reuse:
-
-- `index.html`
-- `files.html`
-- `dashboard_modular.html`
-- `data/materials.json`
-- `js/app_modular.js`
-- `js/materials.js`
-- `README.md`
-- `FINAL_HANDOVER.md`
-- `docs/CHANGELOG.md`
-- `docs/SESSION_DROPIN_HANDOVER_v0.4.8.md`
-- `docs/CRYO_DASHBOARD_SESSION_HANDOVER_v0.4.9.md`
-- `VERSION`
-
-Machine-readable companion indexes:
-
-- `file_index.yaml`
-- `file_index.json`
-
-Use `files.html` for human navigation. Use `file_index.yaml` or
-`file_index.json` for scripted intake, handover packaging, or external tooling.
-
-
-
-## 📊 What the Dashboard Computes
+### What the dashboard computes
 
 ```text
 THERMAL CONDUCTIVITY k(T)  [W/(m·K)]
@@ -121,9 +90,7 @@ Gauss-Legendre 4-pt
 **Compare All mode** runs all four methods simultaneously and reports %
 deviation vs Romberg.
 
-
-
-## ✅ Spot-Check Reference Values
+### Spot-check reference values
 
 Use these to verify the dashboard is computing correctly after setup. Set 100
 integration steps, use the Romberg method.
@@ -135,12 +102,10 @@ integration steps, use the Romberg method.
 | CuRRR100 | k | 4 | 300 | **194 330.57** | W/m |
 
 > These values are the authoritative regression fixtures from
-> `tests/numerics.test.js`. Trapezoid will differ slightly (expect ~0.04% lower
+> [`tests/numerics.test.js`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/tests/numerics.test.js). Trapezoid will differ slightly (expect ~0.04% lower
 > on smooth curves); Romberg and Gauss-Legendre agree to < 0.001%.
 
-
-
-## 🗂️ Materials (10)
+### Materials (10)
 
 | # | Key | Name | k | cp | tc |
 |---|---|---|---|---|---|
@@ -158,84 +123,73 @@ integration steps, use the Romberg method.
 Source: NIST cryogenic properties database. All coefficients validated against
 NIST reference values.
 
+## 4. Where document-organization-system sits in the federation
 
-
-## 🔢 Version History
-
-| Version | Track | Key change |
+| Neighbour | Keeps | Interface with document-organization-system |
 |---|---|---|
-| v1.0–v1.10 | VBA/HTML legacy | Standalone self-contained HTML; DMAIC log in `material_properties_docs/DMAIC_VERSION_LOG.md` |
-| v0.3.0 | Modular JS | ES6 module architecture baseline |
-| v0.4.0 | Modular JS | 10 NIST materials + k/cp merge |
-| v0.4.4 | Modular JS | Single Method / Compare All result mode |
-| v0.4.5 | Modular JS | Delta Summary panel; delta/integral export alignment |
-| v0.4.6 | Modular JS | Thermal contraction Y(T); KPI strip; dual-axis plot; v1.10 deprecated |
-| v0.4.8 | Modular JS | B1 comparison raw/normalized/split view; max-4 overlays; disabled no-data compare entries |
-| v0.4.9 | Modular JS | SSOT system integration; NIST parity regression (766 tests); evalRational() fix; CDN pinning |
+| [CODEX](https://github.com/GBOGEB/CODEX) | Federation governance, contracts, wave roll-up | Registry of record; satellite promotion is a human review |
+| [pipeline-automation-hub](https://github.com/GBOGEB/pipeline-automation-hub) | Routing, JADE census, Mission Control | Routes this worker's receipts |
+| [cryoplant-project](https://github.com/GBOGEB/cryoplant-project) (private) | QPS engineering SSOT and release identity | Engineering truth that consumes the numbers |
+| [DOCX_RTM_Automation](https://github.com/GBOGEB/DOCX_RTM_Automation) | DOCX ↔ RTM tooling | Source for the `adapters/docx_rtm` bridge |
 
-Full modular changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md)
+## 5. Process diagrams
 
-> **v0.4.x release gate**: `npm test` must pass → validation → version bump in
-> `VERSION` → `git push`.
+Declared architecture, not a run receipt.
 
-## 🧩 Program Coordination
-
-- Umbrella multi-repo PR package:
-  [`docs/UMBRELLA_MULTI_REPO_PR_PACKAGE.md`](docs/UMBRELLA_MULTI_REPO_PR_PACKAGE.md)
-
-
-
-## 🧪 Automated Tests
-
-```bash
-npm test
+```mermaid
+flowchart LR
+  N[NIST Monograph 177] --> M[data/materials.json]
+  M --> E[evaluator js/materials.js]
+  E --> I[4 integration methods]
+  I --> UI[dashboard + exports]
+  M & E & I --> T[npm test<br/>766 parity + fixtures]
+  T --> P[Pages deploy]
 ```
 
-Runs:
+## 6. Status and open gates
 
-- `tests/numerics.test.js` — regression fixtures for all 4 integration methods
-  across 3 material/property cases
-- `tests/export.test.js` — CSV/JSON export consistency vs UI Delta Summary
-  values
-- `tests/materials.validate.js` — schema validation for all materials in
-  `data/materials.json`
-- `tests/nist_parity.test.js` — 766 NIST parity regression tests validating
-  all 10 materials against independent NIST equation implementations
-- `tests/file_index_integrity.test.js` — file index integrity checks
-- `tests/static_entrypoints.test.js` — static entry point existence validation
+**Snapshot: `main@a7da827`, read 15 November 2026.** Rows point at live owners; open the link for the current position.
 
-### NIST Parity Validation (Completed in v0.4.9)
+| Gate | Status | What would close it |
+|---|---|---|
+| Dashboard v0.4.9 | Tagged `v0.4.9`; no GitHub Release object | Owner publishes a Release from the tag, if wanted |
+| Pages | Jekyll deploy **succeeded** on `main` (14 Nov 2026); the hosted URL was not opened in this pass | Browser check of the hosted pages |
+| Satellite promotion | Registered locally; **not yet an ACTIVE satellite** in the CODEX registry | Human review in CODEX |
+| Root clutter | Root holds dated v0.4.9 deployment and 18 May status reports (DOCX/MD/PDF) and one-off scripts | Move them under `docs/` or `handover/` in a separate PR |
 
-The v0.4.9 release closes all previously identified validation gaps:
+## 7. Run it locally
 
-- ✅ Direct NIST-equation parity checks over expanded temperature slices (766 tests)
-- ✅ Coefficient verification against NIST Monograph 177
-- ✅ Evaluator parity across all 10 materials and k/cp/tc properties
-- ✅ Copper RRR rational model deep validation (peak detection, convergence)
-- ✅ Thermal contraction low-T branch and 293 K reference validation
-- ✅ Physical reasonableness and continuity checks
-- ✅ `evalRational()` golden-value regression (1e-14 tolerance)
+The dashboard runtime is Node (CI uses Node 20); tests need no dependencies.
 
-See [`docs/NIST_PARITY_TEST_REPORT_v0.4.9.md`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/docs/NIST_PARITY_TEST_REPORT_v0.4.9.md) for the full report.
+```bash
+cd cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+npm test                 # numerics, export, schema, indexes, version coherence, NIST parity, contracts
+python3 -m http.server 8000   # then open http://localhost:8000/index.html
+```
 
+`dashboard_modular.html` needs HTTP (ES6 modules); the legacy `material_properties_dashboard_v1_10.html` also opens by double-click. Release gate for v0.4.x: `npm test` → validation → bump `VERSION` → push.
 
+## 8. Evidence rules and non-compensation
 
-## 📁 Key Files
+- **Parity before release**: the NIST suite and Romberg fixtures must pass.
+- **Fit range is the limit**: values outside 1–300 K or a material's fit are not claimed.
+- **Pointer, not registry**: CODEX holds the registry of record.
+- **Numbers aid, engineers decide.**
 
-| File | Purpose |
+## 9. Repository map and next actions
+
+| Folder | Open it for |
 |---|---|
-| `data/materials.json` | Canonical NIST coefficient database |
-| `js/materials.js` | Property evaluator and NIST equation forms |
-| `js/numerics.js` | All 4 numerical integration methods |
-| `js/app_modular.js` | v0.4.9 primary orchestrator |
-| `docs/CHANGELOG.md` | v0.4.x engineering changelog |
-| `material_properties_docs/DMAIC_VERSION_LOG.md` | v1.x VBA/HTML lineage log |
-| `DASHBOARD_TESTING_GUIDE.md` | Manual test procedures with expected output guide |
-| `docs/GITHUB_PAGES_PUBLISH_GUIDE.md` | Step-by-step GitHub Pages publish guide |
+| [`cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`](cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/) | Dashboard, data, tests, indexes |
+| [`docs/`](docs/) | Changelog, federation hub, deploy notes |
+| [`federation/`](federation/), [`contracts/`](contracts/) | Cross-repo registry and schema |
+| [`gloob/`](gloob/README.md) | Book and control contracts |
+| [`adapters/`](adapters/) | DOCX/RTM bridge |
+| [`level1/`](level1/), [`skill/`](skill/), [`MIP/`](MIP/) | Level-1 worker |
+| [`handover/`](handover/), [`triage/`](triage/) | Handover and triage |
 
+**Next actions** (match §6): browser-check the hosted pages → CODEX review for satellite promotion → tidy dated root reports → optional GitHub Release for v0.4.9.
 
+---
 
-## 📞 Contact
-
-Organization: Studiecentrum voor Kernenergie (SCK CEN) Version: 0.4.9 | Last
-Updated: 2026-05-18
+BIOS: Baseline · Identity · Orchestration · Safety. Admission authority: **GBOGEB**. Licence: [Apache-2.0](LICENSE). Organisation: SCK CEN. Landing R2 on the [GEMINI skeleton](https://github.com/GBOGEB/GEMINI/blob/main/docs/landing/LANDING_SKELETON.md), snapshot `main@a7da827`.
