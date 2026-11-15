@@ -1,0 +1,4 @@
+interface:
+  display_name: "GDrive Worktree HMI"
+  short_description: "Read-only Drive satellite dashboard, safe hydration and governed handovers"
+  brand_color: "#5C287C"

@@ -1,0 +1,29 @@
+{
+  "schema_version": "satellite-hmi/1",
+  "worktree_id": "SYNTHETIC_WORKTREE_V1",
+  "source_as_of": "2026-11-16",
+  "entries": [
+    {
+      "id": "source",
+      "title": "Sample document",
+      "group": "01 Source",
+      "status": "UNVERIFIED",
+      "url": "https://github.com/example/repository",
+      "detail": "Synthetic metadata, not a controlled engineering document"
+    },
+    {
+      "id": "handover",
+      "title": "Synthetic handover",
+      "group": "02 Handover",
+      "status": "LOCAL_QA",
+      "detail": "No release authority"
+    },
+    {
+      "id": "gate",
+      "title": "Owner release gate",
+      "group": "03 Governance",
+      "status": "BLOCKED",
+      "detail": "Independent approval required"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "python3 -m http.server 8000",
     "start:py": "python -m http.server 8000",
-    "test": "node tests/numerics.test.js && node tests/export.test.js && node tests/materials.validate.js && node tests/file_index_integrity.test.js && node tests/static_entrypoints.test.js && node scripts/version-coherence-check.js && node tests/nist_parity.test.js && node --test tests/ssot_contract.test.js && node --test tests/registry_contract.test.js",
+    "test": "node tests/numerics.test.js && node tests/export.test.js && node tests/materials.validate.js && node tests/file_index_integrity.test.js && node tests/static_entrypoints.test.js && node scripts/version-coherence-check.js && node tests/nist_parity.test.js && node --test tests/ssot_contract.test.js && node --test tests/registry_contract.test.js && cd ../.. && python3 -m unittest discover -s satellite_hmi/tests -p 'test_*.py'",
     "test:nist": "node tests/nist_parity.test.js",
     "test:contract": "node --test tests/ssot_contract.test.js && node --test tests/registry_contract.test.js",
     "sarif:nist": "node scripts/nist_sarif_export.mjs",
