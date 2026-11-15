@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/GBOGEB/document-organization-system/blob/main/contracts/uri_ssot/uri-ssot-contract.schema.json",
+  "title": "gbogeb.uri-ssot/1 contract",
+  "description": "Output of resolver.resolve / Resolve-GbogebArtifactUri for one non-blank reference (blank input yields null, DOV-1). has_authority distinguishes an empty authority from an absent one (DOV-2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "original", "kind", "is_absolute", "scheme", "has_authority", "authority", "path", "query", "fragment", "fragment_oid", "executable_scheme", "canonical"],
+  "properties": {
+    "schema_version": {"const": "gbogeb.uri-ssot/1"},
+    "original": {"type": "string", "pattern": "\\S"},
+    "kind": {"enum": ["absolute_uri", "relative_reference", "windows_drive_path", "unc_path"]},
+    "is_absolute": {"type": "boolean"},
+    "scheme": {"type": ["string", "null"], "pattern": "^[a-z][a-z0-9+.-]*$"},
+    "has_authority": {"type": "boolean"},
+    "authority": {"type": ["string", "null"]},
+    "path": {"type": "string"},
+    "query": {"type": ["string", "null"]},
+    "fragment": {"type": ["string", "null"]},
+    "fragment_oid": {"type": ["string", "null"], "pattern": "^[0-2](\\.(0|[1-9][0-9]*))+$"},
+    "executable_scheme": {"type": "boolean"},
+    "canonical": {"type": "string", "minLength": 1}
+  }
+}
