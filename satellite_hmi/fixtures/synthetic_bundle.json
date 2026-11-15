@@ -1,0 +1,18 @@
+{
+  "schema": "vfs-bundle/1",
+  "worktree": "SYNTHETIC_WORKTREE_V1",
+  "files": [
+    {
+      "path": "docs/README.md",
+      "encoding": "base64",
+      "sha256": "829c87807dc0be230741dff33124e95c5abe57b14389635a4a3eb06d616d9104",
+      "data": "IyBTeW50aGV0aWMgaHlkcmF0aW9uIGRlbW9cbk5vIGVuZ2luZWVyaW5nIGF1dGhvcml0eS5cbg=="
+    },
+    {
+      "path": "docs/GATE.txt",
+      "encoding": "base64",
+      "sha256": "69ea7033361037e052b6cc8acf48933b546dfff29709c8b560b864e7568b2ee2",
+      "data": "RzAgUkVQUk9EVUNJQkxFX0xPQ0FMXG5HNSBIT0xEX09XTkVSXG4="
+    }
+  ]
+}
