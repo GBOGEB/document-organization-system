@@ -1,0 +1,62 @@
+name: URI SSOT contract
+
+on:
+  pull_request:
+    paths:
+      - "contracts/uri_ssot/**"
+      - "tests/test_uri_ssot.py"
+      - "tests/Resolve-GbogebArtifactUri.Tests.ps1"
+      - ".github/workflows/uri-ssot-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "contracts/uri_ssot/**"
+      - "tests/test_uri_ssot.py"
+      - "tests/Resolve-GbogebArtifactUri.Tests.ps1"
+      - ".github/workflows/uri-ssot-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python-reference:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Vectors, schema shape and RFC round-trips (standard library only)
+        run: python tests/test_uri_ssot.py
+
+  powershell-port:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pester 5 against the shared vectors (fails the job on any failed or zero tests)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $pester = Get-Module -ListAvailable Pester | Where-Object Version -ge '5.0.0' | Sort-Object Version -Descending | Select-Object -First 1
+          if (-not $pester) { Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser -SkipPublisherCheck }
+          Import-Module Pester -MinimumVersion 5.0.0
+          "Pester $((Get-Module Pester).Version) on PowerShell $($PSVersionTable.PSVersion)"
+          $cfg = New-PesterConfiguration
+          $cfg.Run.Path = './tests/Resolve-GbogebArtifactUri.Tests.ps1'
+          $cfg.Run.PassThru = $true
+          $cfg.Output.Verbosity = 'Detailed'
+          $r = Invoke-Pester -Configuration $cfg
+          "passed=$($r.PassedCount) failed=$($r.FailedCount) skipped=$($r.SkippedCount)"
+          if ($r.FailedCount -gt 0 -or $r.PassedCount -eq 0 -or $r.Result -ne 'Passed') { exit 1 }
