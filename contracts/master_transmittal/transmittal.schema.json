@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/GBOGEB/document-organization-system/contracts/master_transmittal/transmittal.schema.json",
+  "title": "Master Document Transmittal Table",
+  "description": "Shape contract for the Master Document Transmittal List that maps SCK CEN ALX authority (ALX_ID + Date) to Contractor-facing [AD_##] approved PDFs. Cross-row invariants (registry name lock, latest-ALX-prevails, Gate 5 completeness) are enforced by validate_transmittal.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "alx_folder", "registry", "rows"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "alx_folder": {
+      "description": "SCK CEN ALX folder that holds the authoritative copies.",
+      "type": "string",
+      "pattern": "^\\d{8}$"
+    },
+    "registry": {
+      "description": "Locked functional names per prefix. A row's Functional_Name must equal the registry entry, which blocks reversion to author-based or ad-hoc names.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^\\[AD_\\d{2}\\]$" },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^AD_\\d{2}_[A-Z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$"
+      }
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/row" }
+    }
+  },
+  "definitions": {
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Prefix",
+        "Functional_Name",
+        "MIN",
+        "ALX_ID",
+        "Date",
+        "Version",
+        "Approved_PDF_Flag"
+      ],
+      "properties": {
+        "Prefix": {
+          "type": "string",
+          "pattern": "^\\[AD_\\d{2}\\]$"
+        },
+        "Functional_Name": {
+          "type": "string",
+          "pattern": "^AD_\\d{2}_[A-Z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$"
+        },
+        "MIN": {
+          "description": "MINERVA document number. null = not yet supplied (blocks Gate 5).",
+          "type": ["string", "null"],
+          "minLength": 1,
+          "not": { "enum": ["TBD", "tbd", "N/A", "-", "?"] }
+        },
+        "ALX_ID": {
+          "description": "SCK CEN ALX document number. null = not yet supplied (blocks Gate 5).",
+          "type": ["string", "null"],
+          "pattern": "^\\d{8}$"
+        },
+        "Date": {
+          "description": "ALX release date (ISO 8601). null = not yet supplied (blocks Gate 5).",
+          "type": ["string", "null"],
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "Version": {
+          "type": "string",
+          "pattern": "^v\\d{2}$"
+        },
+        "Approved_PDF_Flag": {
+          "type": "boolean"
+        },
+        "Note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
