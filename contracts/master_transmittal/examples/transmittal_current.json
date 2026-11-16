@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "alx_folder": "98684416",
+  "registry": {
+    "[AD_03]": "AD_03_MINERVA_3D_Coordination_Model",
+    "[AD_06]": "AD_06_MIT_Interface_Catalogue",
+    "[AD_11]": "AD_11_MCS_Primary_Interface_Catalogue",
+    "[AD_13]": "AD_13_MCS_Secondary_Interface_Catalogue"
+  },
+  "rows": [
+    {
+      "Prefix": "[AD_03]",
+      "Functional_Name": "AD_03_MINERVA_3D_Coordination_Model",
+      "MIN": null,
+      "ALX_ID": null,
+      "Date": null,
+      "Version": "v01",
+      "Approved_PDF_Flag": false,
+      "Note": "Monthly update cadence; each update is a single-artifact re-export plus a new row."
+    },
+    {
+      "Prefix": "[AD_06]",
+      "Functional_Name": "AD_06_MIT_Interface_Catalogue",
+      "MIN": null,
+      "ALX_ID": null,
+      "Date": null,
+      "Version": "v01",
+      "Approved_PDF_Flag": false,
+      "Note": "False DBE duplicate flag against [AD_13] to be cleared."
+    },
+    {
+      "Prefix": "[AD_11]",
+      "Functional_Name": "AD_11_MCS_Primary_Interface_Catalogue",
+      "MIN": null,
+      "ALX_ID": null,
+      "Date": null,
+      "Version": "v01",
+      "Approved_PDF_Flag": false,
+      "Note": "Primary QRB interfaces A/B/D/E/W/U/F."
+    },
+    {
+      "Prefix": "[AD_13]",
+      "Functional_Name": "AD_13_MCS_Secondary_Interface_Catalogue",
+      "MIN": null,
+      "ALX_ID": null,
+      "Date": null,
+      "Version": "v01",
+      "Approved_PDF_Flag": false,
+      "Note": "Held in ALX folder 98684416; document-level ALX number and date still to be confirmed."
+    }
+  ]
+}

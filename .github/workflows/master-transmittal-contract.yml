@@ -1,0 +1,45 @@
+name: Master transmittal contract
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/master_transmittal/**'
+      - '.github/workflows/master-transmittal-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/master_transmittal/**'
+      - '.github/workflows/master-transmittal-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: master-transmittal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate current transmittal (Gate 5 reported, not enforced)
+        run: >-
+          python contracts/master_transmittal/validate_transmittal.py
+          contracts/master_transmittal/examples/transmittal_current.json
+
+      - name: Run fail-closed invariant tests
+        run: >-
+          python -m unittest discover
+          -s contracts/master_transmittal/tests
+          -p 'test_*.py'
