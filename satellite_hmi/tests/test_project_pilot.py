@@ -54,6 +54,15 @@ class ProjectPilotTests(unittest.TestCase):
         self.assertNotIn("drive.google.com",s)
         self.assertNotIn("USER_SCREENSHOT",s)
 
+    def test_checked_in_pilot_snapshots_match_generator(self):
+        root = Path(__file__).resolve().parents[1]
+        base = root / "pilots"
+        expected_receipt = json.loads((base / "PROJECT_5_RECEIPT.json").read_text(encoding="utf-8"))
+        expected_hmi = json.loads((base / "PROJECT_5_HMI_MANIFEST.json").read_text(encoding="utf-8"))
+        receipt = assess(self.c)
+        self.assertEqual(receipt, expected_receipt)
+        self.assertEqual(public_hmi(receipt), expected_hmi)
+
     def test_reserved_cannot_claim_source_evidence(self):
         c=copy.deepcopy(self.c);c["projects"][1]["original_project_id"]="fabricated"
         with self.assertRaises(ValueError):assess(c)
