@@ -1,0 +1,28 @@
+{
+  "schema": "gbogeb.chatgpt-project-cohort/1",
+  "cohort_id": "GBOGEB-CGPT-5P-20261116",
+  "authority_transfer": false,
+  "auto_merge": false,
+  "auto_delete": false,
+  "pilot_method": "select-capture-hash-classify-hydrate-bridge-pr-review",
+  "projects": [
+    {
+      "id": "P1",
+      "status": "SOURCE_SELECTED",
+      "selection_evidence": "USER_SCREENSHOT_AND_PINNED_ASSERTION",
+      "original_project_id": null,
+      "source_id_verified": false,
+      "capture_kind": null,
+      "full_export_coverage_verified": false,
+      "source_hashes": [],
+      "target_repo": "GBOGEB/document-organization-system",
+      "intent_issue": "https://github.com/GBOGEB/GEMINI/issues/56",
+      "upstream_contract": "https://github.com/GBOGEB/pipeline-automation-hub/pull/1231",
+      "next_action": "User-authorized selected Project handover; retain original locator privately; run source-capture checks"
+    },
+    {"id":"P2","status":"RESERVED","selection_evidence":null,"original_project_id":null,"source_id_verified":false,"capture_kind":null,"full_export_coverage_verified":false,"source_hashes":[],"target_repo":"GBOGEB/document-organization-system","next_action":"Owner chooses domain-specific Project"},
+    {"id":"P3","status":"RESERVED","selection_evidence":null,"original_project_id":null,"source_id_verified":false,"capture_kind":null,"full_export_coverage_verified":false,"source_hashes":[],"target_repo":"GBOGEB/document-organization-system","next_action":"Owner chooses domain-specific Project"},
+    {"id":"P4","status":"RESERVED","selection_evidence":null,"original_project_id":null,"source_id_verified":false,"capture_kind":null,"full_export_coverage_verified":false,"source_hashes":[],"target_repo":"GBOGEB/document-organization-system","next_action":"Owner chooses domain-specific Project"},
+    {"id":"P5","status":"RESERVED","selection_evidence":null,"original_project_id":null,"source_id_verified":false,"capture_kind":null,"full_export_coverage_verified":false,"source_hashes":[],"target_repo":"GBOGEB/document-organization-system","next_action":"Owner chooses domain-specific Project"}
+  ]
+}
