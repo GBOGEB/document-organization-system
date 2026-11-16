@@ -14,7 +14,7 @@
 | | |
 |---|---|
 | **Domain** | Cryogenic material properties for engineering calculations (heat load, cool-down energy, contraction) and outward artefact packaging: file indexes, navigation, the DOCX/RTM adapter and the GLOOB book contracts |
-| **EPICs carried here** | **Dashboard v0.4.x** ([changelog](docs/CHANGELOG.md)) · **Federation SSOT hub** slice 05 ([#81](https://github.com/GBOGEB/document-organization-system/pull/81), [FEDERATION_HUB.md](docs/FEDERATION_HUB.md)) · **Level-1 worker** ([LEVEL1.md](LEVEL1.md)) · **GLOOB** book and control contracts ([gloob/](gloob/README.md)). No GitHub issues are open. |
+| **EPICs carried here** | **Dashboard v0.4.x** ([changelog](docs/CHANGELOG.md)) · **Federation SSOT hub** slice 05 ([#81](https://github.com/GBOGEB/document-organization-system/pull/81), [FEDERATION_HUB.md](docs/FEDERATION_HUB.md)) · **Level-1 worker** ([LEVEL1.md](LEVEL1.md)) · **GLOOB** book and control contracts ([gloob/](gloob/README.md)). · **v0.4.9 GitHub Release** ([#51](https://github.com/GBOGEB/document-organization-system/issues/51)) · **Read-only Drive VFS/HMI satellite** ([#84](https://github.com/GBOGEB/document-organization-system/issues/84)) |
 | **Owner and decision authority** | Repository owner **GBOGEB**: admission to the default branch, releases and every external grant. No agent, bot or CI verdict holds this authority. |
 | **Role in the federation** | An *outward-artefact property worker* (Level-1 role `OUTWARD_ARTIFACT_PROPERTY_WORKER`): it publishes calculated views and indexes; receipts route through the Hub. |
 | **Owns** | `data/materials.json` (NIST coefficient database) and the dashboard runtime, the parity tests, file indexes, `gloob/` contracts, the `adapters/docx_rtm` projection |
@@ -49,7 +49,7 @@
 2. Evaluator (`js/materials.js`) computes k, cp and contraction at temperature.
 3. Four integration methods (Trapezoid, Simpson, Romberg, Gauss–Legendre) give ∫k dT, ∫cp dT and ΔL.
 4. Parity, numerics, export and schema tests gate every change.
-5. Version coherence regenerates indexes; Pages publishes the static site.
+5. Version coherence regenerates indexes; Pages publishes the static site; that deploy depends only on the Jekyll build, not on `npm test`.
 6. Receipts and pointers route to the federation through the Hub; engineers apply the numbers.
 
 ## 3. What is inside
@@ -142,8 +142,8 @@ flowchart LR
   M --> E[evaluator js/materials.js]
   E --> I[4 integration methods]
   I --> UI[dashboard + exports]
-  M & E & I --> T[npm test<br/>766 parity + fixtures]
-  T --> P[Pages deploy]
+  M & E & I --> T[npm test<br/>766 parity + fixtures<br/>dashboard-subtree changes only]
+  UI --> P[Pages deploy<br/>Jekyll build only, not gated by npm test]
 ```
 
 ## 6. Status and open gates
@@ -152,7 +152,7 @@ flowchart LR
 
 | Gate | Status | What would close it |
 |---|---|---|
-| Dashboard v0.4.9 | Tagged `v0.4.9`; no GitHub Release object | Owner publishes a Release from the tag, if wanted |
+| Dashboard v0.4.9 | Tagged `v0.4.9`; no GitHub Release object ([#51](https://github.com/GBOGEB/document-organization-system/issues/51)) | Owner publishes a Release from the tag |
 | Pages | Jekyll deploy **succeeded** on `main` (14 Nov 2026); the hosted URL was not opened in this pass | Browser check of the hosted pages |
 | Satellite promotion | Registered locally; **not yet an ACTIVE satellite** in the CODEX registry | Human review in CODEX |
 | Root clutter | Root holds dated v0.4.9 deployment and 18 May status reports (DOCX/MD/PDF) and one-off scripts | Move them under `docs/` or `handover/` in a separate PR |
@@ -171,7 +171,7 @@ python3 -m http.server 8000   # then open http://localhost:8000/index.html
 
 ## 8. Evidence rules and non-compensation
 
-- **Parity before release**: the NIST suite and Romberg fixtures must pass.
+- **Parity before release**: the NIST suite and Romberg fixtures must pass before a version bump (a release-process rule; CI runs them only for dashboard-subtree changes and does not gate Pages).
 - **Fit range is the limit**: values outside 1–300 K or a material's fit are not claimed.
 - **Pointer, not registry**: CODEX holds the registry of record.
 - **Numbers aid, engineers decide.**
