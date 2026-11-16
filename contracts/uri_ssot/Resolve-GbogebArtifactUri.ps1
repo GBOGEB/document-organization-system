@@ -61,7 +61,9 @@ function Remove-GbogebDotSegment {
 }
 
 function ConvertTo-GbogebUpperPct {
-    param([AllowNull()] [string]$Text)
+    # Untyped on purpose: a [string] parameter would turn $null into '' and an
+    # absent query/fragment would then emit a stray '?' or '#'.
+    param([AllowNull()] $Text)
     if ($null -eq $Text) { return $null }
     return $script:GbogebPctRegex.Replace($Text, { param($m) $m.Value.ToUpperInvariant() })
 }
@@ -131,8 +133,8 @@ function Resolve-GbogebArtifactUri {
         $authorityN = if ($null -ne $authority) { ConvertTo-GbogebNormalizedAuthority $authority } else { $null }
         $pathN = ConvertTo-GbogebUpperPct $path
         if ($isAbsolute -or $null -ne $authority) { $pathN = Remove-GbogebDotSegment $pathN }
-        $queryN = ConvertTo-GbogebUpperPct $query
-        $fragmentN = ConvertTo-GbogebUpperPct $fragment
+        $queryN = if ($null -ne $query) { ConvertTo-GbogebUpperPct $query } else { $null }
+        $fragmentN = if ($null -ne $fragment) { ConvertTo-GbogebUpperPct $fragment } else { $null }
 
         $canonical = ''
         if ($null -ne $schemeN) { $canonical += $schemeN + ':' }
