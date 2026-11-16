@@ -1,0 +1,47 @@
+{
+  "entries": [
+    {
+      "detail": "SOURCE_SELECTED; source admission withheld",
+      "group": "Five-Project cohort",
+      "id": "P1",
+      "status": "BLOCKED",
+      "title": "Project pilot P1",
+      "url": "https://github.com/GBOGEB/pipeline-automation-hub/issues/1230"
+    },
+    {
+      "detail": "RESERVED; source admission withheld",
+      "group": "Five-Project cohort",
+      "id": "P2",
+      "status": "UNVERIFIED",
+      "title": "Project pilot P2",
+      "url": "https://github.com/GBOGEB/pipeline-automation-hub/issues/1230"
+    },
+    {
+      "detail": "RESERVED; source admission withheld",
+      "group": "Five-Project cohort",
+      "id": "P3",
+      "status": "UNVERIFIED",
+      "title": "Project pilot P3",
+      "url": "https://github.com/GBOGEB/pipeline-automation-hub/issues/1230"
+    },
+    {
+      "detail": "RESERVED; source admission withheld",
+      "group": "Five-Project cohort",
+      "id": "P4",
+      "status": "UNVERIFIED",
+      "title": "Project pilot P4",
+      "url": "https://github.com/GBOGEB/pipeline-automation-hub/issues/1230"
+    },
+    {
+      "detail": "RESERVED; source admission withheld",
+      "group": "Five-Project cohort",
+      "id": "P5",
+      "status": "UNVERIFIED",
+      "title": "Project pilot P5",
+      "url": "https://github.com/GBOGEB/pipeline-automation-hub/issues/1230"
+    }
+  ],
+  "schema_version": "satellite-hmi/1",
+  "source_as_of": "2026-11-16",
+  "worktree_id": "ChatGPT Project handover five-pilot cohort"
+}
