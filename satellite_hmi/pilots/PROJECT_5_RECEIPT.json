@@ -1,0 +1,57 @@
+{
+  "cohort_id": "GBOGEB-CGPT-5P-20261116",
+  "delete_authorized": false,
+  "merge_authorized": false,
+  "pilot_count": 5,
+  "results": [
+    {
+      "id": "P1",
+      "raw_export_coverage_verified": false,
+      "ready_for_source_admission": false,
+      "source_identity_verified": false,
+      "source_status": "SOURCE_PROOF_HOLD",
+      "state": "SOURCE_SELECTED",
+      "target_repo": "GBOGEB/document-organization-system"
+    },
+    {
+      "id": "P2",
+      "raw_export_coverage_verified": false,
+      "ready_for_source_admission": false,
+      "source_identity_verified": false,
+      "source_status": "SOURCE_PROOF_HOLD",
+      "state": "RESERVED",
+      "target_repo": "GBOGEB/document-organization-system"
+    },
+    {
+      "id": "P3",
+      "raw_export_coverage_verified": false,
+      "ready_for_source_admission": false,
+      "source_identity_verified": false,
+      "source_status": "SOURCE_PROOF_HOLD",
+      "state": "RESERVED",
+      "target_repo": "GBOGEB/document-organization-system"
+    },
+    {
+      "id": "P4",
+      "raw_export_coverage_verified": false,
+      "ready_for_source_admission": false,
+      "source_identity_verified": false,
+      "source_status": "SOURCE_PROOF_HOLD",
+      "state": "RESERVED",
+      "target_repo": "GBOGEB/document-organization-system"
+    },
+    {
+      "id": "P5",
+      "raw_export_coverage_verified": false,
+      "ready_for_source_admission": false,
+      "source_identity_verified": false,
+      "source_status": "SOURCE_PROOF_HOLD",
+      "state": "RESERVED",
+      "target_repo": "GBOGEB/document-organization-system"
+    }
+  ],
+  "schema": "gbogeb.chatgpt-project-receipt/1",
+  "selected_count": 1,
+  "source_admitted": 0,
+  "state": "PILOT_INCEPTION_SOURCE_PROOF_PENDING"
+}
