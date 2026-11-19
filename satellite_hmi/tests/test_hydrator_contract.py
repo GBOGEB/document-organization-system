@@ -64,6 +64,30 @@ class TestNotebookContract(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Duplicate path'):
                 ns['hydrate_bundle'](p,Path(td)/'out',execute=False)
 
+    def test_reject_oversize_raw_bundle_before_json_parse(self):
+        ns=notebook_namespace()
+        with tempfile.TemporaryDirectory() as td:
+            p=Path(td)/'oversized.json'
+            # Intentionally invalid JSON; the size gate must fire before parsing.
+            p.write_bytes(b'x'*16_000_001)
+            out=Path(td)/'out'
+            with self.assertRaisesRegex(ValueError,'Bundle too large'):
+                ns['hydrate_bundle'](p,out,execute=False)
+            self.assertFalse(out.exists())
+
+    def test_reject_oversize_encoded_file_before_base64_decode(self):
+        ns=notebook_namespace()
+        with tempfile.TemporaryDirectory() as td:
+            bundle={'files':[{'path':'oversized.bin','encoding':'base64',
+                               'data':'x'*(4*((2_000_000+2)//3)+1),
+                               'sha256':'0'*64}]}
+            p=Path(td)/'oversized.json'
+            p.write_text(json.dumps(bundle),encoding='utf-8')
+            out=Path(td)/'out'
+            with self.assertRaisesRegex(ValueError,'Encoded file too large'):
+                ns['hydrate_bundle'](p,out,execute=False)
+            self.assertFalse(out.exists())
+
     def test_no_git_push_or_execution_cells(self):
         contents=NOTEBOOK.read_text(encoding='utf-8')
         self.assertNotIn('subprocess.',contents)
